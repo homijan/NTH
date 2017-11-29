@@ -1,0 +1,168 @@
+# Visualization window geometry
+window 0 0 800 600
+#window 0 0 400 300
+
+psolution 4 mesh_0 0 material_0
+
+# Setup the GLVis scene. Executed after pressing the space bar.
+{
+   perspective off
+   view 0 0
+   viewcenter 0 0
+   keys mscl
+   keys *****
+   #scale 1.3
+   #autoscale off
+   #valuerange 0.1 1.0
+   #zoom 1.3
+   #plot_caption "Material"
+   # keys fAmeIIiiiiiiiiiiibbvuuuuuuuuuuu
+}
+
+# Take multiple screenshots. Executed after pressing the space bar.
+{
+   keys b
+   keys mm
+   psolution 4 mesh_0 0 material_0 screenshot material_0.png
+   keys b
+   keys m
+   psolution 4 mesh_1 0 material_1 screenshot material_1.png
+   keys b
+   psolution 4 mesh_2 0 material_2 screenshot material_2.png
+   keys b
+   psolution 4 mesh_3 0 material_3 screenshot material_3.png
+   keys b
+   psolution 4 mesh_4 0 material_4 screenshot material_4.png
+   keys b
+   psolution 4 mesh_5 0 material_5 screenshot material_5.png
+   keys b
+   psolution 4 mesh_6 0 material_6 screenshot material_6.png
+   keys b
+   psolution 4 mesh_7 0 material_7 screenshot material_7.png
+   keys b
+   psolution 4 mesh_8 0 material_8 screenshot material_8.png
+   keys b
+   psolution 4 mesh_9 0 material_9 screenshot material_9.png
+   keys b
+   psolution 4 mesh_10 0 material_10 screenshot material_10.png
+   keys b
+   psolution 4 mesh_11 0 material_11 screenshot material_11.png
+   keys b
+   psolution 4 mesh_12 0 material_12 screenshot material_12.png
+   keys b
+   psolution 4 mesh_13 0 material_13 screenshot material_13.png
+   keys b
+   psolution 4 mesh_14 0 material_14 screenshot material_14.png
+   keys b
+   psolution 4 mesh_15 0 material_15 screenshot material_15.png
+   keys b
+   psolution 4 mesh_16 0 material_16 screenshot material_16.png
+   keys b
+   psolution 4 mesh_17 0 material_17 screenshot material_17.png
+   keys b
+   psolution 4 mesh_18 0 material_18 screenshot material_18.png
+   keys b
+   psolution 4 mesh_19 0 material_19 screenshot material_19.png
+   keys b
+   psolution 4 mesh_20 0 material_20 screenshot material_20.png
+   keys b
+   psolution 4 mesh_21 0 material_21 screenshot material_21.png
+   keys b
+   psolution 4 mesh_22 0 material_22 screenshot material_22.png
+   keys b
+   psolution 4 mesh_23 0 material_23 screenshot material_23.png
+   keys b
+   psolution 4 mesh_24 0 material_24 screenshot material_24.png
+   keys b
+   psolution 4 mesh_25 0 material_25 screenshot material_25.png
+   keys b
+   psolution 4 mesh_26 0 material_26 screenshot material_26.png
+   keys b
+   psolution 4 mesh_27 0 material_27 screenshot material_27.png
+   keys b
+   psolution 4 mesh_28 0 material_28 screenshot material_28.png
+   keys b
+   psolution 4 mesh_29 0 material_29 screenshot material_29.png
+   keys b
+   psolution 4 mesh_30 0 material_30 screenshot material_30.png
+   keys b
+   psolution 4 mesh_31 0 material_31 screenshot material_31.png
+   keys b
+   psolution 4 mesh_32 0 material_32 screenshot material_32.png
+   keys b
+   psolution 4 mesh_33 0 material_33 screenshot material_33.png
+   keys b
+   psolution 4 mesh_34 0 material_34 screenshot material_34.png
+   keys b
+   psolution 4 mesh_35 0 material_35 screenshot material_35.png
+   keys b
+   psolution 4 mesh_36 0 material_36 screenshot material_36.png
+   keys b
+   psolution 4 mesh_37 0 material_37 screenshot material_37.png
+   keys b
+   psolution 4 mesh_38 0 material_38 screenshot material_38.png
+   keys b
+   psolution 4 mesh_39 0 material_39 screenshot material_39.png
+   keys b
+   psolution 4 mesh_40 0 material_40 screenshot material_40.png
+   keys b
+   psolution 4 mesh_41 0 material_41 screenshot material_41.png
+   keys b
+   psolution 4 mesh_42 0 material_42 screenshot material_42.png
+   keys b
+   psolution 4 mesh_43 0 material_43 screenshot material_43.png
+   keys b
+   psolution 4 mesh_44 0 material_44 screenshot material_44.png
+   keys b
+   psolution 4 mesh_45 0 material_45 screenshot material_45.png
+   keys b
+   psolution 4 mesh_46 0 material_46 screenshot material_46.png
+   keys b
+   psolution 4 mesh_47 0 material_47 screenshot material_47.png
+   keys b
+   keys mm
+   psolution 4 mesh_47 0 material_47 screenshot material_womesh_47.png 
+   keys m
+   psolution 4 mesh_48 0 material_48 screenshot material_48.png
+   keys b
+   psolution 4 mesh_49 0 material_49 screenshot material_49.png
+   keys b
+   psolution 4 mesh_50 0 material_50 screenshot material_50.png
+   keys b
+   psolution 4 mesh_51 0 material_51 screenshot material_51.png
+   keys b
+   psolution 4 mesh_52 0 material_52 screenshot material_52.png
+   keys b
+   psolution 4 mesh_53 0 material_53 screenshot material_53.png
+   keys b
+   psolution 4 mesh_54 0 material_54 screenshot material_54.png
+   keys b
+   psolution 4 mesh_55 0 material_55 screenshot material_55.png
+   keys b
+   psolution 4 mesh_56 0 material_56 screenshot material_56.png
+   keys b
+   psolution 4 mesh_57 0 material_57 screenshot material_57.png
+   keys b
+   psolution 4 mesh_58 0 material_58 screenshot material_58.png
+   keys b
+   psolution 4 mesh_59 0 material_59 screenshot material_59.png
+   keys b
+   psolution 4 mesh_60 0 material_60 screenshot material_60.png
+   keys b
+   psolution 4 mesh_61 0 material_61 screenshot material_61.png
+   keys b
+   psolution 4 mesh_62 0 material_62 screenshot material_62.png
+   keys b
+   psolution 4 mesh_63 0 material_63 screenshot material_63.png
+   keys b
+   psolution 4 mesh_64 0 material_64 screenshot material_64.png
+   keys b
+   psolution 4 mesh_65 0 material_65 screenshot material_65.png
+   keys b
+   psolution 4 mesh_66 0 material_66 screenshot material_66.png
+   keys b
+   psolution 4 mesh_67 0 material_67 screenshot material_67.png
+   keys b
+   keys mm
+   psolution 4 mesh_67 0 material_67 screenshot material_womesh_67.png
+}

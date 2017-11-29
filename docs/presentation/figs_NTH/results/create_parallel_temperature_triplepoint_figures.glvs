@@ -1,0 +1,168 @@
+# Visualization window geometry
+#window 0 0 800 600
+window 0 0 400 300
+
+psolution 4 mesh_0 0 temperature_0
+
+# Setup the GLVis scene. Executed after pressing the space bar.
+{
+   perspective off
+   view 0 0
+   viewcenter 0 0
+   keys mscl
+   keys ****
+   #scale 1.3
+   #autoscale off
+   #valuerange 0.1 1.0
+   #zoom 1.3
+   plot_caption "Temperature"
+   # keys fAmeIIiiiiiiiiiiibbvuuuuuuuuuuu
+}
+
+# Take multiple screenshots. Executed after pressing the space bar.
+{
+   keys b
+   keys mm
+   psolution 4 mesh_0 0 temperature_0 screenshot temperature_0.png
+   keys b
+   keys m
+   psolution 4 mesh_1 0 temperature_1 screenshot temperature_1.png 
+   keys b
+   psolution 4 mesh_2 0 temperature_2 screenshot temperature_2.png
+   keys b
+   psolution 4 mesh_3 0 temperature_3 screenshot temperature_3.png
+   keys b
+   psolution 4 mesh_4 0 temperature_4 screenshot temperature_4.png
+   keys b
+   psolution 4 mesh_5 0 temperature_5 screenshot temperature_5.png
+   keys b
+   psolution 4 mesh_6 0 temperature_6 screenshot temperature_6.png
+   keys b
+   psolution 4 mesh_7 0 temperature_7 screenshot temperature_7.png
+   keys b
+   psolution 4 mesh_8 0 temperature_8 screenshot temperature_8.png
+   keys b
+   psolution 4 mesh_9 0 temperature_9 screenshot temperature_9.png
+   keys b
+   psolution 4 mesh_10 0 temperature_10 screenshot temperature_10.png
+   keys b
+   psolution 4 mesh_11 0 temperature_11 screenshot temperature_11.png
+   keys b
+   psolution 4 mesh_12 0 temperature_12 screenshot temperature_12.png
+   keys b
+   psolution 4 mesh_13 0 temperature_13 screenshot temperature_13.png
+   keys b
+   psolution 4 mesh_14 0 temperature_14 screenshot temperature_14.png
+   keys b
+   psolution 4 mesh_15 0 temperature_15 screenshot temperature_15.png
+   keys b
+   psolution 4 mesh_16 0 temperature_16 screenshot temperature_16.png
+   keys b
+   psolution 4 mesh_17 0 temperature_17 screenshot temperature_17.png
+   keys b
+   psolution 4 mesh_18 0 temperature_18 screenshot temperature_18.png
+   keys b
+   psolution 4 mesh_19 0 temperature_19 screenshot temperature_19.png
+   keys b
+   psolution 4 mesh_20 0 temperature_20 screenshot temperature_20.png
+   keys b
+   psolution 4 mesh_21 0 temperature_21 screenshot temperature_21.png
+   keys b
+   psolution 4 mesh_22 0 temperature_22 screenshot temperature_22.png
+   keys b
+   psolution 4 mesh_23 0 temperature_23 screenshot temperature_23.png
+   keys b
+   psolution 4 mesh_24 0 temperature_24 screenshot temperature_24.png
+   keys b
+   psolution 4 mesh_25 0 temperature_25 screenshot temperature_25.png
+   keys b
+   psolution 4 mesh_26 0 temperature_26 screenshot temperature_26.png
+   keys b
+   psolution 4 mesh_27 0 temperature_27 screenshot temperature_27.png
+   keys b
+   psolution 4 mesh_28 0 temperature_28 screenshot temperature_28.png
+   keys b
+   psolution 4 mesh_29 0 temperature_29 screenshot temperature_29.png
+   keys b
+   psolution 4 mesh_30 0 temperature_30 screenshot temperature_30.png
+   keys b
+   psolution 4 mesh_31 0 temperature_31 screenshot temperature_31.png
+   keys b
+   psolution 4 mesh_32 0 temperature_32 screenshot temperature_32.png
+   keys b
+   psolution 4 mesh_33 0 temperature_33 screenshot temperature_33.png
+   keys b
+   psolution 4 mesh_34 0 temperature_34 screenshot temperature_34.png
+   keys b
+   psolution 4 mesh_35 0 temperature_35 screenshot temperature_35.png
+   keys b
+   psolution 4 mesh_36 0 temperature_36 screenshot temperature_36.png
+   keys b
+   psolution 4 mesh_37 0 temperature_37 screenshot temperature_37.png
+   keys b
+   psolution 4 mesh_38 0 temperature_38 screenshot temperature_38.png
+   keys b
+   psolution 4 mesh_39 0 temperature_39 screenshot temperature_39.png
+   keys b
+   psolution 4 mesh_40 0 temperature_40 screenshot temperature_40.png
+   keys b
+   psolution 4 mesh_41 0 temperature_41 screenshot temperature_41.png
+   keys b
+   psolution 4 mesh_42 0 temperature_42 screenshot temperature_42.png
+   keys b
+   psolution 4 mesh_43 0 temperature_43 screenshot temperature_43.png
+   keys b
+   psolution 4 mesh_44 0 temperature_44 screenshot temperature_44.png
+   keys b
+   psolution 4 mesh_45 0 temperature_45 screenshot temperature_45.png
+   keys b
+   psolution 4 mesh_46 0 temperature_46 screenshot temperature_46.png
+   keys b
+   psolution 4 mesh_47 0 temperature_47 screenshot temperature_47.png
+   keys b
+   keys mm
+   psolution 4 mesh_47 0 temperature_47 screenshot temperature_womesh_47.png 
+   keys m
+   psolution 4 mesh_48 0 temperature_48 screenshot temperature_48.png
+   keys b
+   psolution 4 mesh_49 0 temperature_49 screenshot temperature_49.png
+   keys b
+   psolution 4 mesh_50 0 temperature_50 screenshot temperature_50.png
+   keys b
+   psolution 4 mesh_51 0 temperature_51 screenshot temperature_51.png
+   keys b
+   psolution 4 mesh_52 0 temperature_52 screenshot temperature_52.png
+   keys b
+   psolution 4 mesh_53 0 temperature_53 screenshot temperature_53.png
+   keys b
+   psolution 4 mesh_54 0 temperature_54 screenshot temperature_54.png
+   keys b
+   psolution 4 mesh_55 0 temperature_55 screenshot temperature_55.png
+   keys b
+   psolution 4 mesh_56 0 temperature_56 screenshot temperature_56.png
+   keys b
+   psolution 4 mesh_57 0 temperature_57 screenshot temperature_57.png
+   keys b
+   psolution 4 mesh_58 0 temperature_58 screenshot temperature_58.png
+   keys b
+   psolution 4 mesh_59 0 temperature_59 screenshot temperature_59.png
+   keys b
+   psolution 4 mesh_60 0 temperature_60 screenshot temperature_60.png
+   keys b
+   psolution 4 mesh_61 0 temperature_61 screenshot temperature_61.png
+   keys b
+   psolution 4 mesh_62 0 temperature_62 screenshot temperature_62.png
+   keys b
+   psolution 4 mesh_63 0 temperature_63 screenshot temperature_63.png
+   keys b
+   psolution 4 mesh_64 0 temperature_64 screenshot temperature_64.png
+   keys b
+   psolution 4 mesh_65 0 temperature_65 screenshot temperature_65.png
+   keys b
+   psolution 4 mesh_66 0 temperature_66 screenshot temperature_66.png
+   keys b
+   psolution 4 mesh_67 0 temperature_67 screenshot temperature_67.png
+   keys b
+   keys mm
+   psolution 4 mesh_67 0 temperature_67 screenshot temperature_womesh_67.png
+}

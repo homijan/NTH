@@ -1,0 +1,218 @@
+# Visualization window geometry
+window 0 0 800 800
+
+psolution 2 mesh_0 0 nonlocal_0
+
+# Setup the GLVis scene. Executed after pressing the space bar.
+{
+   perspective off
+   view 0 0
+   viewcenter 0 0
+   keys ms
+   zoom 1.95
+   # keys fAmeIIiiiiiiiiiiibbvuuuuuuuuuuu
+}
+
+# Take multiple screenshots. Executed after pressing the space bar.
+{
+   keys b
+   psolution 2 mesh_0 0 nonlocal_0 screenshot nonlocal_0.png
+   keys b
+   psolution 2 mesh_1 0 nonlocal_1 screenshot nonlocal_1.png
+   keys b
+   psolution 2 mesh_2 0 nonlocal_2 screenshot nonlocal_2.png
+   keys b
+   psolution 2 mesh_3 0 nonlocal_3 screenshot nonlocal_3.png
+   keys b
+   psolution 2 mesh_4 0 nonlocal_4 screenshot nonlocal_4.png
+   keys b
+   psolution 2 mesh_5 0 nonlocal_5 screenshot nonlocal_5.png
+   keys b
+   psolution 2 mesh_6 0 nonlocal_6 screenshot nonlocal_6.png
+   keys b
+   psolution 2 mesh_7 0 nonlocal_7 screenshot nonlocal_7.png
+   keys b
+   psolution 2 mesh_8 0 nonlocal_8 screenshot nonlocal_8.png
+   keys b
+   psolution 2 mesh_9 0 nonlocal_9 screenshot nonlocal_9.png
+   keys b
+   psolution 2 mesh_10 0 nonlocal_10 screenshot nonlocal_10.png
+   keys b
+   psolution 2 mesh_11 0 nonlocal_11 screenshot nonlocal_11.png
+   keys b
+   psolution 2 mesh_12 0 nonlocal_12 screenshot nonlocal_12.png
+   keys b
+   psolution 2 mesh_13 0 nonlocal_13 screenshot nonlocal_13.png
+   keys b
+   psolution 2 mesh_14 0 nonlocal_14 screenshot nonlocal_14.png
+   keys b
+   psolution 2 mesh_15 0 nonlocal_15 screenshot nonlocal_15.png
+   keys b
+   psolution 2 mesh_16 0 nonlocal_16 screenshot nonlocal_16.png
+   keys b
+   psolution 2 mesh_17 0 nonlocal_17 screenshot nonlocal_17.png
+   keys b
+   psolution 2 mesh_18 0 nonlocal_18 screenshot nonlocal_18.png
+   keys b
+   psolution 2 mesh_19 0 nonlocal_19 screenshot nonlocal_19.png
+   keys b
+   psolution 2 mesh_20 0 nonlocal_20 screenshot nonlocal_20.png
+   keys b
+   psolution 2 mesh_21 0 nonlocal_21 screenshot nonlocal_21.png
+   keys b
+   psolution 2 mesh_22 0 nonlocal_22 screenshot nonlocal_22.png
+   keys b
+   psolution 2 mesh_23 0 nonlocal_23 screenshot nonlocal_23.png
+   keys b
+   psolution 2 mesh_24 0 nonlocal_24 screenshot nonlocal_24.png
+   keys b
+   psolution 2 mesh_25 0 nonlocal_25 screenshot nonlocal_25.png
+   keys b
+   psolution 2 mesh_26 0 nonlocal_26 screenshot nonlocal_26.png
+   keys b
+   psolution 2 mesh_27 0 nonlocal_27 screenshot nonlocal_27.png
+   keys b
+   psolution 2 mesh_28 0 nonlocal_28 screenshot nonlocal_28.png
+   keys b
+   psolution 2 mesh_29 0 nonlocal_29 screenshot nonlocal_29.png
+   keys b
+   psolution 2 mesh_30 0 nonlocal_30 screenshot nonlocal_30.png
+   keys b
+   psolution 2 mesh_31 0 nonlocal_31 screenshot nonlocal_31.png
+   keys b
+   psolution 2 mesh_32 0 nonlocal_32 screenshot nonlocal_32.png
+   keys b
+   psolution 2 mesh_33 0 nonlocal_33 screenshot nonlocal_33.png
+   keys b
+   psolution 2 mesh_34 0 nonlocal_34 screenshot nonlocal_34.png
+   keys b
+   psolution 2 mesh_35 0 nonlocal_35 screenshot nonlocal_35.png
+   keys b
+   psolution 2 mesh_36 0 nonlocal_36 screenshot nonlocal_36.png
+   keys b
+   psolution 2 mesh_37 0 nonlocal_37 screenshot nonlocal_37.png
+   keys b
+   psolution 2 mesh_38 0 nonlocal_38 screenshot nonlocal_38.png
+   keys b
+   psolution 2 mesh_39 0 nonlocal_39 screenshot nonlocal_39.png
+   keys b
+   psolution 2 mesh_40 0 nonlocal_40 screenshot nonlocal_40.png
+   keys b
+   psolution 2 mesh_41 0 nonlocal_41 screenshot nonlocal_41.png
+   keys b
+   psolution 2 mesh_42 0 nonlocal_42 screenshot nonlocal_42.png
+   keys b
+   psolution 2 mesh_43 0 nonlocal_43 screenshot nonlocal_43.png
+   keys b
+   psolution 2 mesh_44 0 nonlocal_44 screenshot nonlocal_44.png
+   keys b
+   psolution 2 mesh_45 0 nonlocal_45 screenshot nonlocal_45.png
+   keys b
+   psolution 2 mesh_46 0 nonlocal_46 screenshot nonlocal_46.png
+   keys b
+   psolution 2 mesh_47 0 nonlocal_47 screenshot nonlocal_47.png
+   keys b
+   psolution 2 mesh_48 0 nonlocal_48 screenshot nonlocal_48.png
+   keys b
+   psolution 2 mesh_49 0 nonlocal_49 screenshot nonlocal_49.png
+   keys b
+   psolution 2 mesh_50 0 nonlocal_50 screenshot nonlocal_50.png
+   keys b
+   psolution 2 mesh_51 0 nonlocal_51 screenshot nonlocal_51.png
+   keys b
+   psolution 2 mesh_52 0 nonlocal_52 screenshot nonlocal_52.png
+   keys b
+   psolution 2 mesh_53 0 nonlocal_53 screenshot nonlocal_53.png
+   keys b
+   psolution 2 mesh_54 0 nonlocal_54 screenshot nonlocal_54.png
+   keys b
+   psolution 2 mesh_55 0 nonlocal_55 screenshot nonlocal_55.png
+   keys b
+   psolution 2 mesh_56 0 nonlocal_56 screenshot nonlocal_56.png
+   keys b
+   psolution 2 mesh_57 0 nonlocal_57 screenshot nonlocal_57.png
+   keys b
+   psolution 2 mesh_58 0 nonlocal_58 screenshot nonlocal_58.png
+   keys b
+   psolution 2 mesh_59 0 nonlocal_59 screenshot nonlocal_59.png
+   keys b
+   psolution 2 mesh_60 0 nonlocal_60 screenshot nonlocal_60.png
+   keys b
+   psolution 2 mesh_61 0 nonlocal_61 screenshot nonlocal_61.png
+   keys b
+   psolution 2 mesh_62 0 nonlocal_62 screenshot nonlocal_62.png
+   keys b
+   psolution 2 mesh_63 0 nonlocal_63 screenshot nonlocal_63.png
+   keys b
+   psolution 2 mesh_64 0 nonlocal_64 screenshot nonlocal_64.png
+   keys b
+   psolution 2 mesh_65 0 nonlocal_65 screenshot nonlocal_65.png
+   keys b
+   psolution 2 mesh_66 0 nonlocal_66 screenshot nonlocal_66.png
+   keys b
+   psolution 2 mesh_67 0 nonlocal_67 screenshot nonlocal_67.png
+   keys b
+   psolution 2 mesh_68 0 nonlocal_68 screenshot nonlocal_68.png
+   keys b
+   psolution 2 mesh_69 0 nonlocal_69 screenshot nonlocal_69.png
+   keys b
+   psolution 2 mesh_70 0 nonlocal_70 screenshot nonlocal_70.png
+   keys b
+   psolution 2 mesh_71 0 nonlocal_71 screenshot nonlocal_71.png
+   keys b
+   psolution 2 mesh_72 0 nonlocal_72 screenshot nonlocal_72.png
+   keys b
+   psolution 2 mesh_73 0 nonlocal_73 screenshot nonlocal_73.png
+   keys b
+   psolution 2 mesh_74 0 nonlocal_74 screenshot nonlocal_74.png
+   keys b
+   psolution 2 mesh_75 0 nonlocal_75 screenshot nonlocal_75.png
+   keys b
+   psolution 2 mesh_76 0 nonlocal_76 screenshot nonlocal_76.png
+   keys b
+   psolution 2 mesh_77 0 nonlocal_77 screenshot nonlocal_77.png
+   keys b
+   psolution 2 mesh_78 0 nonlocal_78 screenshot nonlocal_78.png
+   keys b
+   psolution 2 mesh_79 0 nonlocal_79 screenshot nonlocal_79.png
+   keys b
+   psolution 2 mesh_80 0 nonlocal_80 screenshot nonlocal_80.png
+   keys b
+   psolution 2 mesh_81 0 nonlocal_81 screenshot nonlocal_81.png
+   keys b
+   psolution 2 mesh_82 0 nonlocal_82 screenshot nonlocal_82.png
+   keys b
+   psolution 2 mesh_83 0 nonlocal_83 screenshot nonlocal_83.png
+   keys b
+   psolution 2 mesh_84 0 nonlocal_84 screenshot nonlocal_84.png
+   keys b
+   psolution 2 mesh_85 0 nonlocal_85 screenshot nonlocal_85.png
+   keys b
+   psolution 2 mesh_86 0 nonlocal_86 screenshot nonlocal_86.png
+   keys b
+   psolution 2 mesh_87 0 nonlocal_87 screenshot nonlocal_87.png
+   keys b
+   psolution 2 mesh_88 0 nonlocal_88 screenshot nonlocal_88.png
+   keys b
+   psolution 2 mesh_89 0 nonlocal_89 screenshot nonlocal_89.png
+   keys b
+   psolution 2 mesh_90 0 nonlocal_90 screenshot nonlocal_90.png
+   keys b
+   psolution 2 mesh_91 0 nonlocal_91 screenshot nonlocal_91.png
+   keys b
+   psolution 2 mesh_92 0 nonlocal_92 screenshot nonlocal_92.png
+   keys b
+   psolution 2 mesh_93 0 nonlocal_93 screenshot nonlocal_93.png
+   keys b
+   psolution 2 mesh_94 0 nonlocal_94 screenshot nonlocal_94.png
+   keys b
+   psolution 2 mesh_95 0 nonlocal_95 screenshot nonlocal_95.png
+   keys b
+   psolution 2 mesh_96 0 nonlocal_96 screenshot nonlocal_96.png
+   keys b
+   psolution 2 mesh_97 0 nonlocal_97 screenshot nonlocal_97.png
+   keys b
+   psolution 2 mesh_98 0 nonlocal_98 screenshot nonlocal_98.png
+   keys b
+   psolution 2 mesh_99 0 nonlocal_99 screenshot nonlocal_99.png
+}

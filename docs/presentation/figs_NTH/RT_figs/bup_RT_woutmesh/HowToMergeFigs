@@ -1,0 +1,1 @@
+for i in *.png ; do convert "$i" "../RT_wmesh/$i" +append "merged_${i%.*}.png" ; done

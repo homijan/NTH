@@ -1,0 +1,228 @@
+# Visualization window geometry
+window 0 0 800 600
+#window 0 0 400 300
+
+psolution 4 mesh_0 0 rho_0
+
+# Setup the GLVis scene. Executed after pressing the space bar.
+{
+   perspective off
+   view 0 0
+   viewcenter 0 0
+   keys mscl
+   scale 1.3
+   autoscale off
+   valuerange 0.01 2.
+   #zoom 1.3
+   plot_caption "Density"
+   # keys fAmeIIiiiiiiiiiiibbvuuuuuuuuuuu
+}
+
+# Take multiple screenshots. Executed after pressing the space bar.
+{
+   keys b
+   #keys mm
+   psolution 4 mesh_0 0 rho_0 screenshot rho_0.png
+   keys b
+   #keys m
+   psolution 4 mesh_1 0 rho_1 screenshot rho_1.png
+   keys b
+   psolution 4 mesh_2 0 rho_2 screenshot rho_2.png
+   keys b
+   psolution 4 mesh_3 0 rho_3 screenshot rho_3.png
+   keys b
+   psolution 4 mesh_4 0 rho_4 screenshot rho_4.png
+   keys b
+   psolution 4 mesh_5 0 rho_5 screenshot rho_5.png
+   keys b
+   psolution 4 mesh_6 0 rho_6 screenshot rho_6.png
+   keys b
+   psolution 4 mesh_7 0 rho_7 screenshot rho_7.png
+   keys b
+   psolution 4 mesh_8 0 rho_8 screenshot rho_8.png
+   keys b
+   psolution 4 mesh_9 0 rho_9 screenshot rho_9.png
+   keys b
+   psolution 4 mesh_10 0 rho_10 screenshot rho_10.png
+   keys b
+   psolution 4 mesh_11 0 rho_11 screenshot rho_11.png
+   keys b
+   psolution 4 mesh_12 0 rho_12 screenshot rho_12.png
+   keys b
+   psolution 4 mesh_13 0 rho_13 screenshot rho_13.png
+   keys b
+   psolution 4 mesh_14 0 rho_14 screenshot rho_14.png
+   keys b
+   psolution 4 mesh_15 0 rho_15 screenshot rho_15.png
+   keys b
+   psolution 4 mesh_16 0 rho_16 screenshot rho_16.png
+   keys b
+   psolution 4 mesh_17 0 rho_17 screenshot rho_17.png
+   keys b
+   psolution 4 mesh_18 0 rho_18 screenshot rho_18.png
+   keys b
+   psolution 4 mesh_19 0 rho_19 screenshot rho_19.png
+   keys b
+   psolution 4 mesh_20 0 rho_20 screenshot rho_20.png
+   keys b
+   psolution 4 mesh_21 0 rho_21 screenshot rho_21.png
+   keys b
+   psolution 4 mesh_22 0 rho_22 screenshot rho_22.png
+   keys b
+   psolution 4 mesh_23 0 rho_23 screenshot rho_23.png
+   keys b
+   psolution 4 mesh_24 0 rho_24 screenshot rho_24.png
+   keys b
+   psolution 4 mesh_25 0 rho_25 screenshot rho_25.png
+   keys b
+   psolution 4 mesh_26 0 rho_26 screenshot rho_26.png
+   keys b
+   psolution 4 mesh_27 0 rho_27 screenshot rho_27.png
+   keys b
+   psolution 4 mesh_28 0 rho_28 screenshot rho_28.png
+   keys b
+   psolution 4 mesh_29 0 rho_29 screenshot rho_29.png
+   keys b
+   psolution 4 mesh_30 0 rho_30 screenshot rho_30.png
+   keys b
+   psolution 4 mesh_31 0 rho_31 screenshot rho_31.png
+   keys b
+   psolution 4 mesh_32 0 rho_32 screenshot rho_32.png
+   keys b
+   psolution 4 mesh_33 0 rho_33 screenshot rho_33.png
+   keys b
+   psolution 4 mesh_34 0 rho_34 screenshot rho_34.png
+   keys b
+   psolution 4 mesh_35 0 rho_35 screenshot rho_35.png
+   keys b
+   psolution 4 mesh_36 0 rho_36 screenshot rho_36.png
+   keys b
+   psolution 4 mesh_37 0 rho_37 screenshot rho_37.png
+   keys b
+   psolution 4 mesh_38 0 rho_38 screenshot rho_38.png
+   keys b
+   psolution 4 mesh_39 0 rho_39 screenshot rho_39.png
+   keys b
+   psolution 4 mesh_40 0 rho_40 screenshot rho_40.png
+   keys b
+   psolution 4 mesh_41 0 rho_41 screenshot rho_41.png
+   keys b
+   psolution 4 mesh_42 0 rho_42 screenshot rho_42.png
+   keys b
+   psolution 4 mesh_43 0 rho_43 screenshot rho_43.png
+   keys b
+   psolution 4 mesh_44 0 rho_44 screenshot rho_44.png
+   keys b
+   psolution 4 mesh_45 0 rho_45 screenshot rho_45.png
+   keys b
+   psolution 4 mesh_46 0 rho_46 screenshot rho_46.png
+   keys b
+   #keys mm
+   psolution 4 mesh_47 0 rho_47 screenshot rho_47.png
+   keys b
+   #keys m
+   psolution 4 mesh_48 0 rho_48 screenshot rho_48.png
+   keys b
+   psolution 4 mesh_49 0 rho_49 screenshot rho_49.png
+   keys b
+   psolution 4 mesh_50 0 rho_50 screenshot rho_50.png
+   keys b
+   psolution 4 mesh_51 0 rho_51 screenshot rho_51.png
+   keys b
+   psolution 4 mesh_52 0 rho_52 screenshot rho_52.png
+   keys b
+   psolution 4 mesh_53 0 rho_53 screenshot rho_53.png
+   keys b
+   psolution 4 mesh_54 0 rho_54 screenshot rho_54.png
+   keys b
+   psolution 4 mesh_55 0 rho_55 screenshot rho_55.png
+   keys b
+   psolution 4 mesh_56 0 rho_56 screenshot rho_56.png
+   keys b
+   psolution 4 mesh_57 0 rho_57 screenshot rho_57.png
+   keys b
+   psolution 4 mesh_58 0 rho_58 screenshot rho_58.png
+   keys b
+   psolution 4 mesh_59 0 rho_59 screenshot rho_59.png
+   keys b
+   psolution 4 mesh_60 0 rho_60 screenshot rho_60.png
+   keys b
+   psolution 4 mesh_61 0 rho_61 screenshot rho_61.png
+   keys b
+   psolution 4 mesh_62 0 rho_62 screenshot rho_62.png
+   keys b
+   psolution 4 mesh_63 0 rho_63 screenshot rho_63.png
+   keys b
+   psolution 4 mesh_64 0 rho_64 screenshot rho_64.png
+   keys b
+   psolution 4 mesh_65 0 rho_65 screenshot rho_65.png
+   keys b
+   psolution 4 mesh_66 0 rho_66 screenshot rho_66.png
+   keys b
+   #keys mm
+   psolution 4 mesh_67 0 rho_67 screenshot rho_67.png
+   keys b
+   psolution 4 mesh_68 0 rho_68 screenshot rho_68.png
+   keys b
+   psolution 4 mesh_69 0 rho_69 screenshot rho_69.png
+   keys b
+   psolution 4 mesh_70 0 rho_70 screenshot rho_70.png
+   keys b
+   psolution 4 mesh_71 0 rho_71 screenshot rho_71.png
+   keys b
+   psolution 4 mesh_72 0 rho_72 screenshot rho_72.png
+   keys b
+   psolution 4 mesh_73 0 rho_73 screenshot rho_73.png
+   keys b
+   psolution 4 mesh_74 0 rho_74 screenshot rho_74.png
+   keys b
+   psolution 4 mesh_75 0 rho_75 screenshot rho_75.png
+   keys b
+   psolution 4 mesh_76 0 rho_76 screenshot rho_76.png
+   keys b
+   psolution 4 mesh_77 0 rho_77 screenshot rho_77.png
+   keys b
+   psolution 4 mesh_78 0 rho_78 screenshot rho_78.png
+   keys b
+   psolution 4 mesh_79 0 rho_79 screenshot rho_79.png
+   keys b
+   psolution 4 mesh_80 0 rho_80 screenshot rho_80.png
+   keys b
+   psolution 4 mesh_81 0 rho_81 screenshot rho_81.png
+   keys b
+   psolution 4 mesh_82 0 rho_82 screenshot rho_82.png
+   keys b
+   psolution 4 mesh_83 0 rho_83 screenshot rho_83.png
+   keys b
+   psolution 4 mesh_84 0 rho_84 screenshot rho_84.png
+   keys b
+   psolution 4 mesh_85 0 rho_85 screenshot rho_85.png
+   keys b
+   psolution 4 mesh_86 0 rho_86 screenshot rho_86.png
+   keys b
+   psolution 4 mesh_87 0 rho_87 screenshot rho_87.png
+   keys b
+   psolution 4 mesh_88 0 rho_88 screenshot rho_88.png
+   keys b
+   psolution 4 mesh_89 0 rho_89 screenshot rho_89.png
+   keys b
+   psolution 4 mesh_90 0 rho_90 screenshot rho_90.png
+   keys b
+   psolution 4 mesh_91 0 rho_91 screenshot rho_91.png
+   keys b
+   psolution 4 mesh_92 0 rho_92 screenshot rho_92.png
+   keys b
+   psolution 4 mesh_93 0 rho_93 screenshot rho_93.png
+   keys b
+   psolution 4 mesh_94 0 rho_94 screenshot rho_94.png
+   keys b
+   psolution 4 mesh_95 0 rho_95 screenshot rho_95.png
+   keys b
+   psolution 4 mesh_96 0 rho_96 screenshot rho_96.png
+   keys b
+   psolution 4 mesh_97 0 rho_97 screenshot rho_97.png
+   keys b
+   psolution 4 mesh_98 0 rho_98 screenshot rho_98.png
+   keys b
+   psolution 4 mesh_99 0 rho_99 screenshot rho_99.png
+}

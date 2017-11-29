@@ -1,0 +1,223 @@
+# Visualization window geometry
+#window 0 0 800 600
+window 0 0 400 300
+
+psolution 2 mesh_0 0 pressure_0
+
+# Setup the GLVis scene. Executed after pressing the space bar.
+{
+   perspective off
+   view 0 0
+   viewcenter 0 0
+   keys msc
+   scale 1.3
+   autoscale off
+   #valuerange 0.1 1.0
+   #zoom 1.3
+   plot_caption "Pressure"
+   # keys fAmeIIiiiiiiiiiiibbvuuuuuuuuuuu
+}
+
+# Take multiple screenshots. Executed after pressing the space bar.
+{
+   keys b
+   psolution 2 mesh_0 0 pressure_0 screenshot pressure_0.png
+   keys b
+   psolution 2 mesh_1 0 pressure_1 screenshot pressure_1.png
+   keys b
+   psolution 2 mesh_2 0 pressure_2 screenshot pressure_2.png
+   keys b
+   psolution 2 mesh_3 0 pressure_3 screenshot pressure_3.png
+   keys b
+   psolution 2 mesh_4 0 pressure_4 screenshot pressure_4.png
+   keys b
+   psolution 2 mesh_5 0 pressure_5 screenshot pressure_5.png
+   keys b
+   psolution 2 mesh_6 0 pressure_6 screenshot pressure_6.png
+   keys b
+   psolution 2 mesh_7 0 pressure_7 screenshot pressure_7.png
+   keys b
+   psolution 2 mesh_8 0 pressure_8 screenshot pressure_8.png
+   keys b
+   psolution 2 mesh_9 0 pressure_9 screenshot pressure_9.png
+   keys b
+   psolution 2 mesh_10 0 pressure_10 screenshot pressure_10.png
+   keys b
+   psolution 2 mesh_11 0 pressure_11 screenshot pressure_11.png
+   keys b
+   psolution 2 mesh_12 0 pressure_12 screenshot pressure_12.png
+   keys b
+   psolution 2 mesh_13 0 pressure_13 screenshot pressure_13.png
+   keys b
+   psolution 2 mesh_14 0 pressure_14 screenshot pressure_14.png
+   keys b
+   psolution 2 mesh_15 0 pressure_15 screenshot pressure_15.png
+   keys b
+   psolution 2 mesh_16 0 pressure_16 screenshot pressure_16.png
+   keys b
+   psolution 2 mesh_17 0 pressure_17 screenshot pressure_17.png
+   keys b
+   psolution 2 mesh_18 0 pressure_18 screenshot pressure_18.png
+   keys b
+   psolution 2 mesh_19 0 pressure_19 screenshot pressure_19.png
+   keys b
+   psolution 2 mesh_20 0 pressure_20 screenshot pressure_20.png
+   keys b
+   psolution 2 mesh_21 0 pressure_21 screenshot pressure_21.png
+   keys b
+   psolution 2 mesh_22 0 pressure_22 screenshot pressure_22.png
+   keys b
+   psolution 2 mesh_23 0 pressure_23 screenshot pressure_23.png
+   keys b
+   psolution 2 mesh_24 0 pressure_24 screenshot pressure_24.png
+   keys b
+   psolution 2 mesh_25 0 pressure_25 screenshot pressure_25.png
+   keys b
+   psolution 2 mesh_26 0 pressure_26 screenshot pressure_26.png
+   keys b
+   psolution 2 mesh_27 0 pressure_27 screenshot pressure_27.png
+   keys b
+   psolution 2 mesh_28 0 pressure_28 screenshot pressure_28.png
+   keys b
+   psolution 2 mesh_29 0 pressure_29 screenshot pressure_29.png
+   keys b
+   psolution 2 mesh_30 0 pressure_30 screenshot pressure_30.png
+   keys b
+   psolution 2 mesh_31 0 pressure_31 screenshot pressure_31.png
+   keys b
+   psolution 2 mesh_32 0 pressure_32 screenshot pressure_32.png
+   keys b
+   psolution 2 mesh_33 0 pressure_33 screenshot pressure_33.png
+   keys b
+   psolution 2 mesh_34 0 pressure_34 screenshot pressure_34.png
+   keys b
+   psolution 2 mesh_35 0 pressure_35 screenshot pressure_35.png
+   keys b
+   psolution 2 mesh_36 0 pressure_36 screenshot pressure_36.png
+   keys b
+   psolution 2 mesh_37 0 pressure_37 screenshot pressure_37.png
+   keys b
+   psolution 2 mesh_38 0 pressure_38 screenshot pressure_38.png
+   keys b
+   psolution 2 mesh_39 0 pressure_39 screenshot pressure_39.png
+   keys b
+   psolution 2 mesh_40 0 pressure_40 screenshot pressure_40.png
+   keys b
+   psolution 2 mesh_41 0 pressure_41 screenshot pressure_41.png
+   keys b
+   psolution 2 mesh_42 0 pressure_42 screenshot pressure_42.png
+   keys b
+   psolution 2 mesh_43 0 pressure_43 screenshot pressure_43.png
+   keys b
+   psolution 2 mesh_44 0 pressure_44 screenshot pressure_44.png
+   keys b
+   psolution 2 mesh_45 0 pressure_45 screenshot pressure_45.png
+   keys b
+   psolution 2 mesh_46 0 pressure_46 screenshot pressure_46.png
+   keys b
+   psolution 2 mesh_47 0 pressure_47 screenshot pressure_47.png
+   keys b
+   psolution 2 mesh_48 0 pressure_48 screenshot pressure_48.png
+   keys b
+   psolution 2 mesh_49 0 pressure_49 screenshot pressure_49.png
+   keys b
+   psolution 2 mesh_50 0 pressure_50 screenshot pressure_50.png
+   keys b
+   psolution 2 mesh_51 0 pressure_51 screenshot pressure_51.png
+   keys b
+   psolution 2 mesh_52 0 pressure_52 screenshot pressure_52.png
+   keys b
+   psolution 2 mesh_53 0 pressure_53 screenshot pressure_53.png
+   keys b
+   psolution 2 mesh_54 0 pressure_54 screenshot pressure_54.png
+   keys b
+   psolution 2 mesh_55 0 pressure_55 screenshot pressure_55.png
+   keys b
+   psolution 2 mesh_56 0 pressure_56 screenshot pressure_56.png
+   keys b
+   psolution 2 mesh_57 0 pressure_57 screenshot pressure_57.png
+   keys b
+   psolution 2 mesh_58 0 pressure_58 screenshot pressure_58.png
+   keys b
+   psolution 2 mesh_59 0 pressure_59 screenshot pressure_59.png
+   keys b
+   psolution 2 mesh_60 0 pressure_60 screenshot pressure_60.png
+   keys b
+   psolution 2 mesh_61 0 pressure_61 screenshot pressure_61.png
+   keys b
+   psolution 2 mesh_62 0 pressure_62 screenshot pressure_62.png
+   keys b
+   psolution 2 mesh_63 0 pressure_63 screenshot pressure_63.png
+   keys b
+   psolution 2 mesh_64 0 pressure_64 screenshot pressure_64.png
+   keys b
+   psolution 2 mesh_65 0 pressure_65 screenshot pressure_65.png
+   keys b
+   psolution 2 mesh_66 0 pressure_66 screenshot pressure_66.png
+   keys b
+   psolution 2 mesh_67 0 pressure_67 screenshot pressure_67.png
+   keys b
+   psolution 2 mesh_68 0 pressure_68 screenshot pressure_68.png
+   keys b
+   psolution 2 mesh_69 0 pressure_69 screenshot pressure_69.png
+   keys b
+   psolution 2 mesh_70 0 pressure_70 screenshot pressure_70.png
+   keys b
+   psolution 2 mesh_71 0 pressure_71 screenshot pressure_71.png
+   keys b
+   psolution 2 mesh_72 0 pressure_72 screenshot pressure_72.png
+   keys b
+   psolution 2 mesh_73 0 pressure_73 screenshot pressure_73.png
+   keys b
+   psolution 2 mesh_74 0 pressure_74 screenshot pressure_74.png
+   keys b
+   psolution 2 mesh_75 0 pressure_75 screenshot pressure_75.png
+   keys b
+   psolution 2 mesh_76 0 pressure_76 screenshot pressure_76.png
+   keys b
+   psolution 2 mesh_77 0 pressure_77 screenshot pressure_77.png
+   keys b
+   psolution 2 mesh_78 0 pressure_78 screenshot pressure_78.png
+   keys b
+   psolution 2 mesh_79 0 pressure_79 screenshot pressure_79.png
+   keys b
+   psolution 2 mesh_80 0 pressure_80 screenshot pressure_80.png
+   keys b
+   psolution 2 mesh_81 0 pressure_81 screenshot pressure_81.png
+   keys b
+   psolution 2 mesh_82 0 pressure_82 screenshot pressure_82.png
+   keys b
+   psolution 2 mesh_83 0 pressure_83 screenshot pressure_83.png
+   keys b
+   psolution 2 mesh_84 0 pressure_84 screenshot pressure_84.png
+   keys b
+   psolution 2 mesh_85 0 pressure_85 screenshot pressure_85.png
+   keys b
+   psolution 2 mesh_86 0 pressure_86 screenshot pressure_86.png
+   keys b
+   psolution 2 mesh_87 0 pressure_87 screenshot pressure_87.png
+   keys b
+   psolution 2 mesh_88 0 pressure_88 screenshot pressure_88.png
+   keys b
+   psolution 2 mesh_89 0 pressure_89 screenshot pressure_89.png
+   keys b
+   psolution 2 mesh_90 0 pressure_90 screenshot pressure_90.png
+   keys b
+   psolution 2 mesh_91 0 pressure_91 screenshot pressure_91.png
+   keys b
+   psolution 2 mesh_92 0 pressure_92 screenshot pressure_92.png
+   keys b
+   psolution 2 mesh_93 0 pressure_93 screenshot pressure_93.png
+   keys b
+   psolution 2 mesh_94 0 pressure_94 screenshot pressure_94.png
+   keys b
+   psolution 2 mesh_95 0 pressure_95 screenshot pressure_95.png
+   keys b
+   psolution 2 mesh_96 0 pressure_96 screenshot pressure_96.png
+   keys b
+   psolution 2 mesh_97 0 pressure_97 screenshot pressure_97.png
+   keys b
+   psolution 2 mesh_98 0 pressure_98 screenshot pressure_98.png
+   keys b
+   psolution 2 mesh_99 0 pressure_99 screenshot pressure_99.png
+}
