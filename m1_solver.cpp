@@ -101,7 +101,7 @@ M1Operator::M1Operator(int size,
                              3*h1_fes.GetOrder(0) + l2_fes.GetOrder(0) - 1)),
      quad_data(dim, nzones, integ_rule.GetNPoints()),
      quad_data_is_current(false),
-     vForce(&l2_fes, &h1_fes), tForce(&l2_fes, &h1_fes),
+     Divf1(&l2_fes, &h1_fes), Divf0(&l2_fes, &h1_fes),
      ForcePA(&quad_data, h1_fes, l2_fes),
      VMassPA(&quad_data, H1compFESpace), locEMassPA(&quad_data, l2_fes),
      locCG(), timer(), mspInv_pcf(mspInv_), sourceI0_pcf(sourceI0_), x_gf(x_gf_)
@@ -170,19 +170,19 @@ M1Operator::M1Operator(int size,
    }
    quad_data.h0 /= (double) H1FESpace.GetOrder(0);
 
-   vForceIntegrator *vfi = new vForceIntegrator(quad_data);
+   Divf1Integrator *vfi = new Divf1Integrator(quad_data);
    vfi->SetIntRule(&integ_rule);
-   vForce.AddDomainIntegrator(vfi);
+   Divf1.AddDomainIntegrator(vfi);
    // Make a dummy assembly to figure out the sparsity.
-   vForce.Assemble(0);
-   vForce.Finalize(0);
+   Divf1.Assemble(0);
+   Divf1.Finalize(0);
 
-   tForceIntegrator *tfi = new tForceIntegrator(quad_data);
+   Divf0Integrator *tfi = new Divf0Integrator(quad_data);
    tfi->SetIntRule(&integ_rule);
-   tForce.AddDomainIntegrator(tfi);
+   Divf0.AddDomainIntegrator(tfi);
    // Make a dummy assembly to figure out the sparsity.
-   tForce.Assemble(0);
-   tForce.Finalize(0);
+   Divf0.Assemble(0);
+   Divf0.Finalize(0);
 
    if (p_assembly)
    {
@@ -233,11 +233,11 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
 
    if (!p_assembly)
    {
-      vForce = 0.0;
-      tForce = 0.0;
+      Divf1 = 0.0;
+      Divf0 = 0.0;
       timer.sw_force.Start();
-      vForce.Assemble();
-      tForce.Assemble();
+      Divf1.Assemble();
+      Divf0.Assemble();
       timer.sw_force.Stop();
    }
 
@@ -290,7 +290,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    else
    {
       timer.sw_force.Start();
-      vForce.Mult(I0, rhs);
+      Divf1.Mult(I0, rhs);
       timer.sw_force.Stop();
       timer.dof_tstep += H1FESpace.GlobalTrueVSize();
       rhs.Neg();
@@ -352,7 +352,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    else
    {
       timer.sw_force.Start();
-      tForce.MultTranspose(I1, I0_rhs);
+      Divf0.MultTranspose(I1, I0_rhs);
       timer.sw_force.Stop();
       timer.dof_tstep += L2FESpace.GlobalTrueVSize();
       //if (I0_source) { I0_rhs += *I0_source; }
@@ -578,9 +578,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             {
                for (int gd = 0; gd < dim; gd++)
                {
-                  quad_data.vstressJinvT(vd)(z_id*nqp + q, gd) =
+                  quad_data.stress1JinvT(vd)(z_id*nqp + q, gd) =
                      I1stressJiT(vd, gd);
-                  quad_data.tstressJinvT(vd)(z_id*nqp + q, gd) =
+                  quad_data.stress0JinvT(vd)(z_id*nqp + q, gd) =
                      I0stressJiT(vd, gd);
                }
             }

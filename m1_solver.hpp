@@ -91,7 +91,7 @@ protected:
    // Force matrix that combines the kinematic and thermodynamic spaces. It is
    // assembled in each time step and then it's used to compute the final
    // right-hand sides for momentum and specific internal energy.
-   mutable MixedBilinearForm vForce, tForce;
+   mutable MixedBilinearForm Divf0, Divf1;
 
    // Same as above, but done through partial assembly.
    ForcePAOperator ForcePA;

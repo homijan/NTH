@@ -44,7 +44,7 @@ struct QuadratureData
    // each quadrature point, it combines the stress, inverse Jacobian,
    // determinant of the Jacobian and the integration weight. It must be
    // recomputed in every time step.
-   DenseTensor vstressJinvT, tstressJinvT;
+   DenseTensor stress1JinvT, stress0JinvT;
 
    // Quadrature data used for full/partial assembly of the mass matrices. At
    // time zero, we compute and store (rho0 * det(J0) * qp_weight) at each
@@ -52,6 +52,17 @@ struct QuadratureData
    // rho = rho0 * det(J0) / det(J), representing the notion of pointwise mass
    // conservation.
    Vector rho0DetJ0w;
+
+   // The pointwise equality rho * detJ = rho0 * detJ0 is used by integrators.
+   // Electric and magnetic fields. 
+   DenseMatrix invnueE, invnueAE, invnueAIE, invnueB;
+   // Angular scattering integrator.
+   Vector nutinvnue; 
+   // Explicit zero moment "mass" integrator.
+   Vector Ef1invvnuef0;
+   
+   // Complementary matrix to divergence. 
+   DenseMatrix DetJwAgradrhoinvnue;
 
    // Initial length scale. This represents a notion of local mesh size. We
    // assume that all initial zones have similar size.
@@ -63,9 +74,16 @@ struct QuadratureData
 
    QuadratureData(int dim, int nzones, int quads_per_zone)
       : Jac0inv(dim, dim, nzones * quads_per_zone),
-        vstressJinvT(nzones * quads_per_zone, dim, dim),
-        tstressJinvT(nzones * quads_per_zone, dim, dim),
-		rho0DetJ0w(nzones * quads_per_zone) { }
+        stress1JinvT(nzones * quads_per_zone, dim, dim),
+        stress0JinvT(nzones * quads_per_zone, dim, dim),
+		rho0DetJ0w(nzones * quads_per_zone),
+        invnueE(nzones * quads_per_zone, dim),
+        invnueAE(nzones * quads_per_zone, dim),
+        invnueAIE(nzones * quads_per_zone, dim),
+        invnueB(nzones * quads_per_zone, dim),
+        nutinvnue(nzones * quads_per_zone),
+        Ef1invvnuef0(nzones * quads_per_zone),
+		DetJwAgradrhoinvnue(nzones * quads_per_zone, dim) { }
 };
 
 // Stores values of the one-dimensional shape functions and gradients at all 1D
@@ -114,35 +132,164 @@ public:
 // Assembles element contributions to the global velocity force matrix.
 // This class is used for the full assembly case; it's not used with partial
 // assembly.
-class vForceIntegrator : public BilinearFormIntegrator
+class M0Integrator : public BilinearFormIntegrator
 {
-private:
+protected:
    const QuadratureData &quad_data;
 
 public:
-   vForceIntegrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
+   M0Integrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
 
    virtual void AssembleElementMatrix2(const FiniteElement &trial_fe,
                                        const FiniteElement &test_fe,
                                        ElementTransformation &Trans,
                                        DenseMatrix &elmat);
+   virtual double GetIntegrator(int i) = 0; 
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class M0cIntegrator : public M0Integrator
+{
+private:
+public:
+   M0cIntegrator(QuadratureData &quad_data_) : M0Integrator(quad_data_) { }
+
+   double GetIntegrator(int i);
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class ExplM0Integrator : public M0Integrator
+{
+private:
+public:
+   ExplM0Integrator(QuadratureData &quad_data_) : M0Integrator(quad_data_) { }
+
+   double GetIntegrator(int i);
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class M1Integrator : public BilinearFormIntegrator
+{
+protected:
+   const QuadratureData &quad_data;
+
+public:
+   M1Integrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
+
+   virtual void AssembleElementMatrix2(const FiniteElement &trial_fe,
+                                       const FiniteElement &test_fe,
+                                       ElementTransformation &Trans,
+                                       DenseMatrix &elmat);
+   virtual double GetIntegrator(int i) = 0; 
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class M1cIntegrator : public M1Integrator
+{
+private:
+public:
+   M1cIntegrator(QuadratureData &quad_data_) : M1Integrator(quad_data_) { }
+
+   double GetIntegrator(int i);
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class TotM1Integrator : public M1Integrator
+{
+private:
+public:
+   TotM1Integrator(QuadratureData &quad_data_) : M1Integrator(quad_data_) { }
+
+   double GetIntegrator(int i);
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class DivIntegrator : public BilinearFormIntegrator
+{
+protected:
+   const QuadratureData &quad_data;
+
+public:
+   DivIntegrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
+
+   virtual void AssembleElementMatrix2(const FiniteElement &trial_fe,
+                                       const FiniteElement &test_fe,
+                                       ElementTransformation &Trans,
+                                       DenseMatrix &elmat);
+   virtual double GetIntegrator(int q, int vd, int gd) = 0; 
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class Divf1Integrator : public DivIntegrator
+{
+private:
+public:
+   Divf1Integrator(QuadratureData &quad_data_) : DivIntegrator(quad_data_) { }
+
+   double GetIntegrator(int q, int vd, int gd);
 };
 
 // Assembles element contributions to the global temperature force matrix.
 // This class is used for the full assembly case; it's not used with partial
 // assembly.
-class tForceIntegrator : public BilinearFormIntegrator
+class Divf0Integrator : public DivIntegrator
 {
 private:
+
+public:
+   Divf0Integrator(QuadratureData &quad_data_) : DivIntegrator(quad_data_) { }
+
+   double GetIntegrator(int q, int vd, int gd);
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class VIntegrator : public BilinearFormIntegrator
+{
+protected:
    const QuadratureData &quad_data;
 
 public:
-   tForceIntegrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
+   VIntegrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
 
    virtual void AssembleElementMatrix2(const FiniteElement &trial_fe,
                                        const FiniteElement &test_fe,
                                        ElementTransformation &Trans,
                                        DenseMatrix &elmat);
+   virtual double GetIntegrator(int q, int vd, int gd) = 0; 
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class BIntegrator : public BilinearFormIntegrator
+{
+protected:
+   const QuadratureData &quad_data;
+
+public:
+   BIntegrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
+
+   virtual void AssembleElementMatrix2(const FiniteElement &trial_fe,
+                                       const FiniteElement &test_fe,
+                                       ElementTransformation &Trans,
+                                       DenseMatrix &elmat);
+   virtual double GetIntegrator(int q, int vd, int gd) = 0; 
 };
 
 // Performs partial assembly, which corresponds to (and replaces) the use of the

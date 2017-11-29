@@ -720,10 +720,9 @@ int main(int argc, char *argv[])
    // Free the used memory.
    delete ode_solver;
    delete pmesh;
-   //delete material_pcf;
-   delete tensors1D;
-   delete nth::tensors1D;
+   delete tensors1D; 
    delete m1ode_solver;
+   delete nth::tensors1D;
 
    return 0;
 }
