@@ -311,60 +311,54 @@ void M0Integrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
                                              DenseMatrix &elmat)
 {
    const int ip_cnt = IntRule->GetNPoints();
-   Vector tr_shape(trial_fe.GetDof()), te_shape(test_fe.GetDof());
+   const int te_nd = test_fe.GetDof();
+   const int tr_nd = trial_fe.GetDof();
+   Vector tr_shape(tr_nd), te_shape(te_nd);
 
-   //elvect.SetSize(fe.GetDof());
-   //elvect = 0.0;
+   elmat.SetSize(te_nd, tr_nd);
+   elmat = 0.0;
 
    for (int q = 0; q < ip_cnt; q++)
    {
-      trial_fe.CalcShape(IntRule->IntPoint(q), tr_shape);
       test_fe.CalcShape(IntRule->IntPoint(q), te_shape);
-	  // Note that rhoDetJ = rho0DetJ0.
+      trial_fe.CalcShape(IntRule->IntPoint(q), tr_shape);
       te_shape *= GetIntegrator(Trans.ElementNo*ip_cnt + q);
-      //elvect += shape;
+      AddMultVWt(te_shape, tr_shape, elmat);
    }  
 }
 
-double M0cIntegrator::GetIntegrator(int i)
-{
-   return quad_data.rho0DetJ0w(i);
-}
-
-double ExplM0Integrator::GetIntegrator(int i)
-{
-   return quad_data.rho0DetJ0w(i);
-}
-
-void M1Integrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
+void Mass1Integrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
                                              const FiniteElement &test_fe,
                                              ElementTransformation &Trans,
                                              DenseMatrix &elmat)
 {
-   const int ip_cnt = IntRule->GetNPoints();
-   Vector tr_shape(trial_fe.GetDof()), te_shape(test_fe.GetDof());
+   const int nqp = IntRule->GetNPoints();
+   const int dim = trial_fe.GetDim();
+   const int zone_id = Trans.ElementNo;
+   const int h1dofs_cnt = test_fe.GetDof();
+   const int te_nd = h1dofs_cnt;
+   const int tr_nd = h1dofs_cnt;
 
-   //elvect.SetSize(fe.GetDof());
-   //elvect = 0.0;
+   elmat.SetSize(te_nd*dim, tr_nd*dim);
+   elmat = 0.0;
 
-   for (int q = 0; q < ip_cnt; q++)
+   DenseMatrix partelmat(te_nd, tr_nd);
+   // It is a fake AssembleMatrix2 function, since only test_fe basis is used.
+   Vector shape1(te_nd);
+
+   for (int q = 0; q < nqp; q++)
    {
-      trial_fe.CalcShape(IntRule->IntPoint(q), tr_shape);
-      test_fe.CalcShape(IntRule->IntPoint(q), te_shape);
-	  // Note that rhoDetJ = rho0DetJ0.
-      te_shape *= GetIntegrator(Trans.ElementNo*ip_cnt + q);
-      //elvect += shape;
-   }  
-}
+      const IntegrationPoint &ip = IntRule->IntPoint(q);
 
-double M1cIntegrator::GetIntegrator(int i)
-{
-   return quad_data.rho0DetJ0w(i);
-}
-
-double TotM1Integrator::GetIntegrator(int i)
-{
-   return quad_data.rho0DetJ0w(i);
+      // Form stress:grad_shape at the current point.
+      test_fe.CalcShape(ip, shape1);
+      MultVWt(shape1, shape1, partelmat);
+      partelmat *= GetIntegrator(zone_id*nqp + q);
+      for (int vd = 0; vd < dim; vd++) // f1 components.
+      {
+         elmat.AddMatrix(partelmat, te_nd*vd, tr_nd*vd);
+      }
+   }
 }
 
 void DivIntegrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
@@ -408,9 +402,100 @@ void DivIntegrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
    }
 }
 
-double Divf1Integrator::GetIntegrator(int i, int vd, int gd)
+void VdotIntegrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
+                                            const FiniteElement &test_fe,
+                                            ElementTransformation &Trans,
+                                            DenseMatrix &elmat)
 {
-   return quad_data.stress1JinvT(vd)(i, gd);
+   const int nqp = IntRule->GetNPoints();
+   const int dim = trial_fe.GetDim();
+   const int zone_id = Trans.ElementNo;
+   const int h1dofs_cnt = test_fe.GetDof();
+   const int l2dofs_cnt = trial_fe.GetDof();
+
+   elmat.SetSize(h1dofs_cnt*dim, l2dofs_cnt);
+   elmat = 0.0;
+
+   DenseMatrix loc_vdotw(h1dofs_cnt, dim); //vshape(h1dofs_cnt, dim);
+   Vector shape0(l2dofs_cnt), shape1(h1dofs_cnt);
+   Vector Vloc_vdotw(loc_vdotw.Data(), h1dofs_cnt*dim);
+
+   for (int q = 0; q < nqp; q++)
+   {
+      const IntegrationPoint &ip = IntRule->IntPoint(q);
+
+      // Form stress:grad_shape at the current point.
+      //test_fe.CalcDShape(ip, vshape);
+      test_fe.CalcShape(ip, shape1);
+      for (int i = 0; i < h1dofs_cnt; i++)
+      {
+         for (int vd = 0; vd < dim; vd++) // f1 components.
+         {
+            loc_vdotw(i, vd) = GetIntegrator(zone_id*nqp + q, vd) * shape1(i);
+         }
+      }
+
+      trial_fe.CalcShape(ip, shape0);
+      AddMultVWt(Vloc_vdotw, shape0, elmat);
+   }
+}
+
+void VcrossIntegrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
+                                              const FiniteElement &test_fe,
+                                              ElementTransformation &Trans,
+                                              DenseMatrix &elmat)
+{
+   const int nqp = IntRule->GetNPoints();
+   const int dim = trial_fe.GetDim();
+   const int zone_id = Trans.ElementNo;
+   const int h1dofs_cnt = test_fe.GetDof();
+
+   elmat.SetSize(h1dofs_cnt*dim, h1dofs_cnt*dim);
+   elmat = 0.0;
+
+   DenseMatrix loc_w(h1dofs_cnt, dim), loc_vxw(h1dofs_cnt, dim);
+   // It is a fake AssembleMatrix2 function, since only test_fe basis is used.
+   Vector shape1(h1dofs_cnt);
+   Vector Vloc_w(loc_w.Data(), h1dofs_cnt*dim),
+          Vloc_vxw(loc_vxw.Data(), h1dofs_cnt*dim);
+
+   for (int q = 0; q < nqp; q++)
+   {
+      const IntegrationPoint &ip = IntRule->IntPoint(q);
+
+      // Form stress:grad_shape at the current point.
+      test_fe.CalcShape(ip, shape1);
+      for (int i = 0; i < h1dofs_cnt; i++)
+      {
+         for (int vd = 0; vd < dim; vd++) // f1 components.
+         {
+            loc_w(i, vd) = shape1(i);
+            loc_vxw(i, vd) = GetIntegrator(zone_id*nqp + q, vd) * shape1(i);
+         }
+      }
+
+      AddMultVWt(Vloc_w, Vloc_vxw, elmat);
+   }
+}
+
+double M0cIntegrator::GetIntegrator(int i)
+{
+   return quad_data.rho0DetJ0w(i);
+}
+
+double ExplM0Integrator::GetIntegrator(int i)
+{
+   return quad_data.rho0DetJ0w(i);
+}
+
+double Mass1cIntegrator::GetIntegrator(int i)
+{
+   return quad_data.rho0DetJ0w(i);
+}
+
+double Mass1NuIntegrator::GetIntegrator(int i)
+{
+   return quad_data.nutinvvnue(i) * quad_data.rho0DetJ0w(i);
 }
 
 double Divf0Integrator::GetIntegrator(int i, int vd, int gd)
@@ -418,86 +503,34 @@ double Divf0Integrator::GetIntegrator(int i, int vd, int gd)
    return quad_data.stress0JinvT(vd)(i, gd);
 }
 
-void VIntegrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
-                                         const FiniteElement &test_fe,
-                                         ElementTransformation &Trans,
-                                         DenseMatrix &elmat)
+double Divf1Integrator::GetIntegrator(int i, int vd, int gd)
 {
-   const int nqp = IntRule->GetNPoints();
-   const int dim = trial_fe.GetDim();
-   const int zone_id = Trans.ElementNo;
-   const int h1dofs_cnt = test_fe.GetDof();
-   const int l2dofs_cnt = trial_fe.GetDof();
-
-   elmat.SetSize(h1dofs_cnt*dim, l2dofs_cnt);
-   elmat = 0.0;
-
-   DenseMatrix vshape(h1dofs_cnt, dim), loc_force(h1dofs_cnt, dim);
-   Vector shape(l2dofs_cnt), Vloc_force(loc_force.Data(), h1dofs_cnt*dim);
-
-   for (int q = 0; q < nqp; q++)
-   {
-      const IntegrationPoint &ip = IntRule->IntPoint(q);
-
-      // Form stress:grad_shape at the current point.
-      test_fe.CalcDShape(ip, vshape);
-      for (int i = 0; i < h1dofs_cnt; i++)
-      {
-         for (int vd = 0; vd < dim; vd++) // Velocity components.
-         {
-            loc_force(i, vd) = 0.0;
-            for (int gd = 0; gd < dim; gd++) // Gradient components.
-            {
-               loc_force(i, vd) += 
-                  GetIntegrator(zone_id*nqp + q, vd, gd) * vshape(i,gd);
-            }
-         }
-      }
-
-      trial_fe.CalcShape(ip, shape);
-      AddMultVWt(Vloc_force, shape, elmat);
-   }
+   return quad_data.stress1JinvT(vd)(i, gd);
 }
 
-void BIntegrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
-                                         const FiniteElement &test_fe,
-                                         ElementTransformation &Trans,
-                                         DenseMatrix &elmat)
+double AgradIntegrator::GetIntegrator(int i, int vd)
 {
-   const int nqp = IntRule->GetNPoints();
-   const int dim = trial_fe.GetDim();
-   const int zone_id = Trans.ElementNo;
-   const int h1dofs_cnt = test_fe.GetDof();
-   const int l2dofs_cnt = trial_fe.GetDof();
+   return quad_data.invrhoAgradrhoinvnue(i, vd) * quad_data.rho0DetJ0w(i);
+}
 
-   elmat.SetSize(h1dofs_cnt*dim, l2dofs_cnt);
-   elmat = 0.0;
+double EfieldIntegrator::GetIntegrator(int i, int vd)
+{
+   return quad_data.Einvvnue(i, vd) * quad_data.rho0DetJ0w(i);
+}
 
-   DenseMatrix vshape(h1dofs_cnt, dim), loc_force(h1dofs_cnt, dim);
-   Vector shape(l2dofs_cnt), Vloc_force(loc_force.Data(), h1dofs_cnt*dim);
+double AEfieldIntegrator::GetIntegrator(int i, int vd)
+{
+   return quad_data.AEinvvnue(i, vd) * quad_data.rho0DetJ0w(i);
+}
 
-   for (int q = 0; q < nqp; q++)
-   {
-      const IntegrationPoint &ip = IntRule->IntPoint(q);
+double AIEfieldIntegrator::GetIntegrator(int i, int vd)
+{
+   return quad_data.AIEinvv2nue(i, vd) * quad_data.rho0DetJ0w(i);
+}
 
-      // Form stress:grad_shape at the current point.
-      test_fe.CalcDShape(ip, vshape);
-      for (int i = 0; i < h1dofs_cnt; i++)
-      {
-         for (int vd = 0; vd < dim; vd++) // Velocity components.
-         {
-            loc_force(i, vd) = 0.0;
-            for (int gd = 0; gd < dim; gd++) // Gradient components.
-            {
-               loc_force(i, vd) += 
-                  GetIntegrator(zone_id*nqp + q, vd, gd) * vshape(i,gd);
-            }
-         }
-      }
-
-      trial_fe.CalcShape(ip, shape);
-      AddMultVWt(Vloc_force, shape, elmat);
-   }
+double BfieldIntegrator::GetIntegrator(int i, int vd)
+{
+   return quad_data.Binvvnue(i, vd) * quad_data.rho0DetJ0w(i);
 }
 
 void ForcePAOperator::Mult(const Vector &vecL2, Vector &vecH1) const

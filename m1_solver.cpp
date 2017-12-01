@@ -95,36 +95,21 @@ M1Operator::M1Operator(int size,
      l2dofs_cnt(l2_fes.GetFE(0)->GetDof()),
      h1dofs_cnt(h1_fes.GetFE(0)->GetDof()),
      cfl(cfl_), p_assembly(pa), cg_rel_tol(cgt), cg_max_iter(cgiter),
-     Mv(&h1_fes), Me(l2dofs_cnt, l2dofs_cnt, nzones),
-     Me_inv(l2dofs_cnt, l2dofs_cnt, nzones),
+     Mf1(&h1_fes), Mscattf1(&h1_fes), Bfieldf1(&h1_fes),
+     Mf0(l2dofs_cnt, l2dofs_cnt, nzones),
+     Mf0_inv(l2dofs_cnt, l2dofs_cnt, nzones),
      integ_rule(IntRules.Get(h1_fes.GetMesh()->GetElementBaseGeometry(),
                              3*h1_fes.GetOrder(0) + l2_fes.GetOrder(0) - 1)),
      quad_data(dim, nzones, integ_rule.GetNPoints()),
      quad_data_is_current(false),
-     Divf1(&l2_fes, &h1_fes), Divf0(&l2_fes, &h1_fes),
+     Divf0(&l2_fes, &h1_fes), Efieldf0(&l2_fes, &h1_fes),
+     Divf1(&l2_fes, &h1_fes), AEfieldf1(&l2_fes, &h1_fes),
+     AIEfieldf1(&l2_fes, &h1_fes),
      ForcePA(&quad_data, h1_fes, l2_fes),
      VMassPA(&quad_data, H1compFESpace), locEMassPA(&quad_data, l2_fes),
      locCG(), timer(), mspInv_pcf(mspInv_), sourceI0_pcf(sourceI0_), x_gf(x_gf_)
 {
    GridFunctionCoefficient rho_coeff(&rho0);
-
-   // Standard local assembly and inversion for energy mass matrices.
-   DenseMatrix Me_(l2dofs_cnt);
-   DenseMatrixInverse inv(&Me_);
-   MassIntegrator mi(rho_coeff, &integ_rule);
-   for (int i = 0; i < nzones; i++)
-   {
-      mi.AssembleElementMatrix(*l2_fes.GetFE(i),
-                               *l2_fes.GetElementTransformation(i), Me_);
-      Me(i) = Me_;
-      inv.Factor();
-      inv.GetInverseMatrix(Me_inv(i));
-   }
-
-   // Standard assembly for the velocity mass matrix.
-   VectorMassIntegrator *vmi = new VectorMassIntegrator(rho_coeff, &integ_rule);
-   Mv.AddDomainIntegrator(vmi);
-   Mv.Assemble();
 
    // Values of rho0DetJ0 and Jac0inv at all quadrature points.
    const int nqp = integ_rule.GetNPoints();
@@ -146,6 +131,36 @@ M1Operator::M1Operator(int size,
                                            integ_rule.IntPoint(q).weight;
       }
    }
+
+   // Standard local assembly and inversion for energy mass matrices.
+   DenseMatrix Mf0_(l2dofs_cnt);
+   DenseMatrixInverse inv(&Mf0_);
+   M0cIntegrator mi(quad_data);
+   mi.SetIntRule(&integ_rule);
+   for (int i = 0; i < nzones; i++)
+   {
+      mi.AssembleElementMatrix(*l2_fes.GetFE(i),
+                               *l2_fes.GetElementTransformation(i), Mf0_);
+      Mf0(i) = Mf0_;
+      inv.Factor();
+      inv.GetInverseMatrix(Mf0_inv(i));
+   }
+
+   // Standard assembly for the velocity mass matrix.
+   Mass1cIntegrator *f1mi = new Mass1cIntegrator(quad_data);
+   f1mi->SetIntRule(&integ_rule);
+   Mf1.AddDomainIntegrator(f1mi);
+   Mf1.Assemble();
+
+   Mass1NuIntegrator *f1scati = new Mass1NuIntegrator(quad_data);
+   f1scati->SetIntRule(&integ_rule);
+   Mscattf1.AddDomainIntegrator(f1scati);
+   Mscattf1.Assemble();
+
+   BfieldIntegrator *f1bfi = new BfieldIntegrator(quad_data);
+   f1bfi->SetIntRule(&integ_rule);
+   Bfieldf1.AddDomainIntegrator(f1bfi);
+   Bfieldf1.Assemble();
 
    // Initial local mesh size (assumes similar cells).
    double loc_area = 0.0, glob_area;
@@ -170,9 +185,12 @@ M1Operator::M1Operator(int size,
    }
    quad_data.h0 /= (double) H1FESpace.GetOrder(0);
 
-   Divf1Integrator *vfi = new Divf1Integrator(quad_data);
-   vfi->SetIntRule(&integ_rule);
-   Divf1.AddDomainIntegrator(vfi);
+   Divf1Integrator *f1di = new Divf1Integrator(quad_data);
+   f1di->SetIntRule(&integ_rule);
+   Divf1.AddDomainIntegrator(f1di);
+   AgradIntegrator *f1agi = new AgradIntegrator(quad_data);
+   f1agi->SetIntRule(&integ_rule);
+   Divf1.AddDomainIntegrator(f1agi);
    // Make a dummy assembly to figure out the sparsity.
    Divf1.Assemble(0);
    Divf1.Finalize(0);
@@ -183,6 +201,27 @@ M1Operator::M1Operator(int size,
    // Make a dummy assembly to figure out the sparsity.
    Divf0.Assemble(0);
    Divf0.Finalize(0);
+
+   EfieldIntegrator *f0ei = new EfieldIntegrator(quad_data);
+   f0ei->SetIntRule(&integ_rule);
+   Efieldf0.AddDomainIntegrator(f0ei);
+   // Make a dummy assembly to figure out the sparsity.
+   Efieldf0.Assemble(0);
+   Efieldf0.Finalize(0);
+
+   AEfieldIntegrator *f1aei = new AEfieldIntegrator(quad_data);
+   f1aei->SetIntRule(&integ_rule);
+   AEfieldf1.AddDomainIntegrator(f1aei);
+   // Make a dummy assembly to figure out the sparsity.
+   AEfieldf1.Assemble(0);
+   AEfieldf1.Finalize(0);
+
+   AIEfieldIntegrator *f1aiei = new AIEfieldIntegrator(quad_data);
+   f1aiei->SetIntRule(&integ_rule);
+   AIEfieldf1.AddDomainIntegrator(f1aiei);
+   // Make a dummy assembly to figure out the sparsity.
+   AIEfieldf1.Assemble(0);
+   AIEfieldf1.Finalize(0);
 
    if (p_assembly)
    {
@@ -235,13 +274,66 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    {
       Divf1 = 0.0;
       Divf0 = 0.0;
+      Mscattf1.Update();
       timer.sw_force.Start();
       Divf1.Assemble();
       Divf0.Assemble();
+      Mscattf1.Assemble();
       timer.sw_force.Stop();
    }
 
-   // Solve for velocity.
+   // Solve for df0dv.
+   Array<int> l2dofs;
+   Vector I0_rhs(VsizeL2), loc_rhs(l2dofs_cnt), loc_I0source(l2dofs_cnt),
+          loc_Mf0MultI0source(l2dofs_cnt), loc_dI0(l2dofs_cnt);
+   if (p_assembly)
+   {
+      timer.sw_force.Start();
+      ForcePA.MultTranspose(I1, I0_rhs);
+      timer.sw_force.Stop();
+      timer.dof_tstep += L2FESpace.GlobalTrueVSize();
+
+      for (int z = 0; z < nzones; z++)
+      {
+         L2FESpace.GetElementDofs(z, l2dofs);
+         I0_rhs.GetSubVector(l2dofs, loc_rhs);
+         locEMassPA.SetZoneId(z);
+         //
+         I0source.GetSubVector(l2dofs, loc_I0source);
+         locEMassPA.Mult(loc_I0source, loc_Mf0MultI0source);
+         loc_rhs += loc_Mf0MultI0source;
+         //
+         timer.sw_cgL2.Start();
+         locCG.Mult(loc_rhs, loc_dI0);
+         timer.sw_cgL2.Stop();
+         timer.L2dof_iter += locCG.GetNumIterations() * l2dofs_cnt;
+         dI0.SetSubVector(l2dofs, loc_dI0);
+      }
+   }
+   else
+   {
+      timer.sw_force.Start();
+      Divf0.MultTranspose(I1, I0_rhs);
+      timer.sw_force.Stop();
+      timer.dof_tstep += L2FESpace.GlobalTrueVSize();
+      for (int z = 0; z < nzones; z++)
+      {
+         L2FESpace.GetElementDofs(z, l2dofs);
+         I0_rhs.GetSubVector(l2dofs, loc_rhs);
+         //
+         I0source.GetSubVector(l2dofs, loc_I0source);
+         Mf0(z).Mult(loc_I0source, loc_Mf0MultI0source);
+         loc_rhs += loc_Mf0MultI0source;
+         //
+         timer.sw_cgL2.Start();
+         Mf0_inv(z).Mult(loc_rhs, loc_dI0);
+         timer.sw_cgL2.Stop();
+         timer.L2dof_iter += l2dofs_cnt;
+         dI0.SetSubVector(l2dofs, loc_dI0);
+      }
+   }
+
+   // Solve for df1dv.
    Vector rhs(VsizeH1), B, X;
    if (p_assembly)
    {
@@ -291,12 +383,13 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    {
       timer.sw_force.Start();
       Divf1.Mult(I0, rhs);
+	  rhs.Neg();
+      Mscattf1.AddMult(I0, rhs);
       timer.sw_force.Stop();
       timer.dof_tstep += H1FESpace.GlobalTrueVSize();
-      rhs.Neg();
       HypreParMatrix A;
       dI1 = 0.0;
-      Mv.FormLinearSystem(ess_tdofs, dI1, rhs, A, X, B);
+      Mf1.FormLinearSystem(ess_tdofs, dI1, rhs, A, X, B);
       CGSolver cg(H1FESpace.GetParMesh()->GetComm());
       cg.SetOperator(A);
       cg.SetRelTol(1e-8); cg.SetAbsTol(0.0);
@@ -307,72 +400,8 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
       timer.sw_cgH1.Stop();
       timer.H1dof_iter += cg.GetNumIterations() *
                           H1compFESpace.GlobalTrueVSize();
-      Mv.RecoverFEMSolution(X, rhs, dI1);
+      Mf1.RecoverFEMSolution(X, rhs, dI1);
    }
-
-   // Solve for energy, assemble the energy source if such exists.
-   //LinearForm *I0_source = NULL;
-   // TODO I0_source should be evaluated based on precomputed quadrature points.
-   //if (source_type == 1) // 2D Taylor-Green.
-   //{
-   //   e_source = new LinearForm(&L2FESpace);
-   //   TaylorCoefficient coeff;
-   //   DomainLFIntegrator *d = new DomainLFIntegrator(coeff, &integ_rule);
-   //   e_source->AddDomainIntegrator(d);
-   //   e_source->Assemble();
-   //}
-   Array<int> l2dofs;
-   Vector I0_rhs(VsizeL2), loc_rhs(l2dofs_cnt), loc_I0source(l2dofs_cnt),
-          loc_MeMultI0source(l2dofs_cnt), loc_dI0(l2dofs_cnt);
-   if (p_assembly)
-   {
-      timer.sw_force.Start();
-      ForcePA.MultTranspose(I1, I0_rhs);
-      timer.sw_force.Stop();
-      timer.dof_tstep += L2FESpace.GlobalTrueVSize();
-
-      //if (I0_source) { I0_rhs += *I0_source; }
-      for (int z = 0; z < nzones; z++)
-      {
-         L2FESpace.GetElementDofs(z, l2dofs);
-         I0_rhs.GetSubVector(l2dofs, loc_rhs);
-         locEMassPA.SetZoneId(z);
-         //
-         I0source.GetSubVector(l2dofs, loc_I0source);
-         locEMassPA.Mult(loc_I0source, loc_MeMultI0source);
-         loc_rhs += loc_MeMultI0source;
-         //
-         timer.sw_cgL2.Start();
-         locCG.Mult(loc_rhs, loc_dI0);
-         timer.sw_cgL2.Stop();
-         timer.L2dof_iter += locCG.GetNumIterations() * l2dofs_cnt;
-         dI0.SetSubVector(l2dofs, loc_dI0);
-      }
-   }
-   else
-   {
-      timer.sw_force.Start();
-      Divf0.MultTranspose(I1, I0_rhs);
-      timer.sw_force.Stop();
-      timer.dof_tstep += L2FESpace.GlobalTrueVSize();
-      //if (I0_source) { I0_rhs += *I0_source; }
-      for (int z = 0; z < nzones; z++)
-      {
-         L2FESpace.GetElementDofs(z, l2dofs);
-         I0_rhs.GetSubVector(l2dofs, loc_rhs);
-         //
-         I0source.GetSubVector(l2dofs, loc_I0source);
-         Me(z).Mult(loc_I0source, loc_MeMultI0source);
-         loc_rhs += loc_MeMultI0source;
-         //
-         timer.sw_cgL2.Start();
-         Me_inv(z).Mult(loc_rhs, loc_dI0);
-         timer.sw_cgL2.Stop();
-         timer.L2dof_iter += l2dofs_cnt;
-         dI0.SetSubVector(l2dofs, loc_dI0);
-      }
-   }
-   //delete I0_source;
 
    quad_data_is_current = false;
 }
@@ -583,7 +612,12 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
                   quad_data.stress0JinvT(vd)(z_id*nqp + q, gd) =
                      I0stressJiT(vd, gd);
                }
+               // Extensive quadrature data.
+               quad_data.invrhoAgradrhoinvnue(z_id*nqp + q, vd) = 0.0;
             }
+
+            // Extensive quadrature data.
+            quad_data.nutinvvnue(z_id*nqp + q) = 0.0/velocity; // Zbar = 1.0
          }
          ++z_id;
       }

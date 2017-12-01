@@ -1002,6 +1002,250 @@ T[Q6Q6]& 1.7e-04 [4]& --& --& --& --\\
 \end{center}
 \end{frame}
 
+\renewcommand{\vect}[1]{\boldsymbol{#1}}
+\renewcommand{\matr}[1]{\mathbf{#1}}
+\renewcommand{\dI}{\text{d}}
+\newcommand{\pdv}[2]{\frac{\partial{#1}}{\partial{#2}}}
+\newcommand{\odv}[2]{\frac{\dI #1}{\dI #2}}
+\newcommand{\ddv}[2]{\odv{#1}{#2}}
+%\renewcommand{\ddv}[2]{\frac{\Delta #1}{\Delta #2}}
+\newcommand{\nue}{\nu_{e}}
+\newcommand{\nutot}{\nu_{t}}
+\newcommand{\vmag}{v}
+\newcommand{\vn}{\vect{n}}
+\newcommand{\E}{\vect{E}}
+\newcommand{\B}{\vect{B}}
+\newcommand{\tE}{\vect{\tilde{E}}}
+\newcommand{\tB}{\vect{\tilde{B}}}
+\newcommand{\qe}{q_e}
+\newcommand{\me}{m_e}
+\newcommand{\fM}{f_M}
+\newcommand{\fzero}{f_0}
+\newcommand{\vfzero}{\vect{f}_0}
+\newcommand{\fone}{\vect{f}_1}
+\newcommand{\SM}{\vect{S}_M}
+\newcommand{\MI}{\matr{I}}
+\newcommand{\MA}{\matr{A}}
+\newcommand{\intO}{\int_{\Omega}}
+\newcommand{\IM}{\boldsymbol{\mathcal{M}}}
+\newcommand{\ID}{\boldsymbol{\mathcal{D}}}
+\newcommand{\IV}{\boldsymbol{\mathcal{V}}}
+\newcommand{\IB}{\boldsymbol{\mathcal{B}}}
+\newcommand{\acl}{\vect{M}_{\left(\fone/\fzero\right)}}
+
+\begin{frame}
+\begin{center}
+\myheading{AWBS Boltzmann transport equation}
+\begin{equation}
+  \vmag\vn\cdot\nabla f + \frac{\qe}{\me}\left( \E + 
+  \frac{\vmag}{c}\vn\times\B\right)\cdot\nabla_{\vect{v}} f = \nue \vmag 
+  \pdv{}{\vmag}\left( f - \fM\right) .
+  \nonumber\label{eq:AWBS}
+\end{equation}
+\myheading{M1-AWBS transport model 
+"$f = \fzero \frac{\left|\acl\right|}{4\pi\sinh\left(\acl\right)}\exp\left(\vn\cdot\acl\right)$"}
+\begin{eqnarray}
+  \nue\vmag\pdv{}{\vmag}\left(\fzero - \fM \right) &=&
+  \vmag\nabla\cdot\fone + \frac{\qe}{\me\vmag^2}\E\cdot\pdv{}{\vmag}
+  \left( \vmag^2 \fone\right) , 
+  \nonumber\label{eq:M1f0}\\
+  \nue\vmag\pdv{}{\vmag}\fone - \nutot\fone &=& 
+  \vmag\nabla\cdot\left(\MA\fzero\right) + 
+  \frac{\qe}{\me\vmag^2}\E\cdot\pdv{}{\vmag}
+  \left( \vmag^2 \MA\fzero\right)
+  + \frac{\qe}{\me\vmag}\E\cdot\left( \MA - \MI \right)\fzero +
+  \frac{\qe}{\me c}\B\times\fone .
+  \nonumber\label{eq:M1f1}
+\end{eqnarray}
+\myheading{High-order finite element bilienar form integrators}
+\begin{equation}
+  \IM^0_{(g)} = \intO\vect{\phi}\, \otimes\, \vect{\phi}^T g\, \dI \Omega,\quad
+  \IM^1_{(g)} = \intO\matr{w} \cdot \matr{w}^T g\, \dI\Omega,\quad
+  \ID_{(\matr{G})} = \intO \matr{G} : \nabla\matr{w}
+  \, \otimes\, \vect{\phi}^T\, \dI \Omega ,
+  \nonumber
+\end{equation}
+\begin{equation}  
+  \IV_{(\vect{g})} = \intO\matr{w} \cdot
+  \vect{g}\, \otimes\, \vect{\phi}^T\, \dI \Omega,\quad
+  \IB_{(\vect{g})} = \intO\matr{w} \cdot
+  \vect{g} \times \matr{w}^T\, \dI \Omega ,
+  \nonumber
+\end{equation}
+\begin{equation}
+  \vect{\phi} = \begin{bmatrix}
+    \phi_{1} \\
+	\vdots   \\
+	\phi_{N_0}
+  \end{bmatrix},~
+  \matr{w} = \begin{bmatrix}
+    w_{1, 1} & \hdots & w_{1, d} \\
+	\vdots   & \ddots & \vdots \\
+	w_{N_1, 1} & \hdots & w_{N_1, d}
+  \end{bmatrix},~
+  \vect{g} = \begin{bmatrix}
+    g_{1} \\
+	\vdots   \\
+	g_{d}
+  \end{bmatrix},~
+  \matr{G} = \begin{bmatrix}
+    G_{1, 1} & \hdots & G_{1, d} \\
+	\vdots   & \ddots & \vdots \\
+	G_{d, 1} & \hdots & G_{d, d}
+  \end{bmatrix}.
+  \nonumber
+\end{equation}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{equation}
+  \left( \matr{M}^c_0 
+  - \IM^0_{\left(\frac{\rho}{\vmag\nue\vfzero^n}\tE^T\cdot\fone^n\right)}
+  \right) \cdot {\ddv{\vfzero}{\vmag}}^* 
+  = 
+  \ID^T_{\left(\frac{\rho}{\nue}\MI\right)} \cdot \fone^n 
+  + \frac{2}{\vmag^2}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot \fone^n
+  + \matr{M}^c_0 \cdot \pdv{\vect{\fM}}{\vmag} ,  
+  \nonumber\label{eq:explM1hosf0}
+\end{equation}
+\begin{equation}
+  \matr{M}^c_1 \cdot \ddv{\fone}{\vmag} 
+  = 
+  - \left(\ID_{\left(\frac{\rho}{\nue}\MA\right)}  
+  + \IV_{\left( \MA \cdot \nabla\left(\frac{\rho}{\nue}\right) \right)} \right) 
+  \cdot \vfzero^n  
+  + \frac{1}{\vmag}\IV_{\left(\frac{\rho}{\nue}\MA \cdot \tE\right)} \cdot
+  {\ddv{\vfzero}{\vmag}}^* 
+  + \frac{1}{\vmag^2}\IV_{\left(\frac{\rho}{\nue} 
+  \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero^n
+  + \frac{1}{\vmag}\IB_{\left( \frac{\rho}{\nue}\tB \right)} \cdot \fone^n
+  + \frac{1}{\vmag}\IM^1_{\left( \frac{\rho \nutot}{\nue} \right)} 
+  \cdot \fone^n .
+  \nonumber\label{eq:explM1hosf1}
+\end{equation}
+\begin{figure}[tbh]
+  \begin{center}
+    %\begin{tabular}{c}
+      \includegraphics[width=0.8\textwidth]{../../M1Sedov1D2D3D.png}
+    %\end{tabular}
+  \caption{
+  Sedov blast. Left: density, center: heat flux, right: temperature.
+  Explicit scheme number of e-groups: 1D - 8858, 2D - 4348, 3D - 10030.
+  %Sedov blast in 1D/2D/3D from $\delta$ function hot spot. 
+  %Shock propagates from left to right. Top raw corresponds to 1D 
+  %(8858 energy groups) - 
+  %left: density profile, right: temperature 
+  %(decreasing from the~original hot spot with low temperature in compressed 
+  %plasma), center: heat flux with its maximum on the~start of increase 
+  %in density decreasing while approaching the~shock 
+  %(NOTICE non-zero flux ahead of the~shock). 
+  %Middle raw corresponds to 2D (4348 energy groups) - 
+  %left: density, center: heat flux, right: temperature.
+  %Bottom raw corresponds to 3D (10030 energy groups) - 
+  %left: density, center: heat flux, right: temperature.
+  %temperature 
+  }
+  \end{center}
+  \label{fig:expl1D2D3D}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\myheading{Implicit M1-AWBS scheme for CHIC}
+\begin{eqnarray}
+  \IM^0_{(\rho)} \cdot \pdv{\vfzero}{\vmag} 
+  - \IM^0_{(\rho)} \cdot \pdv{\vect{\fM}}{\vmag}
+  &=& 
+  \ID^T_{\left(\frac{\rho}{\nue}\MI\right)} \cdot \fone
+  + \frac{1}{\vmag}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot 
+  \pdv{\fone}{\vmag} 
+  + \frac{2}{\vmag^2}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot \fone ,  
+  \nonumber\label{eq:semiM1hosf0}\\
+  \IM^1_{(\rho)} \cdot \pdv{\fone}{\vmag} 
+  - \frac{1}{\vmag}\IM^1_{\left( \frac{\rho \nutot}{\nue} \right)} 
+  \cdot \fone 
+  &=& 
+  - \left(\ID_{\left(\frac{\rho}{\nue}\MA\right)}  
+  + \IV_{\left( \MA \cdot \nabla\left(\frac{\rho}{\nue}\right) \right)}\right) 
+  \cdot \vfzero  
+  + \frac{1}{\vmag}\IV_{\left(\frac{\rho}{\nue}\MA \cdot \tE\right)} \cdot
+  \pdv{\vfzero}{\vmag}
+  + \frac{1}{\vmag^2}\IV_{\left(\frac{\rho}{\nue} 
+  \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero
+  + \frac{1}{\vmag}\IB_{\left( \frac{\rho}{\nue}\tB \right)} \cdot \fone ,
+  \nonumber\label{eq:semiM1hosf1}
+\end{eqnarray}
+
+\begin{eqnarray}
+  \matr{M}^c_0 \cdot \pdv{\vfzero}{\vmag}  
+  &=& 
+  \matr{D}_0 \cdot \fone
+  + \matr{E}_0^1 \cdot \pdv{\fone}{\vmag} + \matr{E}_0^2 \cdot \fone
+  + \matr{M}^c_0 \cdot \pdv{\vect{\fM}}{\vmag} ,  
+  \nonumber\\
+  \matr{M}^c_1 \cdot \pdv{\fone}{\vmag}  
+  &=& 
+  - \matr{D}_1 \cdot \vfzero 
+  + \matr{E}_1^1 \cdot \pdv{\vfzero}{\vmag}
+  + \matr{E}_1^2 \cdot \vfzero
+  + \matr{B} \cdot \fone
+  + \matr{M}_1 \cdot \fone ,
+  \nonumber
+\end{eqnarray}
+
+\begin{eqnarray}
+  \ddv{\vfzero}{\vmag}  
+  &=& 
+  {\matr{M}^c_0}^{-1} \cdot \left(\matr{D}_0 + \matr{E}_0^2 \right) 
+  \cdot \left(\fone^n + \Delta \vmag \ddv{\fone}{\vmag} \right)
+  + {\matr{M}^c_0}^{-1} \cdot \matr{E}_0^1 \cdot \ddv{\fone}{\vmag}
+  + \pdv{\vect{\fM}}{\vmag} ,  
+  \nonumber\\
+  \matr{M}^c_1 \cdot \ddv{\fone}{\vmag}  
+  &=& 
+  \left( \matr{E}_1^2 - \matr{D}_1 \right) 
+  \cdot \left(\vfzero^n + \Delta\vmag \ddv{\vfzero}{\vmag} \right) 
+  + \matr{E}_1^1 \cdot \ddv{\vfzero}{\vmag}
+  + \left( \matr{B} + \matr{M}_1 \right)  
+  \cdot \left(\fone^n + \Delta \vmag \ddv{\fone}{\vmag} \right) ,
+  \nonumber
+\end{eqnarray}
+
+\begin{block}{Implicit Runge-Kuta scheme (high-order, parallel, efficient, ..., but stable?)}
+\begin{equation}
+  \ddv{\vfzero}{\vmag}  
+  = 
+  \matr{\tilde{A}}_0 \cdot \ddv{\fone}{\vmag}
+  + \vect{b}_0\left(\fone^n, \pdv{\vect{\fM}}{\vmag}\right) ,  
+  \quad
+  \left( \matr{M}^c_1 
+  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) \right) 
+  \cdot \ddv{\fone}{\vmag}  
+  = 
+  \matr{\tilde{A}}_1 \cdot \ddv{\vfzero}{\vmag}  
+  + \vect{b}_1 \left( \fone^n, \vfzero^n \right) , 
+  \nonumber\label{eq:df1dvdf0dv}
+\end{equation}
+
+\begin{equation}
+  \left( \matr{M}^c_1 
+  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) 
+  - \matr{\tilde{A}}_1 \cdot \matr{\tilde{A}}_0 \right) 
+  \cdot \ddv{\fone}{\vmag}  
+  = 
+  \matr{\tilde{A}}_1 
+  \cdot \vect{b}_0 + \vect{b}_1 , 
+  %\matr{\tilde{A}}_1 
+  %\cdot \vect{b}_0\left(\fone^n, \pdv{\vect{\fM}}{\vmag}\right)
+  %+ \vect{b}_1 \left( \fone^n, \vfzero^n \right)~, 
+  \label{eq:df1dv}
+\end{equation}
+\end{block}
+\end{center}
+\end{frame}
+
 %\begin{comment} % RT pics
 \newcommand{\RThscale}{0.9}
 \begin{frame}
@@ -1571,13 +1815,13 @@ soon
 \end{frame}
 
 %\end{comment} % Extensive NTH model
-\newcommand{\fzero}{f_0}
-\newcommand{\fone}{\boldsymbol{f}_1}
+\renewcommand{\fzero}{f_0}
+\renewcommand{\fone}{\boldsymbol{f}_1}
 \newcommand{\ftwo}{\boldsymbol{f}_2}
 \newcommand{\pv}{\frac{\partial}{\partial v}}
 \newcommand{\nuee}{\nu_{ee}}
 \newcommand{\nut}{\nu_{tot}}
-\newcommand{\fM}{f_M}
+\renewcommand{\fM}{f_M}
 \begin{frame}
 \begin{center}
 {\large Nonlocal Transport Magneto-Hydrodynamics (NTMHD) model}  

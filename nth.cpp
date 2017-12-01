@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
    {
       nth::a0 = 2e1;
       vis_steps = 10000;
-      m1cfl = 0.5;
+      m1cfl = 0.25;
    }
    else if (pmesh->Dimension() == 2)
    {
@@ -402,8 +402,9 @@ int main(int argc, char *argv[])
    double alphavT = mspInv.GetVelocityScale();
    m1oper.ResetVelocityStepEstimate();
    m1oper.ResetQuadratureData();
-   double vmax = 1.0, vmin = 0.01 * vmax;
-   //double vmax = 0.01, vmin = 0.001 * vmax;
+   double vmax = 1.0;
+   double vmin = 0.01 * vmax; // Minimum 2*vTh
+   //double vmin = 2.0 * vmax / vTmultiple; // Minimum 2*vTh
    m1oper.SetTime(vmax);
    double dvmax = vmax*0.1;
    double dvmin = min(dvmax, m1oper.GetVelocityStepEstimate(m1S));
