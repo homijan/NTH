@@ -166,22 +166,21 @@ represented by test functions $\phi$ and the~vector
 (first moment) functional space represented by test functions $\vect{w}$ 
 takes the~form
 \begin{eqnarray}
-  \intO\phi\rho \pdv{\fzero}{\vmag} &=& 
+  \intO\phi\nue\pdv{\fzero}{\vmag} &=& 
   \intO\phi
-  \left(\frac{\rho}{\nue}\MI:\nabla\fone + 
-  \frac{\rho}{\nue\vmag}\tE\cdot\pdv{\fone}{\vmag}
-  + \frac{2 \rho}{\nue\vmag^2}\tE\cdot\fone + \rho \pdv{\fM}{\vmag}\right) , 
+  \left(\MI:\nabla\fone + 
+  \frac{1}{\vmag}\tE\cdot\pdv{\fone}{\vmag}
+  + \frac{2}{\vmag^2}\tE\cdot\fone + \nue \pdv{\fM}{\vmag}\right) , 
   \label{eq:M1hosf0_variational}\\
-  \intO\vect{w}\cdot\rho \pdv{\fone}{\vmag} &=&
+  \intO\vect{w}\cdot\nue\pdv{\fone}{\vmag} &=&
   %\frac{\rho}{\nue}\nabla\cdot\left(\MA\fzero\right) + 
-  \intO\vect{w}\cdot\Bigg(\nabla\cdot\left(\frac{\rho\MA}{\nue}\fzero\right) 
-  - \nabla\left( \frac{\rho}{\nue}\right)\cdot\MA\fzero 
-  + \frac{\rho}{\nue\vmag^2}\tE\cdot\left( 3\MA - \MI \right)\fzero
+  \intO\vect{w}\cdot\Bigg(\nabla\cdot\left(\MA\fzero\right)  
+  + \frac{1}{\vmag^2}\tE\cdot\left( 3\MA - \MI \right)\fzero
   \nonumber\\
   && 
-  + \frac{\rho}{\nue\vmag}\tE\cdot\pdv{}{\vmag}
-  \left( \MA\fzero\right) + \frac{\rho}{\nue\vmag}\tB\times\fone + 
-  \frac{\rho \nutot}{\nue\vmag}\fone\Bigg) .
+  + \frac{1}{\vmag}\tE\cdot\pdv{}{\vmag}
+  \left( \MA\fzero\right) + \frac{1}{\vmag}\tB\times\fone + 
+  \frac{\nutot}{\vmag}\fone\Bigg) .
   \label{eq:M1hosf1_variational}
 \end{eqnarray}
 
@@ -189,35 +188,33 @@ The~corresponding discrete variational principal based on the~method of
 finite elements then reads
 \begin{multline}
   \intO\vect{\phi}\, \otimes\, \vect{\phi}^T 
-  \rho\, \dI \Omega \cdot \pdv{\vfzero}{\vmag} = 
-  \intO\vect{\phi}\, \otimes \left(
-  \frac{\rho}{\nue}\MI:\nabla\matr{w}^T + 
-  \frac{2 \rho}{\nue\vmag^2}\tE^T \cdot\matr{w}^T \right)\dI \Omega
+  \nue\, \dI \Omega \cdot \pdv{\vfzero}{\vmag} = 
+  \intO\vect{\phi}\, \otimes \left(\MI:\nabla\matr{w}^T + 
+  \frac{2}{\vmag^2}\tE^T \cdot\matr{w}^T \right)\dI \Omega
   \cdot \fone \\
   + \intO\vect{\phi}\, \otimes
-  \frac{\rho}{\nue\vmag}\tE^T \cdot \matr{w}^T\, \dI \Omega 
+  \frac{1}{\vmag}\tE^T \cdot \matr{w}^T\, \dI \Omega 
   \cdot \pdv{\fone}{\vmag} + 
-  \intO\vect{\phi}\, \otimes\, \vect{\phi}^T \rho\, \dI\Omega\,
+  \intO\vect{\phi}\, \otimes\, \vect{\phi}^T \nue\, \dI\Omega\,
   \cdot \pdv{\vect{\fM}}{\vmag} , 
   \label{eq:FEM1hosf0}
 \end{multline}
 \begin{multline}
-  \intO\matr{w} \cdot \matr{w}^T \rho\, \dI\Omega \cdot 
+  \intO\matr{w} \cdot \matr{w}^T \nue\, \dI\Omega \cdot 
   \pdv{\fone}{\vmag} =
   - \intO
-  \left(\frac{\rho}{\nue} \MA : \nabla\matr{w} 
-  + \matr{w} \cdot \MA \cdot \nabla\left(\frac{\rho}{\nue}\right)\right)
+  \left(\MA : \nabla\matr{w}\right)
   \vect{\phi}^T\, \dI \Omega\, 
   \cdot \vfzero \\
   + \intO\matr{w} \cdot 
-  \frac{\rho}{\nue\vmag^2} \left( 3\MA - \MI \right) \cdot \tE\,  
+  \frac{1}{\vmag^2} \left( 3\MA - \MI \right) \cdot \tE\,  
   \vect{\phi}^T\, \dI\Omega \cdot \vfzero 
   + \intO\matr{w} \cdot
-  \frac{\rho}{\nue\vmag} \MA \cdot \tE\, \vect{\phi}^T\, \dI \Omega 
+  \frac{1}{\vmag} \MA \cdot \tE\, \vect{\phi}^T\, \dI \Omega 
   \cdot \pdv{\vfzero}{\vmag}\\
   + \intO\matr{w} \cdot
-  \left(\frac{\rho}{\nue\vmag}\tilde{\B}\times\matr{w}^T + 
-  \frac{\rho \nutot}{\nue\vmag} \matr{w}^T\right)\, \dI\Omega 
+  \left(\frac{1}{\vmag}\tilde{\B}\times\matr{w}^T + 
+  \frac{\nutot}{\vmag} \matr{w}^T\right)\, \dI\Omega 
   \cdot \fone ,
   \label{eq:FEM1hosf1}
 \end{multline}
@@ -277,28 +274,26 @@ Consequently, the~discrete analog of M1-AWBS equations
 \eqref{eq:M1f0} and \eqref{eq:M1f1} can be written based on 
  \eqref{eq:FEM1hosf0}, \eqref{eq:FEM1hosf1} as
 \begin{multline}
-  \IM^0_{(\rho)} \cdot \pdv{\vfzero}{\vmag} 
-  - \IM^0_{(\rho)} \cdot \pdv{\vect{\fM}}{\vmag}
+  \IM^0_{(\nue)} \cdot \pdv{\vfzero}{\vmag} 
+  - \IM^0_{(\nue)} \cdot \pdv{\vect{\fM}}{\vmag}
   = 
-  \ID^T_{\left(\frac{\rho}{\nue}\MI\right)} \cdot \fone
-  + \frac{1}{\vmag}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot 
+  \ID^T_{\left(\MI\right)} \cdot \fone
+  + \frac{1}{\vmag}\IV^T_{\left(\tE\right)} \cdot 
   \pdv{\fone}{\vmag} 
-  + \frac{2}{\vmag^2}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot \fone ,  
+  + \frac{2}{\vmag^2}\IV^T_{\left(\tE\right)} \cdot \fone ,  
   \label{eq:semiM1hosf0}
 \end{multline}
 \begin{multline}
-  \IM^1_{(\rho)} \cdot \pdv{\fone}{\vmag} 
-  - \frac{1}{\vmag}\IM^1_{\left( \frac{\rho \nutot}{\nue} \right)} 
+  \IM^1_{(\nue)} \cdot \pdv{\fone}{\vmag} 
+  - \frac{1}{\vmag}\IM^1_{\left( \nutot \right)} 
   \cdot \fone 
   = 
-  - \left(\ID_{\left(\frac{\rho}{\nue}\MA\right)}  
-  + \IV_{\left( \MA \cdot \nabla\left(\frac{\rho}{\nue}\right) \right)}\right) 
-  \cdot \vfzero \\ 
-  + \frac{1}{\vmag}\IV_{\left(\frac{\rho}{\nue}\MA \cdot \tE\right)} \cdot
+  - \ID_{\left(\MA\right)}\cdot \vfzero \\ 
+  + \frac{1}{\vmag}\IV_{\left(\MA \cdot \tE\right)} \cdot
   \pdv{\vfzero}{\vmag}
-  + \frac{1}{\vmag^2}\IV_{\left(\frac{\rho}{\nue} 
-  \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero
-  + \frac{1}{\vmag}\IB_{\left( \frac{\rho}{\nue}\tB \right)} \cdot \fone ,
+  + \frac{1}{\vmag^2}\IV_{\left(\left( 3\MA - \MI \right) \cdot \tE \right)} 
+  \cdot \vfzero
+  + \frac{1}{\vmag}\IB_{\left( \tB \right)} \cdot \fone ,
   \label{eq:semiM1hosf1}
 \end{multline}
 where the~integrators \eqref{eq:IM0}, \eqref{eq:IM1},
@@ -306,13 +301,14 @@ where the~integrators \eqref{eq:IM0}, \eqref{eq:IM1},
 functions $\rho$, $\nue$, $\nutot$, vectors $\tE$, $\tB$, and matrices $\MA$
 and $\MI$.
 
-Also, it proves to be useful to define mass matrices
-\begin{equation}
-  \matr{M}_0^c = \IM^0_{(\rho)},~\matr{M}_1^c = \IM^1_{(\rho)} ,
-  \label{eq:massmatrices} 
-\end{equation}
-since these are constant during the~time evolution of the~Lagrangian mesh,
-thus making the~overall matrix evaluation more efficient.
+
+%Also, it proves to be useful to define mass matrices
+%\begin{equation}
+%  \matr{M}_0^c = \IM^0_{(\rho)},~\matr{M}_1^c = \IM^1_{(\rho)} ,
+%  \label{eq:massmatrices} 
+%\end{equation}
+%since these are constant during the~time evolution of the~Lagrangian mesh,
+%thus making the~overall matrix evaluation more efficient.
 
 \subsection{Explicit fully-discrete scheme}\label{sec:expl_fullydiscrete_scheme}
 The~easiest way to define a~fully discrete scheme is to apply the~explicit
@@ -324,13 +320,13 @@ scheme is used.
 In the~first step the~time evolution of zero moment quantity $\vfzero$ is 
 computed as
 \begin{multline}
-  \left( \matr{M}^c_0 
-  - \IM^0_{\left(\frac{\rho}{\vmag\nue\vfzero^n}\tE^T\cdot\fone^n\right)}
+  \left( \IM^0_{\left( \nue \right)} 
+  - \IM^0_{\left(\frac{1}{\vmag \vfzero^n}\tE^T\cdot\fone^n\right)}
   \right) \cdot {\ddv{\vfzero}{\vmag}}^* 
   = 
-  \ID^T_{\left(\frac{\rho}{\nue}\MI\right)} \cdot \fone^n 
-  + \frac{2}{\vmag^2}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot \fone^n
-  + \matr{M}^c_0 \cdot \pdv{\vect{\fM}}{\vmag} ,  
+  \ID^T_{\left(\MI\right)} \cdot \fone^n 
+  + \frac{2}{\vmag^2}\IV^T_{\left(\tE\right)} \cdot \fone^n
+  + \IM^0_{\left( \nue \right)} \cdot \pdv{\vect{\fM}}{\vmag} ,  
   \label{eq:explM1hosf0}
 \end{multline}
 where the~actual evolution of $\fone$ has been redefined as similar to 
@@ -338,17 +334,15 @@ the~time evolution of $\vfzero$ (compare \eqref{eq:explM1hosf0} to
 \eqref{eq:semiM1hosf0}). Then, the~actual computation of the~time evolution 
 of $\fone$ follows
 \begin{multline}
-  \matr{M}^c_1 \cdot \ddv{\fone}{\vmag} 
+  \IM^1_{\left( \nue \right)} \cdot \ddv{\fone}{\vmag} 
   = 
-  - \left(\ID_{\left(\frac{\rho}{\nue}\MA\right)}  
-  + \IV_{\left( \MA \cdot \nabla\left(\frac{\rho}{\nue}\right) \right)} \right) 
-  \cdot \vfzero^n  
-  + \frac{1}{\vmag}\IV_{\left(\frac{\rho}{\nue}\MA \cdot \tE\right)} \cdot
+  - \ID_{\left(\MA\right)}\cdot \vfzero^n  
+  + \frac{1}{\vmag}\IV_{\left(\MA \cdot \tE\right)} \cdot
   {\ddv{\vfzero}{\vmag}}^* \\
-  + \frac{1}{\vmag^2}\IV_{\left(\frac{\rho}{\nue} 
+  + \frac{1}{\vmag^2}\IV_{\left( 
   \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero^n
-  + \frac{1}{\vmag}\IB_{\left( \frac{\rho}{\nue}\tB \right)} \cdot \fone^n
-  + \frac{1}{\vmag}\IM^1_{\left( \frac{\rho \nutot}{\nue} \right)} 
+  + \frac{1}{\vmag}\IB_{\left( \tB \right)} \cdot \fone^n
+  + \frac{1}{\vmag}\IM^1_{\left( \nutot \right)} 
   \cdot \fone^n .
   \label{eq:explM1hosf1}
 \end{multline}
@@ -397,64 +391,39 @@ In order to formulate a~fully-discrete scheme leaning on an~implicit
 discretization of velocity, the~equations \eqref{eq:semiM1hosf0} and 
 \eqref{eq:semiM1hosf1} can be expressed with matrices as
 \begin{eqnarray}
-  \matr{M}^c_0 \cdot \pdv{\vfzero}{\vmag}  
+  \matr{M}_0 \cdot \pdv{\vfzero}{\vmag}  
   &=& 
   \matr{D}_0 \cdot \fone
   + \matr{E}_0^1 \cdot \pdv{\fone}{\vmag} + \matr{E}_0^2 \cdot \fone
-  + \matr{M}^c_0 \cdot \pdv{\vect{\fM}}{\vmag} ,  
+  + \matr{M}_0 \cdot \pdv{\vect{\fM}}{\vmag} ,  
   \nonumber\\
-  \matr{M}^c_1 \cdot \pdv{\fone}{\vmag}  
+  \matr{M}_1 \cdot \pdv{\fone}{\vmag}  
   &=& 
   - \matr{D}_1 \cdot \vfzero 
   + \matr{E}_1^1 \cdot \pdv{\vfzero}{\vmag}
   + \matr{E}_1^2 \cdot \vfzero
   + \matr{B} \cdot \fone
-  + \matr{M}_1 \cdot \fone ,
+  + \matr{M}^t_1 \cdot \fone ,
   \nonumber
 \end{eqnarray}
 
 \begin{eqnarray}
   \ddv{\vfzero}{\vmag}  
   &=& 
-  {\matr{M}^c_0}^{-1} \cdot \left(\matr{D}_0 + \matr{E}_0^2 \right) 
+  \matr{M}_0^{-1} \cdot \left(\matr{D}_0 + \matr{E}_0^2 \right) 
   \cdot \left(\fone^n + \Delta \vmag \ddv{\fone}{\vmag} \right)
-  + {\matr{M}^c_0}^{-1} \cdot \matr{E}_0^1 \cdot \ddv{\fone}{\vmag} \nonumber\\
+  + \matr{M}_0^{-1} \cdot \matr{E}_0^1 \cdot \ddv{\fone}{\vmag} \nonumber\\
   && + \pdv{\vect{\fM}}{\vmag} ,  
   \nonumber\\
-  \matr{M}^c_1 \cdot \ddv{\fone}{\vmag}  
+  \matr{M}_1 \cdot \ddv{\fone}{\vmag}  
   &=& 
   \left( \matr{E}_1^2 - \matr{D}_1 \right) 
   \cdot \left(\vfzero^n + \Delta\vmag \ddv{\vfzero}{\vmag} \right) 
   + \matr{E}_1^1 \cdot \ddv{\vfzero}{\vmag} \nonumber\\
-  && + \left( \matr{B} + \matr{M}_1 \right)  
+  && + \left( \matr{B} + \matr{M}^t_1 \right)  
   \cdot \left(\fone^n + \Delta \vmag \ddv{\fone}{\vmag} \right) ,
   \nonumber
 \end{eqnarray}
-%\begin{multline}
-%  \ddv{\vfzero}{\vmag}  
-%  = 
-%  {\matr{M}^c_0}^{-1} \cdot \left( \Delta\vmag \left(\matr{D}_0 
-%  + \matr{E}_0^2 \right) + \matr{E}_0^1 \right) \cdot \ddv{\fone}{\vmag}
-%  + {\matr{M}^c_0}^{-1} \cdot \left(\matr{D}_0 + \matr{E}_0^2 \right) 
-%  \cdot \fone^n
-%  + \pdv{\vect{\fM}}{\vmag}~,  
-%  \nonumber
-%\end{multline}
-
-%\begin{multline}
-%  \left( \matr{M}^c_1 
-%  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) \right) 
-%  \cdot \ddv{\fone}{\vmag}  
-%  = 
-%  \left( \matr{E}_1^1 + 
-%  \Delta\vmag\left( \matr{E}_1^2 - \matr{D}_1 \right)\right) 
-%  \cdot \ddv{\vfzero}{\vmag}
-%  + \left( \matr{B} + \matr{M}_1 \right)  
-%  \cdot \fone^n
-%  + \left( \matr{E}_1^2 - \matr{D}_1 \right)
-%  \cdot \vfzero^n~, 
-%  \nonumber
-%\end{multline}
 
 \begin{eqnarray}
   \ddv{\vfzero}{\vmag}  
@@ -462,8 +431,8 @@ discretization of velocity, the~equations \eqref{eq:semiM1hosf0} and
   \matr{\tilde{A}}_0 \cdot \ddv{\fone}{\vmag}
   + \vect{b}_0\left(\fone^n, \pdv{\vect{\fM}}{\vmag}\right) ,  
   \label{eq:df0dv} \\
-  \left( \matr{M}^c_1 
-  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) \right) 
+  \left( \matr{M}_1 
+  - \Delta \vmag \left( \matr{B} + \matr{M}^t_1 \right) \right) 
   \cdot \ddv{\fone}{\vmag}  
   &=& 
   \matr{\tilde{A}}_1 \cdot \ddv{\vfzero}{\vmag}  
@@ -472,8 +441,8 @@ discretization of velocity, the~equations \eqref{eq:semiM1hosf0} and
 \end{eqnarray}
 
 \begin{equation}
-  \left( \matr{M}^c_1 
-  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) 
+  \left( \matr{M}_1 
+  - \Delta \vmag \left( \matr{B} + \matr{M}^t_1 \right) 
   - \matr{\tilde{A}}_1 \cdot \matr{\tilde{A}}_0 \right) 
   \cdot \ddv{\fone}{\vmag}  
   = 
@@ -484,82 +453,6 @@ discretization of velocity, the~equations \eqref{eq:semiM1hosf0} and
   %+ \vect{b}_1 \left( \fone^n, \vfzero^n \right)~, 
   \label{eq:df1dv}
 \end{equation}
-
-\begin{comment} % old discrete analog
-The~M1-AWBS model can be written as an~algebraic representation
-\begin{eqnarray}
-  \matr{M}_0\, \cdot\, \pdv{\vfzero}{\vmag} &=& 
-  \left(\matr{D}_0^T + \frac{2}{\vmag^2}\matr{E}_0\right) \cdot\, \fone + 
-  \frac{1}{\vmag}\matr{E}_0\, \cdot\, \pdv{\fone}{\vmag}
-  + \matr{M}_0\, \cdot\, \pdv{\vect{\fM}}{\vmag}\, , 
-  \label{eq:MM1hosf0}\\
-  \matr{M}_1\, \cdot\, \pdv{\fone}{\vmag} &=& 
-  - \matr{D}_1\, \cdot\, \vfzero + \matr{EI}_1\, \cdot\, \vfzero
-  + \matr{E}_1\, \cdot\, \pdv{\vfzero}{\vmag} 
-  + \matr{B}_1\, \cdot\, \fone + \matr{N}_1\, \cdot\, \fone\, ,
-  \label{eq:MM1hosf1}
-\end{eqnarray}
-
-\begin{eqnarray}
-  \matr{M}_0\, \cdot\, \ddv{\vfzero}{\vmag} &=& 
-  \left(\matr{D}_0^T + \frac{2}{\vmag^2}\matr{E}_0\right) \cdot\, \fone^n + 
-  \frac{1}{\vmag}\matr{E}_{1/0}\, \cdot\, \ddv{\vfzero}{\vmag}
-  + \matr{M}_0\, \cdot\, \SM~,
-  \label{eq:mm1hosf0_expl}\\
-  \matr{M}_1\, \cdot\, \ddv{\fone}{\vmag} &=& 
-  \left( \matr{EI}_1 - \matr{D}_1 \right)\, \cdot\, \vfzero^n
-  + \matr{E}_1\, \cdot\, \ddv{\vfzero}{\vmag} 
-  + \left(\matr{B}_1 + \matr{N}_1\right)\, \cdot\, \fone^n~,
-  \label{eq:mm1hosf1_expl}
-\end{eqnarray}
-
-\begin{eqnarray}
-  \matr{M}_0\, \cdot\, \ddv{\vfzero}{\vmag} &=& 
-  \left(\matr{D}_0^T + \frac{2}{\vmag^2}\matr{E}_0\right) \cdot\, 
-  \left( \fone^{n} + \Delta\vmag \ddv{\fone}{\vmag} \right) + 
-  \frac{1}{\vmag}\matr{E}_0\, \cdot\, \ddv{\fone}{\vmag}
-  + \matr{M}_0\, \cdot\, \SM~, \nonumber\\ 
-  \label{eq:mm1hosf0_impl}\\
-  \matr{M}_1\, \cdot\, \ddv{\fone}{\vmag} &=& 
-  \left( \matr{EI}_1 - \matr{D}_1\right)\, \cdot\, 
-  \left( \vfzero^{n} + \Delta\vmag\ddv{\vfzero}{\vmag} \right)
-  + \matr{E}_1\, \cdot\, \ddv{\vfzero}{\vmag} \nonumber \\ 
-  && + \left(\matr{B}_1 + \matr{N}_1\right)\, \cdot\, 
-  \left( \fone^{n} + \Delta\vmag\ddv{\fone}{\vmag} \right)\, ,
-  \label{eq:mm1hosf1_impl}
-\end{eqnarray}
-
-\begin{eqnarray}
-  \matr{M}_0 &=& \int_{\Omega}\vect{\phi}\, \otimes\, \vect{\phi}^T 
-  \rho\, \dI \Omega~, \\
-  \matr{D}_0 &=& \int_{\Omega}\vect{\phi}\, \otimes
-  \frac{\rho}{\nue}\MI:\nabla\vect{w}^T\, \dI \Omega~, \\
-  \matr{E}_0 &=& \int_{\Omega}\vect{\phi}\, \otimes
-  \frac{\rho}{\nue}\tilde{\E}\, \cdot\, \vect{w}^T\, \dI \Omega~, \\
-  \matr{E}_{1/0} &=& \int_{\Omega}
-  \frac{\rho}{\nue\fzero^n}\tilde{\E}\, \cdot\, \fone^n\,
-  \vect{\phi}\, \otimes\, \vect{\phi}^T\, \dI \Omega~.
-\end{eqnarray}
-
-\begin{eqnarray}
-  \matr{M}_1 &=& \int_{\Omega}\vect{w}\, \otimes\, \vect{w}^T \rho\, \dI\Omega~,  \\
-  \matr{D}_1 &=& \int_{\Omega}\frac{\rho}{\nue} \MA : \nabla\vect{w}\, \otimes\,
-  \vect{\phi}^T\, \dI \Omega + 
-  \int_{\Omega}\vect{w}\, \otimes
-  \nabla\left(\frac{\rho}{\nue}\right)\, \cdot\, \MA\, \vect{\phi}^T\, 
-  \dI\Omega ~, \\
-  \matr{E}_1 &=& \int_{\Omega}\vect{w}\, \otimes
-  \frac{\rho}{\nue\vmag}\tilde{\E} \cdot \MA\, \vect{\phi}^T\, \dI \Omega~, \\
-  \matr{EI}_{1} &=& \int_{\Omega}\vect{w}\, \otimes
-  \frac{\rho}{\nue\vmag^2}\tilde{\E}\, \cdot\, \left( 3\MA - \MI \right) 
-  \vect{\phi}^T\, 
-  \dI\Omega~, \\
-  \matr{B}_1 &=& \int_{\Omega}\vect{w}\, \otimes
-  \frac{\rho}{\nue\vmag}\tilde{\B}\times\vect{w}^T\, \dI\Omega~, \\
-  \matr{N}_1 &=& \int_{\Omega}\vect{w}\, \otimes
-  \frac{\rho \nutot}{\nue\vmag} \vect{w}^T\, \dI\Omega~.
-\end{eqnarray}
-\end{comment} % old discrete analog
 
 \cite{Dobrev_Kolev_Rieben-High-order_curvilinear_finite_element_methods_for_Lagrangian_hydrodynamics}
 

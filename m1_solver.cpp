@@ -274,9 +274,11 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    {
       Divf1 = 0.0;
       Divf0 = 0.0;
-      Mscattf1.Update();
+      Mf1.Update();
+	  Mscattf1.Update();
       timer.sw_force.Start();
-      Divf1.Assemble();
+      Mf1.Assemble();
+	  Divf1.Assemble();
       Divf0.Assemble();
       Mscattf1.Assemble();
       timer.sw_force.Stop();
