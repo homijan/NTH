@@ -347,35 +347,35 @@ int main(int argc, char *argv[])
    double m1cfl = 0.25;
    double kB = 1.0, me = 1.0;
    nth::EOS eos(kB, me);
-   nth::M1MeanStoppingPowerInverse mspInv(rho_gf, e_gf, v_gf, material_pcf, 
+   nth::M1MeanStoppingPower msp(rho_gf, e_gf, v_gf, material_pcf, 
                                           &eos);
-   nth::M1HydroCoefficient *mspInv_pcf = &mspInv;
+   nth::M1HydroCoefficient *msp_pcf = &msp;
    nth::M1I0Source sourceI0(rho_gf, e_gf, v_gf, material_pcf, &eos);
    nth::M1HydroCoefficient *sourceI0_pcf = &sourceI0;
 
    // Static coefficient defined in m1_solver.hpp.
    if (pmesh->Dimension() == 1)
    {
-      nth::a0 = 2e1; //2e1;
+      nth::a0 = 2e3; //2e1;
       vis_steps = 10000;
       m1cfl = 0.5;
    }
    else if (pmesh->Dimension() == 2)
    {
-      nth::a0 = 2e1; //2e5;
+      nth::a0 = 2e5; //2e1;
       vis_steps = 10000;
-      m1cfl = 0.5;
+      m1cfl = 1.0;
    }
    else if (pmesh->Dimension() == 3)
    {
-      nth::a0 = 2e1;
+      nth::a0 = 2e7;
       vis_steps = 10000;
-      m1cfl = 0.1;
+      m1cfl = 1.0;
    }
 
    // Initialize the M1-AWBS operator
    nth::M1Operator m1oper(m1S.Size(), H1FESpace, L2FESpace, ess_tdofs, rho_gf, 
-                          m1cfl, mspInv_pcf, sourceI0_pcf, x_gf, e_gf, 
+                          m1cfl, msp_pcf, sourceI0_pcf, x_gf, e_gf, 
                           p_assembly, cg_tol, cg_max_iter);
    // Prepare grid functions integrating the moments of I0 and I1.
    ParGridFunction intI0_gf(&L2FESpace), intI1_gf(&H1FESpace);
@@ -392,14 +392,14 @@ int main(int argc, char *argv[])
    //double fluxMoment = 1.0; // current
    double fluxMoment = 3.0; // heat flux
    oper.ComputeDensity(rho_gf);
-   mspInv.SetThermalVelocityMultiple(vTmultiple);
+   msp.SetThermalVelocityMultiple(vTmultiple);
    sourceI0.SetThermalVelocityMultiple(vTmultiple);
    double loc_Tmax = e_gf.Max(), glob_Tmax;
    MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                  pmesh->GetComm());
-   mspInv.SetTmax(glob_Tmax);
+   msp.SetTmax(glob_Tmax);
    sourceI0.SetTmax(glob_Tmax);
-   double alphavT = mspInv.GetVelocityScale();
+   double alphavT = msp.GetVelocityScale();
    m1oper.ResetVelocityStepEstimate();
    m1oper.ResetQuadratureData();
    double vmax = 1.0;
@@ -573,14 +573,14 @@ int main(int argc, char *argv[])
 ///// M1 nonlocal solver //////////////////////////////////////
 ///////////////////////////////////////////////////////////////
          oper.ComputeDensity(rho_gf);
-         mspInv.SetThermalVelocityMultiple(vTmultiple);
+         msp.SetThermalVelocityMultiple(vTmultiple);
          sourceI0.SetThermalVelocityMultiple(vTmultiple);
          double loc_Tmax = e_gf.Max(), glob_Tmax;
          MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                        pmesh->GetComm());
-         mspInv.SetTmax(glob_Tmax);
+         msp.SetTmax(glob_Tmax);
          sourceI0.SetTmax(glob_Tmax);
-         alphavT = mspInv.GetVelocityScale();
+         alphavT = msp.GetVelocityScale();
          m1oper.ResetVelocityStepEstimate();
          m1oper.ResetQuadratureData();
          m1oper.SetTime(vmax);

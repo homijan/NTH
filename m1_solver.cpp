@@ -81,7 +81,7 @@ M1Operator::M1Operator(int size,
                        Array<int> &essential_tdofs,
                        ParGridFunction &rho0, 
                        double cfl_, 
-                       M1HydroCoefficient *mspInv_,
+                       M1HydroCoefficient *msp_,
                        M1HydroCoefficient *sourceI0_, 
                        ParGridFunction &x_gf_, 
                        ParGridFunction &T_gf_, 
@@ -107,7 +107,7 @@ M1Operator::M1Operator(int size,
      AIEfieldf1(&l2_fes, &h1_fes),
      ForcePA(&quad_data, h1_fes, l2_fes),
      VMassPA(&quad_data, H1compFESpace), locEMassPA(&quad_data, l2_fes),
-     locCG(), timer(), mspInv_pcf(mspInv_), sourceI0_pcf(sourceI0_), x_gf(x_gf_)
+     locCG(), timer(), msp_pcf(msp_), sourceI0_pcf(sourceI0_), x_gf(x_gf_)
 {
    GridFunctionCoefficient rho_coeff(&rho0);
 
@@ -247,7 +247,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    const double velocity = GetTime(); 
 
    UpdateQuadratureData(velocity, S);
-   const double alphavT = mspInv_pcf->GetVelocityScale();
+   const double alphavT = msp_pcf->GetVelocityScale();
 
    sourceI0_pcf->SetVelocity(velocity);
    ParGridFunction I0source(&L2FESpace);
@@ -513,8 +513,8 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    if (quad_data_is_current) { return; }
    timer.sw_qdata.Start();
 
-   mspInv_pcf->SetVelocity(velocity);
-   const double alphavT = mspInv_pcf->GetVelocityScale();
+   msp_pcf->SetVelocity(velocity);
+   const double alphavT = msp_pcf->GetVelocityScale();
    const int nqp = integ_rule.GetNPoints();
 
    ParGridFunction I0, I1;
@@ -535,7 +535,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    int nzones_batch = 3;
    const int nbatches =  nzones / nzones_batch + 1; // +1 for the remainder.
    int nqp_batch = nqp * nzones_batch;
-   double *mspInv_b = new double[nqp_batch],
+   double *msp_b = new double[nqp_batch],
           *rho_b = new double[nqp_batch];
    // Jacobians of reference->physical transformations for all quadrature
    // points in the batch.
@@ -571,10 +571,16 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             const double detJ = Jpr_b[z](q).Det();
 
             const int idx = z * nqp + q;
-            //rho_b[idx] = mspInv_pcf->GetRho(*T, ip);
+            //rho_b[idx] = msp_pcf->GetRho(*T, ip);
             rho_b[idx] = quad_data.rho0DetJ0w(z_id*nqp + q) / 
                          detJ / ip.weight;
-            mspInv_b[idx] = mspInv_pcf->Eval(*T, ip, rho_b[idx]);
+            msp_b[idx] = msp_pcf->Eval(*T, ip, rho_b[idx]);
+			// M1 closure.
+			double f0 = I0.GetValue((*T).ElementNo, ip);
+			Vector f1;
+			I1.GetVectorValue((*T).ElementNo, ip, f1);
+			DenseMatrix AM1;
+			MultVVt(f1, AM1);
          }
          ++z_id;
       }
@@ -596,7 +602,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             const DenseMatrix &Jpr = Jpr_b[z](q);
             CalcInverse(Jpr, Jinv);
             const double detJ = Jpr.Det();
-            double mspInv = mspInv_b[z*nqp + q];
+            double msp = msp_b[z*nqp + q];
             double rho = rho_b[z*nqp + q];
 
             // Time step estimate at the point. Here the more relevant length
@@ -606,24 +612,22 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             const double h_min =
                Jpr.CalcSingularvalue(dim-1) / (double) H1FESpace.GetOrder(0);
 /*
-            double inv_dt = mspInv / h_min;
+            double inv_dt = msp / h_min;
             //if (M1_dvmax * inv_dt / cfl < 1.0) { inv_dt = cfl / M1_dvmax; }
             //if (M1_dvmin * inv_dt > 1.0)
             //{
             //   inv_dt = 1.0 / M1_dvmin;
-            //   mspInv = inv_dt * h_min;
+            //   msp = inv_dt * h_min;
             //}
             quad_data.dt_est = min(quad_data.dt_est, cfl * (1.0 / inv_dt) );
 */
             // The scaled cfl condition on velocity step.
-            double dv = h_min / mspInv / alphavT / rho;
+            double dv = h_min * msp / alphavT; // / rho;
             quad_data.dt_est = min(quad_data.dt_est, cfl * dv);
             I0stress = 0.0;
             I1stress = 0.0;
 			for (int d = 0; d < dim; d++)
             {
-               //I0stress(d, d) = mspInv;
-               //I1stress(d, d) = mspInv/3.0; // P1 closure.
                I0stress(d, d) = 1.0;
                I1stress(d, d) = 1.0/3.0; // P1 closure.
             }
@@ -649,18 +653,15 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             }
 
             // Extensive quadrature data.
-            //quad_data.nuinvrho(z_id*nqp + q) = 1.0; //nue/rho;
-            //const double Zbar = 10.0;
-			//quad_data.nutinvvrho(z_id*nqp + q) = Zbar / (alphavT * velocity);
-            quad_data.nuinvrho(z_id*nqp + q) = 1.0 / rho / mspInv; //nue/rho;
+            quad_data.nuinvrho(z_id*nqp + q) = msp / rho; //nue/rho;
             const double Zbar = 10.0;
-			quad_data.nutinvvrho(z_id*nqp + q) =
-               Zbar / (alphavT * velocity) / rho / mspInv;
+			quad_data.nutinvvrho(z_id*nqp + q) = 
+			   Zbar * msp / (alphavT * velocity) / rho;
          }
          ++z_id;
       }
    }
-   delete [] mspInv_b;
+   delete [] msp_b;
    delete [] rho_b;
    delete [] Jpr_b;
    quad_data_is_current = true;
@@ -685,26 +686,6 @@ double M1MeanStoppingPower::Eval(ElementTransformation &T,
 {
    double rho = rho_gf.GetValue(T.ElementNo, ip);
 
-   return Eval(T, ip, rho);
-}
-
-double M1MeanStoppingPowerInverse::Eval(ElementTransformation &T,
-                                        const IntegrationPoint &ip,
-                                        double rho)
-{
-   double Te = Te_gf.GetValue(T.ElementNo, ip);
-   double a = a0 * (Tmax * Tmax); //1e8; // The plasma collision model.
-   double nu = a * rho / pow(alphavT, 3.0) / pow(velocity, 3.0);
-
-   //return rho / nu;
-   return 1.0 / nu;
-}
-
-double M1MeanStoppingPowerInverse::Eval(ElementTransformation &T,
-                                        const IntegrationPoint &ip)
-{
-   double rho = rho_gf.GetValue(T.ElementNo, ip);
-   
    return Eval(T, ip, rho);
 }
 

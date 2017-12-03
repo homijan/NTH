@@ -114,12 +114,12 @@ protected:
    // The grid function is necessary for velocity step estimation. 
    ParGridFunction &x_gf;
    // Velocity dependent coefficients providing physics.
-   M1HydroCoefficient *mspInv_pcf, *sourceI0_pcf;
+   M1HydroCoefficient *msp_pcf, *sourceI0_pcf;
 
 public:
    M1Operator(int size, ParFiniteElementSpace &h1_fes,
               ParFiniteElementSpace &l2_fes, Array<int> &essential_tdofs,
-              ParGridFunction &rho0, double cfl_, M1HydroCoefficient *mspInv_,
+              ParGridFunction &rho0, double cfl_, M1HydroCoefficient *msp_,
               M1HydroCoefficient *sourceI0_, ParGridFunction &x_gf_, 
               ParGridFunction &T_gf_, bool pa, double cgt, int cgiter);
 
@@ -217,19 +217,6 @@ public:
       : M1HydroCoefficient(rho_, Te_, v_, material_, eos_) {}
    double Eval(ElementTransformation &T, const IntegrationPoint &ip);
    double Eval(ElementTransformation &T, const IntegrationPoint &ip, 
-               double rho);
-};
-
-// M1 mean-stopping-power coefficient.
-class M1MeanStoppingPowerInverse : public M1HydroCoefficient
-{
-protected:
-public:
-   M1MeanStoppingPowerInverse(ParGridFunction &rho_, ParGridFunction &Te_,
-                       ParGridFunction &v_, Coefficient *material_, EOS *eos_)
-      : M1HydroCoefficient(rho_, Te_, v_, material_, eos_) {}
-   double Eval(ElementTransformation &T, const IntegrationPoint &ip);
-   double Eval(ElementTransformation &T, const IntegrationPoint &ip,
                double rho);
 };
 
