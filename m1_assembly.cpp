@@ -505,8 +505,7 @@ double Mass1NuIntegrator::GetIntegrator(int i)
 
 double Mass1NutIntegrator::GetIntegrator(int i)
 {
-   //return quad_data.nutinvvrho(i) * quad_data.rho0DetJ0w(i);
-   return quad_data.nutinvvnue(i) * quad_data.rho0DetJ0w(i);
+   return quad_data.nutinvvrho(i) * quad_data.rho0DetJ0w(i);
 }
 
 double Divf0Integrator::GetIntegrator(int i, int vd, int gd)
@@ -519,10 +518,12 @@ double Divf1Integrator::GetIntegrator(int i, int vd, int gd)
    return quad_data.stress1JinvT(vd)(i, gd);
 }
 
+/*
 double AgradIntegrator::GetIntegrator(int i, int vd)
 {
    return quad_data.invrhoAgradrhoinvnue(i, vd) * quad_data.rho0DetJ0w(i);
 }
+*/
 
 double EfieldIntegrator::GetIntegrator(int i, int vd)
 {

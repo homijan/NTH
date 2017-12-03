@@ -356,7 +356,7 @@ int main(int argc, char *argv[])
    // Static coefficient defined in m1_solver.hpp.
    if (pmesh->Dimension() == 1)
    {
-      nth::a0 = 2e1; //3e3;
+      nth::a0 = 2e1; //2e1;
       vis_steps = 10000;
       m1cfl = 0.5;
    }

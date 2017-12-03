@@ -54,18 +54,18 @@ struct QuadratureData
    Vector rho0DetJ0w;
 
    // Mass integrators.
-   Vector nuinvrho, nutinvrho;
+   Vector nuinvrho, nutinvvrho;
 
    // The pointwise equality rho * detJ = rho0 * detJ0 is used by integrators.
    // Electric and magnetic fields. 
    DenseMatrix Einvvnue, AEinvvnue, AIEinvv2nue, Binvvnue;
    // Angular scattering integrator.
-   Vector nutinvvnue;
+   //Vector nutinvvnue;
    // Explicit zero moment "mass" integrator.
    Vector Ef1invvnuef0;
    
    // Complementary matrix to divergence. 
-   DenseMatrix invrhoAgradrhoinvnue;
+   //DenseMatrix invrhoAgradrhoinvnue;
 
    // Initial length scale. This represents a notion of local mesh size. We
    // assume that all initial zones have similar size.
@@ -81,14 +81,14 @@ struct QuadratureData
         stress0JinvT(nzones * quads_per_zone, dim, dim),
         rho0DetJ0w(nzones * quads_per_zone),
         nuinvrho(nzones * quads_per_zone),
-        nutinvrho(nzones * quads_per_zone),
+        nutinvvrho(nzones * quads_per_zone),
         Einvvnue(nzones * quads_per_zone, dim),
         AEinvvnue(nzones * quads_per_zone, dim),
         AIEinvv2nue(nzones * quads_per_zone, dim),
         Binvvnue(nzones * quads_per_zone, dim),
-        nutinvvnue(nzones * quads_per_zone),
-        Ef1invvnuef0(nzones * quads_per_zone),
-        invrhoAgradrhoinvnue(nzones * quads_per_zone, dim) { }
+        //nutinvvnue(nzones * quads_per_zone),
+        //invrhoAgradrhoinvnue(nzones * quads_per_zone, dim),
+        Ef1invvnuef0(nzones * quads_per_zone) { }
 };
 
 // Stores values of the one-dimensional shape functions and gradients at all 1D
@@ -339,6 +339,7 @@ public:
    double GetIntegrator(int q, int vd, int gd);
 };
 
+/*
 // Assembles element contributions to the global temperature force matrix.
 // This class is used for the full assembly case; it's not used with partial
 // assembly.
@@ -351,6 +352,7 @@ public:
 
    double GetIntegrator(int q, int vd);
 };
+*/
 
 // Assembles element contributions to the global temperature force matrix.
 // This class is used for the full assembly case; it's not used with partial
