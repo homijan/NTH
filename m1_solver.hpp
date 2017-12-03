@@ -195,12 +195,16 @@ public:
 	  { alpha = 1.0; Tmax = 1.0; SetVelocityScale(alpha, Tmax); }
    virtual double Eval(ElementTransformation &T,
       const IntegrationPoint &ip) = 0;
+   virtual double Eval(ElementTransformation &T,
+      const IntegrationPoint &ip, double rho) = 0;
    void SetVelocity(double v_) { velocity = v_; }
    void SetThermalVelocityMultiple(double alpha_)
       { alpha = alpha_; SetVelocityScale(alpha, Tmax); }
    void SetTmax(double Tmax_)
       { Tmax = Tmax_; SetVelocityScale(alpha, Tmax); }
    double GetVelocityScale() { return alphavT; }
+   double GetRho(ElementTransformation &T, const IntegrationPoint &ip) 
+      { return rho_gf.GetValue(T.ElementNo, ip); }
 };
 
 // M1 mean-stopping-power coefficient.
@@ -212,6 +216,8 @@ public:
                        ParGridFunction &v_, Coefficient *material_, EOS *eos_)
       : M1HydroCoefficient(rho_, Te_, v_, material_, eos_) {}
    double Eval(ElementTransformation &T, const IntegrationPoint &ip);
+   double Eval(ElementTransformation &T, const IntegrationPoint &ip, 
+               double rho);
 };
 
 // M1 mean-stopping-power coefficient.
@@ -223,6 +229,8 @@ public:
                        ParGridFunction &v_, Coefficient *material_, EOS *eos_)
       : M1HydroCoefficient(rho_, Te_, v_, material_, eos_) {}
    double Eval(ElementTransformation &T, const IntegrationPoint &ip);
+   double Eval(ElementTransformation &T, const IntegrationPoint &ip,
+               double rho);
 };
 
 // M1 source coefficient.
@@ -234,6 +242,8 @@ public:
               Coefficient *material_, EOS *eos_)
       : M1HydroCoefficient(rho_, Te_, v_, material_, eos_) {}
    double Eval(ElementTransformation &T, const IntegrationPoint &ip);
+   double Eval(ElementTransformation &T, const IntegrationPoint &ip,
+               double rho);
 };
 
 extern double a0;

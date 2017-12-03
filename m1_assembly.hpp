@@ -59,13 +59,8 @@ struct QuadratureData
    // The pointwise equality rho * detJ = rho0 * detJ0 is used by integrators.
    // Electric and magnetic fields. 
    DenseMatrix Einvvnue, AEinvvnue, AIEinvv2nue, Binvvnue;
-   // Angular scattering integrator.
-   //Vector nutinvvnue;
    // Explicit zero moment "mass" integrator.
    Vector Ef1invvnuef0;
-   
-   // Complementary matrix to divergence. 
-   //DenseMatrix invrhoAgradrhoinvnue;
 
    // Initial length scale. This represents a notion of local mesh size. We
    // assume that all initial zones have similar size.
@@ -86,8 +81,6 @@ struct QuadratureData
         AEinvvnue(nzones * quads_per_zone, dim),
         AIEinvv2nue(nzones * quads_per_zone, dim),
         Binvvnue(nzones * quads_per_zone, dim),
-        //nutinvvnue(nzones * quads_per_zone),
-        //invrhoAgradrhoinvnue(nzones * quads_per_zone, dim),
         Ef1invvnuef0(nzones * quads_per_zone) { }
 };
 
@@ -338,21 +331,6 @@ public:
 
    double GetIntegrator(int q, int vd, int gd);
 };
-
-/*
-// Assembles element contributions to the global temperature force matrix.
-// This class is used for the full assembly case; it's not used with partial
-// assembly.
-class AgradIntegrator : public VdotIntegrator
-{
-private:
-
-public:
-   AgradIntegrator(QuadratureData &quad_data_) : VdotIntegrator(quad_data_) { }
-
-   double GetIntegrator(int q, int vd);
-};
-*/
 
 // Assembles element contributions to the global temperature force matrix.
 // This class is used for the full assembly case; it's not used with partial

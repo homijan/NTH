@@ -518,13 +518,6 @@ double Divf1Integrator::GetIntegrator(int i, int vd, int gd)
    return quad_data.stress1JinvT(vd)(i, gd);
 }
 
-/*
-double AgradIntegrator::GetIntegrator(int i, int vd)
-{
-   return quad_data.invrhoAgradrhoinvnue(i, vd) * quad_data.rho0DetJ0w(i);
-}
-*/
-
 double EfieldIntegrator::GetIntegrator(int i, int vd)
 {
    return quad_data.Einvvnue(i, vd) * quad_data.rho0DetJ0w(i);

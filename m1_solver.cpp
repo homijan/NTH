@@ -189,11 +189,6 @@ M1Operator::M1Operator(int size,
    Divf1Integrator *f1di = new Divf1Integrator(quad_data);
    f1di->SetIntRule(&integ_rule);
    Divf1.AddDomainIntegrator(f1di);
-/*
-   AgradIntegrator *f1agi = new AgradIntegrator(quad_data);
-   f1agi->SetIntRule(&integ_rule);
-   Divf1.AddDomainIntegrator(f1agi);
-*/
    // Make a dummy assembly to figure out the sparsity.
    Divf1.Assemble(0);
    Divf1.Finalize(0);
@@ -576,8 +571,10 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             const double detJ = Jpr_b[z](q).Det();
 
             const int idx = z * nqp + q;
-            mspInv_b[idx] = mspInv_pcf->Eval(*T, ip);
-            rho_b[idx] = quad_data.rho0DetJ0w(z_id*nqp + q) / detJ / ip.weight;
+            //rho_b[idx] = mspInv_pcf->GetRho(*T, ip);
+            rho_b[idx] = quad_data.rho0DetJ0w(z_id*nqp + q) / 
+                         detJ / ip.weight;
+            mspInv_b[idx] = mspInv_pcf->Eval(*T, ip, rho_b[idx]);
          }
          ++z_id;
       }
@@ -619,16 +616,16 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             quad_data.dt_est = min(quad_data.dt_est, cfl * (1.0 / inv_dt) );
 */
             // The scaled cfl condition on velocity step.
-            double dv = h_min / mspInv / alphavT;
+            double dv = h_min / mspInv / alphavT / rho;
             quad_data.dt_est = min(quad_data.dt_est, cfl * dv);
             I0stress = 0.0;
             I1stress = 0.0;
 			for (int d = 0; d < dim; d++)
             {
-               I0stress(d, d) = mspInv;
-               I1stress(d, d) = mspInv/3.0; // P1 closure.
-               //I0stress(d, d) = 1.0;
-               //I1stress(d, d) = 1.0/3.0; // P1 closure.
+               //I0stress(d, d) = mspInv;
+               //I1stress(d, d) = mspInv/3.0; // P1 closure.
+               I0stress(d, d) = 1.0;
+               I1stress(d, d) = 1.0/3.0; // P1 closure.
             }
 
 /*
@@ -652,13 +649,13 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             }
 
             // Extensive quadrature data.
-            quad_data.nuinvrho(z_id*nqp + q) = 1.0; //nue/rho;
-            const double Zbar = 10.0;
-			quad_data.nutinvvrho(z_id*nqp + q) = Zbar / (alphavT * velocity);
-            //quad_data.nuinvrho(z_id*nqp + q) = 1.0 / rho / mspInv; //nue/rho;
+            //quad_data.nuinvrho(z_id*nqp + q) = 1.0; //nue/rho;
             //const double Zbar = 10.0;
-			//quad_data.nutinvvrho(z_id*nqp + q) =
-            //   Zbar / (alphavT * velocity) / rho / mspInv;
+			//quad_data.nutinvvrho(z_id*nqp + q) = Zbar / (alphavT * velocity);
+            quad_data.nuinvrho(z_id*nqp + q) = 1.0 / rho / mspInv; //nue/rho;
+            const double Zbar = 10.0;
+			quad_data.nutinvvrho(z_id*nqp + q) =
+               Zbar / (alphavT * velocity) / rho / mspInv;
          }
          ++z_id;
       }
@@ -675,31 +672,45 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
 double a0 = 5e3;
 
 double M1MeanStoppingPower::Eval(ElementTransformation &T,
-                                 const IntegrationPoint &ip)
+                                 const IntegrationPoint &ip, double rho)
 {
-   double rho = rho_gf.GetValue(T.ElementNo, ip);
    double Te = Te_gf.GetValue(T.ElementNo, ip);
    //double a = a0 * (Tmax * Tmax); //1e8; // The plasma collision model.
    double nu = a0 * rho / (pow(alphavT, 3.0) * pow(velocity, 3.0));
 
    return nu;
 }
+double M1MeanStoppingPower::Eval(ElementTransformation &T,
+                                 const IntegrationPoint &ip)
+{
+   double rho = rho_gf.GetValue(T.ElementNo, ip);
+
+   return Eval(T, ip, rho);
+}
+
+double M1MeanStoppingPowerInverse::Eval(ElementTransformation &T,
+                                        const IntegrationPoint &ip,
+                                        double rho)
+{
+   double Te = Te_gf.GetValue(T.ElementNo, ip);
+   double a = a0 * (Tmax * Tmax); //1e8; // The plasma collision model.
+   double nu = a * rho / pow(alphavT, 3.0) / pow(velocity, 3.0);
+
+   //return rho / nu;
+   return 1.0 / nu;
+}
 
 double M1MeanStoppingPowerInverse::Eval(ElementTransformation &T,
                                         const IntegrationPoint &ip)
 {
    double rho = rho_gf.GetValue(T.ElementNo, ip);
-   double Te = Te_gf.GetValue(T.ElementNo, ip);
-   double a = a0 * (Tmax * Tmax); //1e8; // The plasma collision model.
-   double nu = a * rho / pow(alphavT, 3.0) / pow(velocity, 3.0);
-
-   return rho / nu;
-   //return 1.0 / nu;
+   
+   return Eval(T, ip, rho);
 }
 
-double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip)
+double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip,
+                        double rho)
 {
-   double rho = rho_gf.GetValue(T.ElementNo, ip);
    double Te = max(1e-6, Te_gf.GetValue(T.ElementNo, ip));
    
    // Maxwell-Boltzmann distribution fM = ne*c*exp(-v^2/2/vT^2)
@@ -708,6 +719,13 @@ double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip)
    double dfMdv = - alphavT * velocity / pow(eos->vTe(Te), 2.0) * fM;
 
    return dfMdv;
+}
+
+double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip)
+{
+   double rho = rho_gf.GetValue(T.ElementNo, ip);
+
+   return Eval(T, ip, rho);
 }
 
 
