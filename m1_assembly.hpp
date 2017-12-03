@@ -53,6 +53,9 @@ struct QuadratureData
    // conservation.
    Vector rho0DetJ0w;
 
+   // Mass integrators.
+   Vector nuinvrho, nutinvrho;
+
    // The pointwise equality rho * detJ = rho0 * detJ0 is used by integrators.
    // Electric and magnetic fields. 
    DenseMatrix Einvvnue, AEinvvnue, AIEinvv2nue, Binvvnue;
@@ -76,7 +79,9 @@ struct QuadratureData
       : Jac0inv(dim, dim, nzones * quads_per_zone),
         stress1JinvT(nzones * quads_per_zone, dim, dim),
         stress0JinvT(nzones * quads_per_zone, dim, dim),
-		rho0DetJ0w(nzones * quads_per_zone),
+        rho0DetJ0w(nzones * quads_per_zone),
+        nuinvrho(nzones * quads_per_zone),
+        nutinvrho(nzones * quads_per_zone),
         Einvvnue(nzones * quads_per_zone, dim),
         AEinvvnue(nzones * quads_per_zone, dim),
         AIEinvv2nue(nzones * quads_per_zone, dim),
@@ -132,13 +137,13 @@ public:
 // Assembles element contributions to the global velocity force matrix.
 // This class is used for the full assembly case; it's not used with partial
 // assembly.
-class M0Integrator : public BilinearFormIntegrator
+class Mass0Integrator : public BilinearFormIntegrator
 {
 protected:
    const QuadratureData &quad_data;
 
 public:
-   M0Integrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
+   Mass0Integrator(QuadratureData &quad_data_) : quad_data(quad_data_) { }
 
    virtual void AssembleElementMatrix(const FiniteElement &fe,
                                       ElementTransformation &Trans,
@@ -234,11 +239,12 @@ public:
 // Assembles element contributions to the global velocity force matrix.
 // This class is used for the full assembly case; it's not used with partial
 // assembly.
-class M0cIntegrator : public M0Integrator
+class Mass0cIntegrator : public Mass0Integrator
 {
 private:
 public:
-   M0cIntegrator(QuadratureData &quad_data_) : M0Integrator(quad_data_) { }
+   Mass0cIntegrator(QuadratureData &quad_data_) :
+      Mass0Integrator(quad_data_) { }
 
    double GetIntegrator(int i);
 };
@@ -246,11 +252,25 @@ public:
 // Assembles element contributions to the global velocity force matrix.
 // This class is used for the full assembly case; it's not used with partial
 // assembly.
-class ExplM0Integrator : public M0Integrator
+class Mass0NuIntegrator : public Mass0Integrator
 {
 private:
 public:
-   ExplM0Integrator(QuadratureData &quad_data_) : M0Integrator(quad_data_) { }
+   Mass0NuIntegrator(QuadratureData &quad_data_) :
+      Mass0Integrator(quad_data_) { }
+
+   double GetIntegrator(int i);
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class ExplMass0Integrator : public Mass0Integrator
+{
+private:
+public:
+   ExplMass0Integrator(QuadratureData &quad_data_) :
+      Mass0Integrator(quad_data_) { }
 
    double GetIntegrator(int i);
 };
@@ -276,6 +296,19 @@ class Mass1NuIntegrator : public Mass1Integrator
 private:
 public:
    Mass1NuIntegrator(QuadratureData &quad_data_) :
+      Mass1Integrator(quad_data_) { }
+
+   double GetIntegrator(int i);
+};
+
+// Assembles element contributions to the global velocity force matrix.
+// This class is used for the full assembly case; it's not used with partial
+// assembly.
+class Mass1NutIntegrator : public Mass1Integrator
+{
+private:
+public:
+   Mass1NutIntegrator(QuadratureData &quad_data_) :
       Mass1Integrator(quad_data_) { }
 
    double GetIntegrator(int i);

@@ -96,7 +96,7 @@ M1Operator::M1Operator(int size,
      h1dofs_cnt(h1_fes.GetFE(0)->GetDof()),
      cfl(cfl_), p_assembly(pa), cg_rel_tol(cgt), cg_max_iter(cgiter),
      Mf1(&h1_fes), Mscattf1(&h1_fes), Bfieldf1(&h1_fes),
-     Mf0(l2dofs_cnt, l2dofs_cnt, nzones),
+     MSf0(l2dofs_cnt, l2dofs_cnt, nzones),
      Mf0_inv(l2dofs_cnt, l2dofs_cnt, nzones),
      integ_rule(IntRules.Get(h1_fes.GetMesh()->GetElementBaseGeometry(),
                              3*h1_fes.GetOrder(0) + l2_fes.GetOrder(0) - 1)),
@@ -135,24 +135,25 @@ M1Operator::M1Operator(int size,
    // Standard local assembly and inversion for energy mass matrices.
    DenseMatrix Mf0_(l2dofs_cnt);
    DenseMatrixInverse inv(&Mf0_);
-   M0cIntegrator mi(quad_data);
+   Mass0cIntegrator mi(quad_data);
    mi.SetIntRule(&integ_rule);
    for (int i = 0; i < nzones; i++)
    {
       mi.AssembleElementMatrix(*l2_fes.GetFE(i),
                                *l2_fes.GetElementTransformation(i), Mf0_);
-      Mf0(i) = Mf0_;
+      MSf0(i) = Mf0_;
       inv.Factor();
       inv.GetInverseMatrix(Mf0_inv(i));
    }
 
    // Standard assembly for the velocity mass matrix.
    Mass1cIntegrator *f1mi = new Mass1cIntegrator(quad_data);
+   //Mass1NuIntegrator *f1mi = new Mass1NuIntegrator(quad_data);
    f1mi->SetIntRule(&integ_rule);
    Mf1.AddDomainIntegrator(f1mi);
    Mf1.Assemble();
 
-   Mass1NuIntegrator *f1scati = new Mass1NuIntegrator(quad_data);
+   Mass1NutIntegrator *f1scati = new Mass1NutIntegrator(quad_data);
    f1scati->SetIntRule(&integ_rule);
    Mscattf1.AddDomainIntegrator(f1scati);
    Mscattf1.Assemble();
@@ -188,9 +189,9 @@ M1Operator::M1Operator(int size,
    Divf1Integrator *f1di = new Divf1Integrator(quad_data);
    f1di->SetIntRule(&integ_rule);
    Divf1.AddDomainIntegrator(f1di);
-   AgradIntegrator *f1agi = new AgradIntegrator(quad_data);
-   f1agi->SetIntRule(&integ_rule);
-   Divf1.AddDomainIntegrator(f1agi);
+   //AgradIntegrator *f1agi = new AgradIntegrator(quad_data);
+   //f1agi->SetIntRule(&integ_rule);
+   //Divf1.AddDomainIntegrator(f1agi);
    // Make a dummy assembly to figure out the sparsity.
    Divf1.Assemble(0);
    Divf1.Finalize(0);
@@ -272,13 +273,29 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
 
    if (!p_assembly)
    {
+/*
+      // Standard local assembly and inversion for energy mass matrices.
+      DenseMatrix Mf0_(l2dofs_cnt);
+      DenseMatrixInverse inv(&Mf0_);
+      Mass0NuIntegrator mi(quad_data);
+      mi.SetIntRule(&integ_rule);
+      for (int i = 0; i < nzones; i++)
+      {
+         mi.AssembleElementMatrix(*L2FESpace.GetFE(i),
+                                  *L2FESpace.GetElementTransformation(i), Mf0_);
+         MSf0(i) = Mf0_;
+         inv.Factor();
+         inv.GetInverseMatrix(Mf0_inv(i));
+      }
+*/
+
       Divf1 = 0.0;
       Divf0 = 0.0;
-      Mf1.Update();
-	  Mscattf1.Update();
+      //Mf1.Update();
+      Mscattf1.Update();
       timer.sw_force.Start();
-      Mf1.Assemble();
-	  Divf1.Assemble();
+      //Mf1.Assemble();
+      Divf1.Assemble();
       Divf0.Assemble();
       Mscattf1.Assemble();
       timer.sw_force.Stop();
@@ -287,7 +304,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    // Solve for df0dv.
    Array<int> l2dofs;
    Vector I0_rhs(VsizeL2), loc_rhs(l2dofs_cnt), loc_I0source(l2dofs_cnt),
-          loc_Mf0MultI0source(l2dofs_cnt), loc_dI0(l2dofs_cnt);
+          loc_MSf0MultI0source(l2dofs_cnt), loc_dI0(l2dofs_cnt);
    if (p_assembly)
    {
       timer.sw_force.Start();
@@ -302,8 +319,8 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
          locEMassPA.SetZoneId(z);
          //
          I0source.GetSubVector(l2dofs, loc_I0source);
-         locEMassPA.Mult(loc_I0source, loc_Mf0MultI0source);
-         loc_rhs += loc_Mf0MultI0source;
+         locEMassPA.Mult(loc_I0source, loc_MSf0MultI0source);
+         loc_rhs += loc_MSf0MultI0source;
          //
          timer.sw_cgL2.Start();
          locCG.Mult(loc_rhs, loc_dI0);
@@ -324,8 +341,8 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
          I0_rhs.GetSubVector(l2dofs, loc_rhs);
          //
          I0source.GetSubVector(l2dofs, loc_I0source);
-         Mf0(z).Mult(loc_I0source, loc_Mf0MultI0source);
-         loc_rhs += loc_Mf0MultI0source;
+         MSf0(z).Mult(loc_I0source, loc_MSf0MultI0source);
+         loc_rhs += loc_MSf0MultI0source;
          //
          timer.sw_cgL2.Start();
          Mf0_inv(z).Mult(loc_rhs, loc_dI0);
@@ -386,7 +403,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
       timer.sw_force.Start();
       Divf1.Mult(I0, rhs);
 	  rhs.Neg();
-      Mscattf1.AddMult(I0, rhs);
+      Mscattf1.AddMult(I1, rhs);
       timer.sw_force.Stop();
       timer.dof_tstep += H1FESpace.GlobalTrueVSize();
       HypreParMatrix A;
@@ -495,6 +512,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    timer.sw_qdata.Start();
 
    mspInv_pcf->SetVelocity(velocity);
+   const double alphavT = mspInv_pcf->GetVelocityScale();
    const int nqp = integ_rule.GetNPoints();
 
    ParGridFunction I0, I1;
@@ -579,6 +597,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             // time step estimate should be aware of the presence of shocks.
             const double h_min =
                Jpr.CalcSingularvalue(dim-1) / (double) H1FESpace.GetOrder(0);
+/*
             double inv_dt = mspInv / h_min;
             //if (M1_dvmax * inv_dt / cfl < 1.0) { inv_dt = cfl / M1_dvmax; }
             //if (M1_dvmin * inv_dt > 1.0)
@@ -587,7 +606,10 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             //   mspInv = inv_dt * h_min;
             //}
             quad_data.dt_est = min(quad_data.dt_est, cfl * (1.0 / inv_dt) );
-
+*/
+            // The scaled cfl condition on velocity step.
+            double dv = h_min / mspInv; // / alphavT;
+            quad_data.dt_est = min(quad_data.dt_est, cfl * dv);
             I0stress = 0.0;
             I1stress = 0.0;
 			for (int d = 0; d < dim; d++)
@@ -615,11 +637,14 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
                      I0stressJiT(vd, gd);
                }
                // Extensive quadrature data.
-               quad_data.invrhoAgradrhoinvnue(z_id*nqp + q, vd) = 0.0;
+               //quad_data.invrhoAgradrhoinvnue(z_id*nqp + q, vd) = 0.0;
             }
 
             // Extensive quadrature data.
-            quad_data.nutinvvnue(z_id*nqp + q) = 0.0/velocity; // Zbar = 1.0
+            quad_data.nuinvrho(z_id*nqp + q) = 1.0; //nue/rho;
+            quad_data.nutinvrho(z_id*nqp + q) = 1.0; //nut/rho;
+            quad_data.nutinvvnue(z_id*nqp + q) = 10.0 / (alphavT * velocity); 
+			// Zbar = 10.0
          }
          ++z_id;
       }
@@ -633,6 +658,17 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
 }
 
 double a0 = 5e3;
+
+double M1MeanStoppingPower::Eval(ElementTransformation &T,
+                                 const IntegrationPoint &ip)
+{
+   double rho = rho_gf.GetValue(T.ElementNo, ip);
+   double Te = Te_gf.GetValue(T.ElementNo, ip);
+   //double a = a0 * (Tmax * Tmax); //1e8; // The plasma collision model.
+   double nu = a0 * rho / (pow(alphavT, 3.0) * pow(velocity, 3.0));
+
+   return nu;
+}
 
 double M1MeanStoppingPowerInverse::Eval(ElementTransformation &T,
                                         const IntegrationPoint &ip)
@@ -658,6 +694,7 @@ double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip)
 
    // M0*df0dv = D0^T*f1 + M0*dfMdv
    // Notice that df0dv applies derivative with respect to normalized v.
+   // ONLY in the case of M1MeanStoppingPowerInverse!!
    double Source_AWBS = alphavT * dfMdv;
 
    return Source_AWBS;

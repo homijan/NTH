@@ -305,7 +305,7 @@ void DensityIntegrator::AssembleRHSElementVect(const FiniteElement &fe,
    }
 }
 
-void M0Integrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
+void Mass0Integrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
                                              const FiniteElement &test_fe,
                                              ElementTransformation &Trans,
                                              DenseMatrix &elmat)
@@ -478,14 +478,19 @@ void VcrossIntegrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
    }
 }
 
-double M0cIntegrator::GetIntegrator(int i)
+double Mass0cIntegrator::GetIntegrator(int i)
 {
    return quad_data.rho0DetJ0w(i);
 }
 
-double ExplM0Integrator::GetIntegrator(int i)
+double Mass0NuIntegrator::GetIntegrator(int i)
 {
-   return quad_data.rho0DetJ0w(i);
+   return quad_data.nuinvrho(i) * quad_data.rho0DetJ0w(i);
+}
+
+double ExplMass0Integrator::GetIntegrator(int i)
+{
+   return quad_data.nuinvrho(i) * quad_data.rho0DetJ0w(i);
 }
 
 double Mass1cIntegrator::GetIntegrator(int i)
@@ -495,6 +500,12 @@ double Mass1cIntegrator::GetIntegrator(int i)
 
 double Mass1NuIntegrator::GetIntegrator(int i)
 {
+   return quad_data.nuinvrho(i) * quad_data.rho0DetJ0w(i);
+}
+
+double Mass1NutIntegrator::GetIntegrator(int i)
+{
+   //return quad_data.nutinvvrho(i) * quad_data.rho0DetJ0w(i);
    return quad_data.nutinvvnue(i) * quad_data.rho0DetJ0w(i);
 }
 

@@ -78,7 +78,7 @@ protected:
    // Velocity mass matrix and local inverses of the energy mass matrices. These
    // are constant in time, due to the pointwise mass conservation property.
    mutable ParBilinearForm Mf1, Mscattf1, Bfieldf1;
-   DenseTensor Mf0, Mf0_inv;
+   mutable DenseTensor MSf0, Mf0_inv;
 
    // Integration rule for all assemblies.
    const IntegrationRule &integ_rule;
@@ -201,6 +201,17 @@ public:
    void SetTmax(double Tmax_)
       { Tmax = Tmax_; SetVelocityScale(alpha, Tmax); }
    double GetVelocityScale() { return alphavT; }
+};
+
+// M1 mean-stopping-power coefficient.
+class M1MeanStoppingPower : public M1HydroCoefficient
+{
+protected:
+public:
+   M1MeanStoppingPower(ParGridFunction &rho_, ParGridFunction &Te_,
+                       ParGridFunction &v_, Coefficient *material_, EOS *eos_)
+      : M1HydroCoefficient(rho_, Te_, v_, material_, eos_) {}
+   double Eval(ElementTransformation &T, const IntegrationPoint &ip);
 };
 
 // M1 mean-stopping-power coefficient.
