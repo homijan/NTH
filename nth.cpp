@@ -356,21 +356,21 @@ int main(int argc, char *argv[])
    // Static coefficient defined in m1_solver.hpp.
    if (pmesh->Dimension() == 1)
    {
-      nth::a0 = 2e3; //2e1;
+      nth::a0 = 2e3; //3e3; //2e1;
       vis_steps = 10000;
       m1cfl = 0.5;
    }
    else if (pmesh->Dimension() == 2)
    {
-      nth::a0 = 2e5; //2e1;
+      nth::a0 = 1e5; //2e1;
       vis_steps = 10000;
       m1cfl = 1.0;
    }
    else if (pmesh->Dimension() == 3)
    {
-      nth::a0 = 2e7;
+      nth::a0 = 5e7;
       vis_steps = 10000;
-      m1cfl = 1.0;
+      m1cfl = 0.5;
    }
 
    // Initialize the M1-AWBS operator
@@ -387,7 +387,7 @@ int main(int argc, char *argv[])
    //m1ode_solver = new RK6Solver;
    m1ode_solver->Init(m1oper);
 
-   double vTmultiple = 5.0;
+   double vTmultiple = 6.0;
    //double fluxMoment = 0.0; // distribution function
    //double fluxMoment = 1.0; // current
    double fluxMoment = 3.0; // heat flux
@@ -403,8 +403,8 @@ int main(int argc, char *argv[])
    m1oper.ResetVelocityStepEstimate();
    m1oper.ResetQuadratureData();
    double vmax = 1.0;
-   double vmin = 0.01 * vmax; // Minimum 2*vTh
-   //double vmin = 2.0 * vmax / vTmultiple; // Minimum 2*vTh
+   double vmin = 0.01 * vmax;
+   //double vmin = 3.5 * vmax / vTmultiple; // Minimum 3.5*vTh
    m1oper.SetTime(vmax);
    double dvmax = vmax*0.1;
    double dvmin = min(dvmax, m1oper.GetVelocityStepEstimate(m1S));

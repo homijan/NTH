@@ -402,7 +402,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
       timer.sw_force.Start();
       Divf1.Mult(I0, rhs);
 	  rhs.Neg();
-      //Mscattf1.AddMult(I1, rhs);
+      Mscattf1.AddMult(I1, rhs);
 	  timer.sw_force.Stop();
       timer.dof_tstep += H1FESpace.GlobalTrueVSize();
       // Scale rhs because of the normalized velocity, i.e. 
@@ -539,7 +539,8 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
           *rho_b = new double[nqp_batch];
    // Jacobians of reference->physical transformations for all quadrature
    // points in the batch.
-   DenseTensor *Jpr_b = new DenseTensor[nqp_batch];
+   DenseTensor *Jpr_b = new DenseTensor[nqp_batch],
+               *AM1_b = new DenseTensor[nqp_batch];
    for (int b = 0; b < nbatches; b++)
    {
       int z_id = b * nzones_batch; // Global index over zones.
@@ -555,6 +556,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
       {
          ElementTransformation *T = H1FESpace.GetElementTransformation(z_id);
          Jpr_b[z].SetSize(dim, dim, nqp);
+         AM1_b[z].SetSize(dim, dim, nqp);
 
          if (p_assembly)
          {
@@ -575,12 +577,58 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             rho_b[idx] = quad_data.rho0DetJ0w(z_id*nqp + q) / 
                          detJ / ip.weight;
             msp_b[idx] = msp_pcf->Eval(*T, ip, rho_b[idx]);
-			// M1 closure.
-			double f0 = I0.GetValue((*T).ElementNo, ip);
-			Vector f1;
-			I1.GetVectorValue((*T).ElementNo, ip, f1);
-			DenseMatrix AM1;
-			MultVVt(f1, AM1);
+            // M1 closure.
+            // Matric closure maximizing angular entropy
+            // A = 1/3*I + M^2/2*(1 + M^2)*((f1xf1^T)/f1^2 - 1/3*I),
+            // where M = |f1|/|f0| must be in (0, 1), "isotropic-freestreaming".
+            // Isotropic matrix.
+            DenseMatrix Iso;
+            Iso.Diag(1.0 / 3.0, dim);
+            AM1_b[z](q) = Iso;
+/*
+            double normlim = 1e-32;
+            double anisolim = 1e-1;
+            //double f0norm = I0.GetValue((*T).ElementNo, ip);
+            double f0norm = abs(I0.GetValue((*T).ElementNo, ip));
+            //double f0norm = max(normlim, I0.GetValue((*T).ElementNo, ip));
+            Vector f1;
+            I1.GetVectorValue((*T).ElementNo, ip, f1);
+            double f1norm = f1.Norml2();
+            if (f0norm < normlim || f1norm < normlim)
+            {
+               AM1_b[z](q) = Iso;
+            }
+            else if (f1norm / f0norm < anisolim)
+            {
+               AM1_b[z](q) = Iso;
+            }
+            else
+            {
+               double M = min(f1norm / f0norm, 1.0);
+               double Msquare = M * M;
+               double c = Msquare / 2.0 * (1.0 + Msquare);
+               DenseMatrix normf1xf1T(dim);
+               normf1xf1T.Diag(1.0, dim);
+               //f1 *= 1.0 / f1norm;
+			   // f1 directional matrix.
+               //MultVVt(f1, normf1xf1T);
+               //normf1xf1T = 0.0;
+			   //for (int vd = 0; vd < dim; vd++)
+               //{
+               //   normf1xf1T(vd, vd) = f1(vd) * f1(vd);
+               //}
+               // Construct the closure matrix.
+			   AM1_b[z](q) = 0.0;
+               AM1_b[z](q).Add(1.0 - c, Iso);
+               AM1_b[z](q).Add(c, normf1xf1T);
+               //cout << "f0norm, f1norm, c:" << f0norm << ", " << f1norm
+			   //     << ", " << c << endl << flush;
+               //cout << "normf1xf1T:" << endl << flush;
+               //normf1xf1T.Print();
+               //cout << "AM1:" << endl << flush;
+               //AM1_b[z](q).Print();
+            }
+*/
          }
          ++z_id;
       }
@@ -602,7 +650,8 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             const DenseMatrix &Jpr = Jpr_b[z](q);
             CalcInverse(Jpr, Jinv);
             const double detJ = Jpr.Det();
-            double msp = msp_b[z*nqp + q];
+            const DenseMatrix &AM1 = AM1_b[z](q);
+            const double msp = msp_b[z*nqp + q];
             double rho = rho_b[z*nqp + q];
 
             // Time step estimate at the point. Here the more relevant length
@@ -629,9 +678,10 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
 			for (int d = 0; d < dim; d++)
             {
                I0stress(d, d) = 1.0;
-               I1stress(d, d) = 1.0/3.0; // P1 closure.
+               //I1stress(d, d) = 1.0 / 3.0; // P1 closure.
             }
-
+            // M1 closure. See the construction above.
+            I1stress = AM1;
 /*
                I1stress.Add(visc_coeff, sgrad_v);
 */
@@ -664,6 +714,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    delete [] msp_b;
    delete [] rho_b;
    delete [] Jpr_b;
+   delete [] AM1_b;
    quad_data_is_current = true;
 
    timer.sw_qdata.Stop();
