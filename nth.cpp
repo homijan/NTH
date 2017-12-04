@@ -378,7 +378,7 @@ int main(int argc, char *argv[])
                           m1cfl, msp_pcf, sourceI0_pcf, x_gf, e_gf, 
                           p_assembly, cg_tol, cg_max_iter);
    // Prepare grid functions integrating the moments of I0 and I1.
-   ParGridFunction intI0_gf(&L2FESpace), intI1_gf(&H1FESpace);
+   ParGridFunction intf0_gf(&L2FESpace), j_gf(&H1FESpace), hflux_gf(&H1FESpace);
 
    ODESolver *m1ode_solver = NULL;
    //m1ode_solver = new ForwardEulerSolver;
@@ -412,8 +412,9 @@ int main(int argc, char *argv[])
    int m1ti = 0;
    double v = vmax;
    double dv = -dvmin;
-   intI0_gf = 0.0;
-   intI1_gf = 0.0;
+   intf0_gf = 0.0;
+   j_gf = 0.0;
+   hflux_gf = 0.0;
 /*
    while (abs(dv) >= abs(dvmin))
    {
@@ -421,8 +422,9 @@ int main(int argc, char *argv[])
       m1ode_solver->Step(m1S, v, dv);
 
       // Perform the integration over velocity space.
-      intI0_gf.Add(pow(alphavT*v, fluxMoment + 2.0) * alphavT*abs(dv), I0_gf);
-      intI1_gf.Add(pow(alphavT*v, fluxMoment + 2.0) * alphavT*abs(dv), I1_gf);
+      intf0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
+      j_gf.Add(pow(alphavT*v, 3.0) * alphavT*abs(dv), I1_gf);
+      hflux_gf.Add(pow(alphavT*v, 5.0) * alphavT*abs(dv), I1_gf);
 
       double loc_minI0 = I0_gf.Min(), glob_minI0;
       MPI_Allreduce(&loc_minI0, &glob_minI0, 1, MPI_DOUBLE, MPI_MIN,
@@ -590,17 +592,18 @@ int main(int argc, char *argv[])
          int m1ti = 0;
          double v = vmax;
          double dv = -dvmin;
-         intI0_gf = 0.0;
-         intI1_gf = 0.0;
+         intf0_gf = 0.0;
+         j_gf = 0.0;
+         hflux_gf = 0.0;
 		 while (abs(dv) >= abs(dvmin))
          {
             m1ti++;
             m1ode_solver->Step(m1S, v, dv);
 
             // Perform the integration over velocity space.
-            intI0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
-            intI1_gf.Add(pow(alphavT*v, fluxMoment + 2.0) * alphavT*abs(dv),
-			                 I1_gf);
+            intf0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
+            j_gf.Add(pow(alphavT*v, 3.0) * alphavT*abs(dv), I1_gf);
+            hflux_gf.Add(pow(alphavT*v, 5.0) * alphavT*abs(dv), I1_gf);
 
 			double loc_minI0 = I0_gf.Min(), glob_minI0;
             MPI_Allreduce(&loc_minI0, &glob_minI0, 1, MPI_DOUBLE, MPI_MIN,
@@ -649,10 +652,10 @@ int main(int argc, char *argv[])
                            "Density", Wx, Wy, Ww, Wh);
             Wx += offx;
             VisualizeField(vis_v, vishost, visport,
-                           intI1_gf, "Heat flux", Wx, Wy, Ww, Wh);
+                           hflux_gf, "Heat flux", Wx, Wy, Ww, Wh);
 						   //v_gf, "Velocity", Wx, Wy, Ww, Wh);
             Wx += offx;
-            VisualizeField(vis_e, vishost, visport, e_gf, //intI0_gf,
+            VisualizeField(vis_e, vishost, visport, e_gf, //intf0_gf,
                            "T", Wx, Wy, Ww,Wh);
             Wx += offx;
          }
@@ -696,21 +699,28 @@ int main(int argc, char *argv[])
             e_gf.Save(e_ofs);
             e_ofs.close();
 
-            ostringstream intI0_name, intI1_name;
-            intI0_name << basename << "_" << ti
+            ostringstream intf0_name, j_name, hflux_name;
+            intf0_name << basename << "_" << ti
                    << "_f0." << setfill('0') << setw(6) << myid;
-            intI1_name << basename << "_" << ti
+            j_name << basename << "_" << ti
+                   << "_j." << setfill('0') << setw(6) << myid;
+            hflux_name << basename << "_" << ti
                    << "_hflux." << setfill('0') << setw(6) << myid;
 
-            ofstream intI0_ofs(intI0_name.str().c_str());
-            intI0_ofs.precision(8);
-            intI0_gf.Save(intI0_ofs);
-            intI0_ofs.close();
+            ofstream intf0_ofs(intf0_name.str().c_str());
+            intf0_ofs.precision(8);
+            intf0_gf.Save(intf0_ofs);
+            intf0_ofs.close();
 
-            ofstream intI1_ofs(intI1_name.str().c_str());
-            intI1_ofs.precision(8);
-            intI1_gf.Save(intI1_ofs);
-            intI1_ofs.close();
+            ofstream j_ofs(j_name.str().c_str());
+            j_ofs.precision(8);
+            j_gf.Save(j_ofs);
+            j_ofs.close();
+
+            ofstream hflux_ofs(hflux_name.str().c_str());
+            hflux_ofs.precision(8);
+            hflux_gf.Save(hflux_ofs);
+            hflux_ofs.close();
          }
       }
    }
