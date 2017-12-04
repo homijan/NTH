@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
    int vis_steps = 10;
    bool visit = false;
    bool gfprint = false;
-   const char *basename = "results/Laghos";
+   const char *basename = "results/M1hos";
 
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh",
@@ -598,8 +598,7 @@ int main(int argc, char *argv[])
             m1ode_solver->Step(m1S, v, dv);
 
             // Perform the integration over velocity space.
-            intI0_gf.Add(pow(alphavT*v, fluxMoment + 2.0) * alphavT*abs(dv),
-			                 I0_gf);
+            intI0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
             intI1_gf.Add(pow(alphavT*v, fluxMoment + 2.0) * alphavT*abs(dv),
 			                 I1_gf);
 
@@ -696,6 +695,22 @@ int main(int argc, char *argv[])
             e_ofs.precision(8);
             e_gf.Save(e_ofs);
             e_ofs.close();
+
+            ostringstream intI0_name, intI1_name;
+            intI0_name << basename << "_" << ti
+                   << "_f0." << setfill('0') << setw(6) << myid;
+            intI1_name << basename << "_" << ti
+                   << "_hflux." << setfill('0') << setw(6) << myid;
+
+            ofstream intI0_ofs(intI0_name.str().c_str());
+            intI0_ofs.precision(8);
+            intI0_gf.Save(intI0_ofs);
+            intI0_ofs.close();
+
+            ofstream intI1_ofs(intI1_name.str().c_str());
+            intI1_ofs.precision(8);
+            intI1_gf.Save(intI1_ofs);
+            intI1_ofs.close();
          }
       }
    }

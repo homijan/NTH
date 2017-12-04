@@ -248,6 +248,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
 
    UpdateQuadratureData(velocity, S);
    const double alphavT = msp_pcf->GetVelocityScale();
+   const double velocity_scaled = velocity * alphavT;
 
    sourceI0_pcf->SetVelocity(velocity);
    ParGridFunction I0source(&L2FESpace);
@@ -273,16 +274,23 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    {
       // Standard local assembly and inversion for energy mass matrices.
       DenseMatrix Mf0_(l2dofs_cnt);
-      DenseMatrixInverse inv(&Mf0_);
-      Mass0NuIntegrator mi(quad_data);
-      mi.SetIntRule(&integ_rule);
+      DenseMatrix explMf0_(l2dofs_cnt);
+      DenseMatrixInverse inv(&explMf0_);
+      ExplMass0Integrator explmi(quad_data);
+      explmi.SetIntRule(&integ_rule);
+      Mass0NuIntegrator mnui(quad_data);
+      mnui.SetIntRule(&integ_rule);
       for (int i = 0; i < nzones; i++)
       {
-         mi.AssembleElementMatrix(*L2FESpace.GetFE(i),
-                                  *L2FESpace.GetElementTransformation(i), Mf0_);
-         MSf0(i) = Mf0_;
+         explmi.AssembleElementMatrix(*L2FESpace.GetFE(i),
+                                      *L2FESpace.GetElementTransformation(i),
+                                      explMf0_);
          inv.Factor();
          inv.GetInverseMatrix(Mf0_inv(i));
+         mnui.AssembleElementMatrix(*L2FESpace.GetFE(i),
+                                    *L2FESpace.GetElementTransformation(i),
+                                    Mf0_);
+         MSf0(i) = Mf0_;
       }
 
       Divf1 = 0.0;
@@ -402,7 +410,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
       timer.sw_force.Start();
       Divf1.Mult(I0, rhs);
 	  rhs.Neg();
-      Mscattf1.AddMult(I1, rhs);
+      Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
 	  timer.sw_force.Stop();
       timer.dof_tstep += H1FESpace.GlobalTrueVSize();
       // Scale rhs because of the normalized velocity, i.e. 
@@ -515,6 +523,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
 
    msp_pcf->SetVelocity(velocity);
    const double alphavT = msp_pcf->GetVelocityScale();
+   const double velocity_scaled = velocity * alphavT;
    const int nqp = integ_rule.GetNPoints();
 
    ParGridFunction I0, I1;
@@ -636,40 +645,42 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
       z_id -= nzones_batch;
       for (int z = 0; z < nzones_batch; z++)
       {
-/*
          ElementTransformation *T = H1FESpace.GetElementTransformation(z_id);
-*/
          for (int q = 0; q < nqp; q++)
          {
-/*
             const IntegrationPoint &ip = integ_rule.IntPoint(q);
             T->SetIntPoint(&ip);
-*/
+            double f0min = 1e-32;
+            double f0 = max(f0min, I0.GetValue((*T).ElementNo, ip));
+            Vector f1;
+            I1.GetVectorValue((*T).ElementNo, ip, f1);
+
             // Note that the Jacobian was already computed above. We've chosen
             // not to store the Jacobians for all batched quadrature points.
             const DenseMatrix &Jpr = Jpr_b[z](q);
             CalcInverse(Jpr, Jinv);
             const double detJ = Jpr.Det();
             const DenseMatrix &AM1 = AM1_b[z](q);
+            DenseMatrix I; I.Diag(1.0, dim);
             const double msp = msp_b[z*nqp + q];
             double rho = rho_b[z*nqp + q];
 
+            Vector Efield(dim), Bfield(dim), AEfield(dim), AIEfield(dim);
+            // TODO Here the vector E and B evaluation.
+            // And consequent evaluation of AE and AIE.
+            Efield = 0.0;
+            Bfield = 0.0;
+            AM1.Mult(Efield, AEfield);
+            AIEfield = 0.0;
+            AM1.AddMult_a(3.0, Efield, AIEfield);
+            I.AddMult_a(-1.0, Efield, AIEfield);
             // Time step estimate at the point. Here the more relevant length
             // scale is related to the actual mesh deformation; we use the min
             // singular value of the ref->physical Jacobian. In addition, the
             // time step estimate should be aware of the presence of shocks.
             const double h_min =
                Jpr.CalcSingularvalue(dim-1) / (double) H1FESpace.GetOrder(0);
-/*
-            double inv_dt = msp / h_min;
-            //if (M1_dvmax * inv_dt / cfl < 1.0) { inv_dt = cfl / M1_dvmax; }
-            //if (M1_dvmin * inv_dt > 1.0)
-            //{
-            //   inv_dt = 1.0 / M1_dvmin;
-            //   msp = inv_dt * h_min;
-            //}
-            quad_data.dt_est = min(quad_data.dt_est, cfl * (1.0 / inv_dt) );
-*/
+
             // The scaled cfl condition on velocity step.
             double dv = h_min * msp / alphavT; // / rho;
             quad_data.dt_est = min(quad_data.dt_est, cfl * dv);
@@ -682,9 +693,6 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             }
             // M1 closure. See the construction above.
             I1stress = AM1;
-/*
-               I1stress.Add(visc_coeff, sgrad_v);
-*/
 
             // Quadrature data for partial assembly of the force operator.
             MultABt(I0stress, Jinv, I0stressJiT);
@@ -700,13 +708,19 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
                   quad_data.stress0JinvT(vd)(z_id*nqp + q, gd) =
                      I0stressJiT(vd, gd);
                }
+               // Extensive vector quadrature data.
+               quad_data.Einvrho(z_id*nqp + q, vd) = Efield(vd) / rho;
+               quad_data.AEinvrho(z_id*nqp + q, vd) = AEfield(vd) / rho;
+               quad_data.AIEinvrho(z_id*nqp + q, vd) = AIEfield(vd) / rho;
+               quad_data.Binvrho(z_id*nqp + q, vd) = Bfield(vd) / rho;
             }
 
-            // Extensive quadrature data.
+            // Extensive scalar quadrature data.
             quad_data.nuinvrho(z_id*nqp + q) = msp / rho; //nue/rho;
+            quad_data.Ef1invvf0rho(z_id*nqp + q) = Efield * f1 / velocity_scaled
+                                                   / f0 / rho;
             const double Zbar = 10.0;
-			quad_data.nutinvvrho(z_id*nqp + q) = 
-			   Zbar * msp / (alphavT * velocity) / rho;
+			quad_data.nutinvrho(z_id*nqp + q) = Zbar * msp / rho;
          }
          ++z_id;
       }
@@ -743,11 +757,13 @@ double M1MeanStoppingPower::Eval(ElementTransformation &T,
 double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip,
                         double rho)
 {
+   double pi = 3.14159265359;
    double Te = max(1e-6, Te_gf.GetValue(T.ElementNo, ip));
    
-   // Maxwell-Boltzmann distribution fM = ne*c*exp(-v^2/2/vT^2)
-   double fM = rho * exp(- pow(alphavT, 2.0) / 2.0 / pow(eos->vTe(Te), 2.0) *
-      pow(velocity, 2.0));
+   // Maxwell-Boltzmann distribution fM = ne*vT^3*(2/pi)^1.5*exp(-v^2/2/vT^2)
+   double fM = rho * pow(eos->vTe(Te), 3.0) * pow(2.0 / pi, 1.5) * 
+               exp(- pow(alphavT, 2.0) / 2.0 / pow(eos->vTe(Te), 2.0) *
+               pow(velocity, 2.0));
    double dfMdv = - alphavT * velocity / pow(eos->vTe(Te), 2.0) * fM;
 
    return dfMdv;

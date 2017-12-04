@@ -410,33 +410,29 @@ void VdotIntegrator::AssembleElementMatrix2(const FiniteElement &trial_fe,
    const int nqp = IntRule->GetNPoints();
    const int dim = trial_fe.GetDim();
    const int zone_id = Trans.ElementNo;
-   const int h1dofs_cnt = test_fe.GetDof();
-   const int l2dofs_cnt = trial_fe.GetDof();
+   const int te_nd = test_fe.GetDof(); //h1dofs_cnt
+   const int tr_nd = trial_fe.GetDof(); //l2dofs_cnt
 
-   elmat.SetSize(h1dofs_cnt*dim, l2dofs_cnt);
+   elmat.SetSize(te_nd*dim, tr_nd);
    elmat = 0.0;
 
-   DenseMatrix loc_vdotw(h1dofs_cnt, dim); //vshape(h1dofs_cnt, dim);
-   Vector shape0(l2dofs_cnt), shape1(h1dofs_cnt);
-   Vector Vloc_vdotw(loc_vdotw.Data(), h1dofs_cnt*dim);
+   DenseMatrix partelmat(te_nd, tr_nd);
+   Vector shape0(tr_nd), shape1(te_nd);
 
    for (int q = 0; q < nqp; q++)
    {
       const IntegrationPoint &ip = IntRule->IntPoint(q);
 
       // Form stress:grad_shape at the current point.
-      //test_fe.CalcDShape(ip, vshape);
       test_fe.CalcShape(ip, shape1);
-      for (int i = 0; i < h1dofs_cnt; i++)
-      {
-         for (int vd = 0; vd < dim; vd++) // f1 components.
-         {
-            loc_vdotw(i, vd) = GetIntegrator(zone_id*nqp + q, vd) * shape1(i);
-         }
-      }
-
       trial_fe.CalcShape(ip, shape0);
-      AddMultVWt(Vloc_vdotw, shape0, elmat);
+      MultVWt(shape1, shape0, partelmat);
+
+      for (int vd = 0; vd < dim; vd++) // f1 components.
+      {
+         elmat.AddMatrix(GetIntegrator(zone_id*nqp + q, vd), partelmat,
+                         te_nd*vd, 0);
+      }
    }
 }
 
@@ -490,7 +486,8 @@ double Mass0NuIntegrator::GetIntegrator(int i)
 
 double ExplMass0Integrator::GetIntegrator(int i)
 {
-   return quad_data.nuinvrho(i) * quad_data.rho0DetJ0w(i);
+   return (quad_data.nuinvrho(i) - quad_data.Ef1invvf0rho(i))
+          * quad_data.rho0DetJ0w(i);
 }
 
 double Mass1cIntegrator::GetIntegrator(int i)
@@ -505,7 +502,7 @@ double Mass1NuIntegrator::GetIntegrator(int i)
 
 double Mass1NutIntegrator::GetIntegrator(int i)
 {
-   return quad_data.nutinvvrho(i) * quad_data.rho0DetJ0w(i);
+   return quad_data.nutinvrho(i) * quad_data.rho0DetJ0w(i);
 }
 
 double Divf0Integrator::GetIntegrator(int i, int vd, int gd)
@@ -520,22 +517,22 @@ double Divf1Integrator::GetIntegrator(int i, int vd, int gd)
 
 double EfieldIntegrator::GetIntegrator(int i, int vd)
 {
-   return quad_data.Einvvnue(i, vd) * quad_data.rho0DetJ0w(i);
+   return quad_data.Einvrho(i, vd) * quad_data.rho0DetJ0w(i);
 }
 
 double AEfieldIntegrator::GetIntegrator(int i, int vd)
 {
-   return quad_data.AEinvvnue(i, vd) * quad_data.rho0DetJ0w(i);
+   return quad_data.AEinvrho(i, vd) * quad_data.rho0DetJ0w(i);
 }
 
 double AIEfieldIntegrator::GetIntegrator(int i, int vd)
 {
-   return quad_data.AIEinvv2nue(i, vd) * quad_data.rho0DetJ0w(i);
+   return quad_data.AIEinvrho(i, vd) * quad_data.rho0DetJ0w(i);
 }
 
 double BfieldIntegrator::GetIntegrator(int i, int vd)
 {
-   return quad_data.Binvvnue(i, vd) * quad_data.rho0DetJ0w(i);
+   return quad_data.Binvrho(i, vd) * quad_data.rho0DetJ0w(i);
 }
 
 void ForcePAOperator::Mult(const Vector &vecL2, Vector &vecH1) const

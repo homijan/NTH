@@ -54,13 +54,13 @@ struct QuadratureData
    Vector rho0DetJ0w;
 
    // Mass integrators.
-   Vector nuinvrho, nutinvvrho;
+   Vector nuinvrho, nutinvrho;
 
    // The pointwise equality rho * detJ = rho0 * detJ0 is used by integrators.
    // Electric and magnetic fields. 
-   DenseMatrix Einvvnue, AEinvvnue, AIEinvv2nue, Binvvnue;
+   DenseMatrix Einvrho, AEinvrho, AIEinvrho, Binvrho;
    // Explicit zero moment "mass" integrator.
-   Vector Ef1invvnuef0;
+   Vector Ef1invvf0rho;
 
    // Initial length scale. This represents a notion of local mesh size. We
    // assume that all initial zones have similar size.
@@ -76,12 +76,12 @@ struct QuadratureData
         stress0JinvT(nzones * quads_per_zone, dim, dim),
         rho0DetJ0w(nzones * quads_per_zone),
         nuinvrho(nzones * quads_per_zone),
-        nutinvvrho(nzones * quads_per_zone),
-        Einvvnue(nzones * quads_per_zone, dim),
-        AEinvvnue(nzones * quads_per_zone, dim),
-        AIEinvv2nue(nzones * quads_per_zone, dim),
-        Binvvnue(nzones * quads_per_zone, dim),
-        Ef1invvnuef0(nzones * quads_per_zone) { }
+        nutinvrho(nzones * quads_per_zone),
+        Einvrho(nzones * quads_per_zone, dim),
+        AEinvrho(nzones * quads_per_zone, dim),
+        AIEinvrho(nzones * quads_per_zone, dim),
+        Binvrho(nzones * quads_per_zone, dim),
+        Ef1invvf0rho(nzones * quads_per_zone) { }
 };
 
 // Stores values of the one-dimensional shape functions and gradients at all 1D
