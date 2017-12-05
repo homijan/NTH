@@ -1,3 +1,4 @@
+%\documentclass[1p]{elsarticle}
 \documentclass[review]{elsarticle}
 
 \usepackage{lineno,hyperref}
@@ -32,6 +33,7 @@
 \newcommand{\odv}[2]{\frac{\dI #1}{\dI #2}}
 \newcommand{\ddv}[2]{\odv{#1}{#2}}
 %\newcommand{\ddv}[2]{\frac{\Delta #1}{\Delta #2}}
+\newcommand{\mfp}{\lambda}
 \newcommand{\nue}{\nu_{e}}
 \newcommand{\nutot}{\nu_{t}}
 \newcommand{\vmag}{v}
@@ -54,6 +56,8 @@
 \newcommand{\ID}{\boldsymbol{\mathcal{D}}}
 \newcommand{\IV}{\boldsymbol{\mathcal{V}}}
 \newcommand{\IB}{\boldsymbol{\mathcal{B}}}
+\newcommand{\anisomega}{\fone/\fzero}
+\newcommand{\acl}{\vect{M}_{\left(\anisomega\right)}}
 
 \newcommand{\figref}[1]{FIG.~\ref{#1}}
 \renewcommand{\refeq}[1]{(\ref{#1})}
@@ -132,8 +136,15 @@ where the~anisotropy-closure matrix takes the~form
 \begin{equation}
   \MA = \frac{1}{3}\MI + \frac{|\fone|^2}{2\fzero^2}
   \left( 1 + \frac{|\fone|^2}{\fzero^2} \right)
-  \left( \frac{\fone\otimes\fone^T}{|\fone|^2} - \frac{1}{3}\MI\right) .
+  \left( \frac{\fone\otimes\fone^T}{|\fone|^2} - \frac{1}{3}\MI\right) ,
 \end{equation}
+which corresponds to the~distribution function approximation
+\begin{equation}
+  f = \fzero \frac{\left|\acl\right|}{4\pi\sinh\left(\acl\right)}
+  \exp\left(\vn\cdot\acl\right) ,
+\end{equation}
+where $\acl \rightarrow 0$ when $\anisomega \rightarrow \vect{0}$. 
+
 %---------------------------------------------------------------------
 \section{High-order finite element scheme}\label{sec:hos}
 \begin{comment}
@@ -348,11 +359,67 @@ of $\fone$ follows
 \end{multline}
 The~superscript $n$ stands for quantities from the~previous level of velocity.
 
+As can be seen in \figref{fig:expl1D2D3D} we get a~heat flux profile 
+corresponding to temperature and density profiles computed by Laghos 
+\cite{Dobrev_Kolev_Rieben-High-order_curvilinear_finite_element_methods_for_Lagrangian_hydrodynamics}
+in 1D and we have also double checked the~numerical scheme in 2D and 3D, where
+apparently the~flux profiles exhibit the~same physical background.
+It is important to note, that the~current implementation does not include
+neither electric or magnetic field ($\tE$, $\tB$).
+
+It is worth mentioning, that the~proposed discrete scheme 
+\eqref{eq:explM1hosf0} and \eqref{eq:explM1hosf1} naturally obeys the~CFL
+condition with respect to the~mesh smallest cell size/mean-stopping-power, and
+consequently, we needed 8858 energy groups in 1D, 4348 energy groups in 2D, and
+10030 energy groups in 3D. This would make the~hydro simulation to take 
+more than 1000x longer than classical (SH) hydro.
+
+\subsection{Physical analysis of the~diffusive asymptotics}\label{sec:diffusive_asymptotics}
+The~BGK equation, valid for highly isotropic transport, represents 
+the~simplest form of the~Boltzmann transport equation
+\begin{equation}
+  \vn\cdot\nabla f = \frac{\left(\fM - f\right)}{\mfp} ,
+  \label{eq:BGK}
+\end{equation}
+where $\mfp = \frac{\vmag}{\nue} = \frac{a \vmag^4}{\rho}$ is the~mean 
+free path expressed as inverse of collisional frequency multiplied by 
+particle velocity.
+
+The~Chapman-Enskog based small parameter ($\mfp$) approximation 
+$f\approx f_0 + \lambda f_1 + O(\lambda^2)$ expressed as
+\begin{equation}
+  \vn\cdot\nabla (f_0 + \lambda f_1) = 
+  \frac{\left(\fM - (f_0 + \lambda f_1)\right)}{\mfp} ,
+  \label{eq:CE_BGK}
+\end{equation}
+tells us, that
+\begin{eqnarray}
+  f_0 &=& \fM, 
+  \nonumber\\
+  f_1 &=& - \vn\cdot\nabla f_0 = - \vn\cdot\nabla\fM,
+  \nonumber
+\end{eqnarray}
+which means, that the~localized approximation of the~distribution function
+should behave as
+\begin{equation}
+  f \approx \fM - \mfp\vn\cdot\nabla \fM .
+  \label{eq:f_localized}
+\end{equation}
+Consequently, one obtain a~simple heat flux formula
+\begin{multline}
+  \vect{q}_H = \int_0^\infty \int_{4\pi} 
+  \frac{m \vmag^3}{2} 
+  \vn\left( \fM - \mfp\vn\cdot\nabla \fM \right) \vmag^2\, \dI\vn\, \dI\vmag \\
+  = - \frac{m}{2}\int_0^\infty \int_{4\pi}  
+  \vn\otimes\vn\, \dI\vn \cdot \mfp \nabla\fM \vmag^5\, \dI\vmag .
+\end{multline}
+
 \begin{figure}[tbh]
   \begin{center}
-    %\begin{tabular}{c}
-      \includegraphics[width=1.0\textwidth]{M1Sedov1D2D3D.png}
-    %\end{tabular}
+    \begin{tabular}{c}
+      \includegraphics[width=1.0\textwidth]{M1Sedov1D2D3D.png} \\
+      \includegraphics[width=1.0\textwidth]{M1_physical_analysis.png}
+    \end{tabular}
   \caption{
   Sedov blast in 1D/2D/3D from $\delta$ function hot spot. 
   Shock propagates from left to right. Top raw corresponds to 1D 
@@ -370,21 +437,6 @@ The~superscript $n$ stands for quantities from the~previous level of velocity.
   \end{center}
   \label{fig:expl1D2D3D}
 \end{figure}
-
-As can be seen in \figref{fig:expl1D2D3D} we get a~heat flux profile 
-corresponding to temperature and density profiles computed by Laghos 
-\cite{Dobrev_Kolev_Rieben-High-order_curvilinear_finite_element_methods_for_Lagrangian_hydrodynamics}
-in 1D and we have also double checked the~numerical scheme in 2D and 3D, where
-apparently the~flux profiles exhibit the~same physical background.
-It is important to note, that the~current implementation does not include
-neither electric or magnetic field ($\tE$, $\tB$).
-
-It is worth mentioning, that the~proposed discrete scheme 
-\eqref{eq:explM1hosf0} and \eqref{eq:explM1hosf1} naturally obeys the~CFL
-condition with respect to the~mesh smallest cell size/mean-stopping-power, and
-consequently, we needed 8858 energy groups in 1D, 4348 energy groups in 2D, and
-10030 energy groups in 3D. This would make the~hydro simulation to take 
-more than 1000x longer than classical (SH) hydro.
 
 \subsection{Implicit fully-discrete scheme}\label{sec:impl_fullydiscrete_scheme}
 In order to formulate a~fully-discrete scheme leaning on an~implicit 

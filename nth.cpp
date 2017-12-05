@@ -297,9 +297,9 @@ int main(int argc, char *argv[])
       DeltaCoefficient e_coeff(0, 0, 0.25);
       l2_e.ProjectCoefficient(e_coeff);
 	  // Set min temperature to be nonzero.
-      ParGridFunction cnst(&l2_fes);
-	  cnst = 0.0025;
-	  l2_e += cnst;
+      //ParGridFunction cnst(&l2_fes);
+	  //cnst = 0.0025;
+	  //l2_e += cnst;
    }
    else
    {
@@ -347,8 +347,7 @@ int main(int argc, char *argv[])
    I1_gf.MakeRef(&H1FESpace, m1S, m1true_offset[1]);
 
    // Define hydrodynamics related coefficients as mean stopping power and
-   // source function depending on plasma temperature and density.
-   double m1cfl = 0.25;
+   // source function depending on plasma temperature and density. 
    const double kB = 1.0, me = 1.0, pi = 3.14159265359;
    nth::EOS eos(kB, me);
    nth::M1MeanStoppingPower msp(rho_gf, e_gf, v_gf, material_pcf, 
@@ -358,37 +357,42 @@ int main(int argc, char *argv[])
    nth::M1HydroCoefficient *sourceI0_pcf = &sourceI0;
 
    // Static coefficient defined in m1_solver.hpp.
+   double m1cfl = 0.25;
+   vis_steps = 1000000000;
    // ALWAYS calculate on v in (0, 1)
    double vmax = 1.0;
    double vTmultiple = 10.0;
+   nth::a0 = 2e20; // Maxwellization prove.
    // well, not really, since the lowest v = 0 is singular, so
-   double vmin = 0.001 * vmax;
+   double vmin = 1e-10 * vmax;
    // and provide some maximum dv step.
-   double dvmax = vmax*0.001;
-   //vTmultiple = 6.0;
-   //vmin = 0.01 * vmax;
-   //vmin = 3.5 * vmax / vTmultiple; // Minimum 3.5*vTh
-   //dvmax = vmax*0.1;
-   if (pmesh->Dimension() == 1)
+   double dvmax = vmax*0.01;
+   bool nonlocal_test = false;
+   if (nonlocal_test)
    {
-      nth::a0 = 1e10; // Maxwellization prove.
-      //nth::a0 = 2e3;
-      vis_steps = 10000;
-      m1cfl = 0.5;
+      vTmultiple = 6.0;
+      vmin = 0.01 * vmax;
+      //vmin = 3.5 * vmax / vTmultiple; // Minimum 3.5*vTh
+      dvmax = vmax*0.1;
+      if (pmesh->Dimension() == 1)
+      { 
+         nth::a0 = 2e3;
+         vis_steps = 10000;
+         m1cfl = 0.5;
+      }
+      else if (pmesh->Dimension() == 2)
+      { 
+	     nth::a0 = 1e5; //2e1;
+         vis_steps = 10000;
+         m1cfl = 1.0;
+      }
+      else if (pmesh->Dimension() == 3)
+      {
+         nth::a0 = 5e7;
+         vis_steps = 10000;
+         m1cfl = 0.5;
+      }
    }
-   else if (pmesh->Dimension() == 2)
-   {
-      nth::a0 = 1e5; //2e1;
-      vis_steps = 10000;
-      m1cfl = 1.0;
-   }
-   else if (pmesh->Dimension() == 3)
-   {
-      nth::a0 = 5e7;
-      vis_steps = 10000;
-      m1cfl = 0.5;
-   }
-
    // Initialize the M1-AWBS operator
    nth::M1Operator m1oper(m1S.Size(), H1FESpace, L2FESpace, ess_tdofs, rho_gf, 
                           m1cfl, msp_pcf, sourceI0_pcf, x_gf, e_gf, 
@@ -508,7 +512,7 @@ int main(int argc, char *argv[])
       Wx = 0;
       Wy +=offx;
       VisualizeField(vis_f0, vishost, visport, intf0_gf,
-                     "int(f0v^2)dv", Wx, Wy, Ww, Wh);
+                     "int(f0 4pi v^2)dv", Wx, Wy, Ww, Wh);
       //Wx += offx;
       //VisualizeField(vis_j, vishost, visport, j_gf,
       //               "Current", Wx, Wy, Ww, Wh);
@@ -686,7 +690,7 @@ int main(int argc, char *argv[])
             Wx = 0;
             Wy +=offx;
             VisualizeField(vis_f0, vishost, visport, intf0_gf,
-                           "int(f0v^2)dv", Wx, Wy, Ww, Wh);
+                           "int(f0 4pi v^2)dv", Wx, Wy, Ww, Wh);
             //Wx += offx;
             //VisualizeField(vis_j, vishost, visport, j_gf,
             //               "Current", Wx, Wy, Ww, Wh);
