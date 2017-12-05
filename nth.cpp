@@ -296,6 +296,10 @@ int main(int argc, char *argv[])
       // For the Sedov test, we use a delta function at the origin.
       DeltaCoefficient e_coeff(0, 0, 0.25);
       l2_e.ProjectCoefficient(e_coeff);
+	  // Set min temperature to be nonzero.
+      ParGridFunction cnst(&l2_fes);
+	  cnst = 0.0025;
+	  l2_e += cnst;
    }
    else
    {
@@ -345,7 +349,7 @@ int main(int argc, char *argv[])
    // Define hydrodynamics related coefficients as mean stopping power and
    // source function depending on plasma temperature and density.
    double m1cfl = 0.25;
-   double kB = 1.0, me = 1.0;
+   const double kB = 1.0, me = 1.0, pi = 3.14159265359;
    nth::EOS eos(kB, me);
    nth::M1MeanStoppingPower msp(rho_gf, e_gf, v_gf, material_pcf, 
                                           &eos);
@@ -354,9 +358,21 @@ int main(int argc, char *argv[])
    nth::M1HydroCoefficient *sourceI0_pcf = &sourceI0;
 
    // Static coefficient defined in m1_solver.hpp.
+   // ALWAYS calculate on v in (0, 1)
+   double vmax = 1.0;
+   double vTmultiple = 10.0;
+   // well, not really, since the lowest v = 0 is singular, so
+   double vmin = 0.001 * vmax;
+   // and provide some maximum dv step.
+   double dvmax = vmax*0.001;
+   //vTmultiple = 6.0;
+   //vmin = 0.01 * vmax;
+   //vmin = 3.5 * vmax / vTmultiple; // Minimum 3.5*vTh
+   //dvmax = vmax*0.1;
    if (pmesh->Dimension() == 1)
    {
-      nth::a0 = 2e3; //3e3; //2e1;
+      nth::a0 = 1e10; // Maxwellization prove.
+      //nth::a0 = 2e3;
       vis_steps = 10000;
       m1cfl = 0.5;
    }
@@ -387,10 +403,6 @@ int main(int argc, char *argv[])
    //m1ode_solver = new RK6Solver;
    m1ode_solver->Init(m1oper);
 
-   double vTmultiple = 6.0;
-   //double fluxMoment = 0.0; // distribution function
-   //double fluxMoment = 1.0; // current
-   double fluxMoment = 3.0; // heat flux
    oper.ComputeDensity(rho_gf);
    msp.SetThermalVelocityMultiple(vTmultiple);
    sourceI0.SetThermalVelocityMultiple(vTmultiple);
@@ -402,11 +414,8 @@ int main(int argc, char *argv[])
    double alphavT = msp.GetVelocityScale();
    m1oper.ResetVelocityStepEstimate();
    m1oper.ResetQuadratureData();
-   double vmax = 1.0;
-   double vmin = 0.01 * vmax;
-   //double vmin = 3.5 * vmax / vTmultiple; // Minimum 3.5*vTh
    m1oper.SetTime(vmax);
-   double dvmax = vmax*0.1;
+   //double dvmax = vmax*0.1;
    double dvmin = min(dvmax, m1oper.GetVelocityStepEstimate(m1S));
    I0_gf = 0.0; I1_gf = 0.0;
    int m1ti = 0;
@@ -422,7 +431,7 @@ int main(int argc, char *argv[])
       m1ode_solver->Step(m1S, v, dv);
 
       // Perform the integration over velocity space.
-      intf0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
+      intf0_gf.Add(4.0 * pi * pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
       j_gf.Add(pow(alphavT*v, 3.0) * alphavT*abs(dv), I1_gf);
       hflux_gf.Add(pow(alphavT*v, 5.0) * alphavT*abs(dv), I1_gf);
 
@@ -463,7 +472,7 @@ int main(int argc, char *argv[])
 ///// M1 nonlocal solver //////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 
-   socketstream vis_rho, vis_v, vis_e;
+   socketstream vis_rho, vis_v, vis_e, vis_f0, vis_j, vis_hflux;
    char vishost[] = "localhost";
    int  visport   = 19916;
 
@@ -479,6 +488,10 @@ int main(int argc, char *argv[])
       vis_v.precision(8);
       vis_e.precision(8);
 
+      vis_f0.precision(8);
+      vis_j.precision(8);
+      vis_hflux.precision(8);
+
       int Wx = 0, Wy = 0; // window position
       const int Ww = 350, Wh = 350; // window size
       int offx = Ww+10; // window offsets
@@ -487,10 +500,22 @@ int main(int argc, char *argv[])
                      "Density", Wx, Wy, Ww, Wh);
       Wx += offx;
       VisualizeField(vis_v, vishost, visport, v_gf,
-                     "Heat flux", Wx, Wy, Ww, Wh);
+                     "Velocity", Wx, Wy, Ww, Wh);
       Wx += offx;
       VisualizeField(vis_e, vishost, visport, e_gf,
                      "T", Wx, Wy, Ww, Wh);
+
+      Wx = 0;
+      Wy +=offx;
+      VisualizeField(vis_f0, vishost, visport, intf0_gf,
+                     "int(f0v^2)dv", Wx, Wy, Ww, Wh);
+      //Wx += offx;
+      //VisualizeField(vis_j, vishost, visport, j_gf,
+      //               "Current", Wx, Wy, Ww, Wh);
+      Wx += offx;
+      VisualizeField(vis_hflux, vishost, visport, hflux_gf,
+                     "Heat flux", Wx, Wy, Ww, Wh);
+
    }
 
    // Save data for VisIt visualization
@@ -601,7 +626,8 @@ int main(int argc, char *argv[])
             m1ode_solver->Step(m1S, v, dv);
 
             // Perform the integration over velocity space.
-            intf0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
+            intf0_gf.Add(4.0 * pi * pow(alphavT*v, 2.0) * alphavT*abs(dv),
+                         I0_gf);
             j_gf.Add(pow(alphavT*v, 3.0) * alphavT*abs(dv), I1_gf);
             hflux_gf.Add(pow(alphavT*v, 5.0) * alphavT*abs(dv), I1_gf);
 
@@ -652,12 +678,21 @@ int main(int argc, char *argv[])
                            "Density", Wx, Wy, Ww, Wh);
             Wx += offx;
             VisualizeField(vis_v, vishost, visport,
-                           hflux_gf, "Heat flux", Wx, Wy, Ww, Wh);
-						   //v_gf, "Velocity", Wx, Wy, Ww, Wh);
+						   v_gf, "Velocity", Wx, Wy, Ww, Wh);
             Wx += offx;
-            VisualizeField(vis_e, vishost, visport, e_gf, //intf0_gf,
+            VisualizeField(vis_e, vishost, visport, e_gf,
                            "T", Wx, Wy, Ww,Wh);
+
+            Wx = 0;
+            Wy +=offx;
+            VisualizeField(vis_f0, vishost, visport, intf0_gf,
+                           "int(f0v^2)dv", Wx, Wy, Ww, Wh);
+            //Wx += offx;
+            //VisualizeField(vis_j, vishost, visport, j_gf,
+            //               "Current", Wx, Wy, Ww, Wh);
             Wx += offx;
+            VisualizeField(vis_hflux, vishost, visport, hflux_gf,
+                           "Heat flux", Wx, Wy, Ww, Wh);
          }
 
          if (visit)

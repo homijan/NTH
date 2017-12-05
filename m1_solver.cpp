@@ -758,10 +758,10 @@ double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip,
                         double rho)
 {
    double pi = 3.14159265359;
-   double Te = max(1e-6, Te_gf.GetValue(T.ElementNo, ip));
+   double Te = max(1e-10, Te_gf.GetValue(T.ElementNo, ip));
    
    // Maxwell-Boltzmann distribution fM = ne*vT^3*(2/pi)^1.5*exp(-v^2/2/vT^2)
-   double fM = rho * pow(eos->vTe(Te), 3.0) * pow(2.0 / pi, 1.5) * 
+   double fM = rho / pow(eos->vTe(Te), 3.0) / pow(2.0 * pi, 1.5) *
                exp(- pow(alphavT, 2.0) / 2.0 / pow(eos->vTe(Te), 2.0) *
                pow(velocity, 2.0));
    double dfMdv = - alphavT * velocity / pow(eos->vTe(Te), 2.0) * fM;
