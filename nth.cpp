@@ -54,6 +54,7 @@
 #include "laghos_solver.hpp"
 #include "m1_solver.hpp"
 #include "eos.hpp"
+#include "ic.hpp"
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -63,7 +64,7 @@ using namespace mfem;
 using namespace mfem::hydrodynamics;
 
 // Choice for the problem setup.
-int problem;
+// int problem; 
 
 void display_banner(ostream & os);
 
@@ -103,7 +104,7 @@ int main(int argc, char *argv[])
                   "Number of times to refine the mesh uniformly in serial.");
    args.AddOption(&rp_levels, "-rp", "--refine-parallel",
                   "Number of times to refine the mesh uniformly in parallel.");
-   args.AddOption(&problem, "-p", "--problem", "Problem setup to use.");
+   args.AddOption(&hydro_problem, "-p", "--problem", "Problem setup to use.");
    args.AddOption(&order_v, "-ok", "--order-kinematic",
                   "Order (degree) of the kinematic finite element space.");
    args.AddOption(&order_e, "-ot", "--order-thermo",
@@ -289,13 +290,13 @@ int main(int argc, char *argv[])
    // this density is a temporary function and it will not be updated during the
    // time evolution.
    ParGridFunction rho_gf(&L2FESpace);
-   FunctionCoefficient rho_coeff(hydrodynamics::rho0);
+   FunctionCoefficient rho_coeff(rho0);
    L2_FECollection l2_fec(order_e, pmesh->Dimension());
    ParFiniteElementSpace l2_fes(pmesh, &l2_fec);
    ParGridFunction l2_rho(&l2_fes), l2_e(&l2_fes);
    l2_rho.ProjectCoefficient(rho_coeff);
    rho_gf.ProjectGridFunction(l2_rho);
-   if (problem == 1)
+   if (hydro_problem == 1)
    {
       // For the Sedov test, we use a delta function at the origin.
       DeltaCoefficient e_coeff(0, 0, 0.25);
@@ -318,14 +319,15 @@ int main(int argc, char *argv[])
 
    // Additional details, depending on the problem.
    int source = 0; bool visc;
-   switch (problem)
+   switch (hydro_problem)
    {
       case 0: if (pmesh->Dimension() == 2) { source = 1; }
          visc = false; break;
       case 1: visc = true; break;
       case 2: visc = true; break;
       case 3: visc = true; break;
-      default: MFEM_ABORT("Wrong problem specification!");
+      case 4: visc = true; break;
+	  default: MFEM_ABORT("Wrong problem specification!");
    }
 
    LagrangianHydroOperator oper(S.Size(), H1FESpace, L2FESpace,
@@ -794,92 +796,6 @@ int main(int argc, char *argv[])
 
    return 0;
 }
-
-namespace mfem
-{
-
-namespace hydrodynamics
-{
-
-double rho0(const Vector &x)
-{
-   switch (problem)
-   {
-      case 0: return 1.0;
-      case 1: return 1.0;
-      case 2: if (x(0) < 0.5) { return 1.0; }
-         else { return 0.1; }
-      case 3: if (x(0) > 1.0 && x(1) <= 1.5) { return 1.0; }
-         else { return 0.125; }
-      default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
-   }
-}
-
-double gamma(const Vector &x)
-{
-   switch (problem)
-   {
-      case 0: return 5./3.;
-      case 1: return 1.4;
-      case 2: return 1.4;
-      case 3: if (x(0) > 1.0 && x(1) <= 1.5) { return 1.4; }
-         else { return 1.5; }
-      default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
-   }
-}
-
-void v0(const Vector &x, Vector &v)
-{
-   switch (problem)
-   {
-      case 0:
-         v(0) =  sin(M_PI*x(0)) * cos(M_PI*x(1));
-         v(1) = -cos(M_PI*x(0)) * sin(M_PI*x(1));
-         if (x.Size() == 3)
-         {
-            v(0) *= cos(M_PI*x(2));
-            v(1) *= cos(M_PI*x(2));
-            v(2) = 0.0;
-         }
-         break;
-      case 1: v = 0.0; break;
-      case 2: v = 0.0; break;
-      case 3: v = 0.0; break;
-      default: MFEM_ABORT("Bad number given for problem id!");
-   }
-}
-
-double e0(const Vector &x)
-{
-   switch (problem)
-   {
-      case 0:
-      {
-         const double denom = 2.0 / 3.0;  // (5/3 - 1) * density.
-         double val;
-         if (x.Size() == 2)
-         {
-            val = 1.0 + (cos(2*M_PI*x(0)) + cos(2*M_PI*x(1))) / 4.0;
-         }
-         else
-         {
-            val = 100.0 + ((cos(2*M_PI*x(2)) + 2) *
-                           (cos(2*M_PI*x(0)) + cos(2*M_PI*x(1))) - 2) / 16.0;
-         }
-         return val/denom;
-      }
-      case 1: return 0.0; // This case in initialized in main().
-      case 2: if (x(0) < 0.5) { return 1.0 / rho0(x) / (gamma(x) - 1.0); }
-         else { return 0.1 / rho0(x) / (gamma(x) - 1.0); }
-      case 3: if (x(0) > 1.0) { return 0.1 / rho0(x) / (gamma(x) - 1.0); }
-         else { return 1.0 / rho0(x) / (gamma(x) - 1.0); }
-      default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
-   }
-}
-
-} // namespace hydrodynamics
-
-} // namespace mfem
 
 void display_banner(ostream & os)
 {
