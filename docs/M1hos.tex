@@ -411,7 +411,12 @@ Consequently, one obtain a~simple heat flux formula
   \frac{m \vmag^3}{2} 
   \vn\left( \fM - \mfp\vn\cdot\nabla \fM \right) \vmag^2\, \dI\vn\, \dI\vmag \\
   = - \frac{m}{2}\int_0^\infty \int_{4\pi}  
-  \vn\otimes\vn\, \dI\vn \cdot \mfp \nabla\fM \vmag^5\, \dI\vmag .
+  \vn\otimes\vn\, \dI\vn \cdot \mfp \nabla\fM \vmag^5\, \dI\vmag 
+  = - \frac{a}{\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
+  \nabla\fM \vmag^9\, \dI\vmag \\
+  = - \frac{a}{\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
+  \left(\pdv{\fM}{\rho}\nabla\rho + \pdv{\fM}{T}\nabla T \right) 
+  \vmag^9\, \dI\vmag .
 \end{multline}
 
 \begin{figure}[tbh]

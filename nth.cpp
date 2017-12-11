@@ -53,6 +53,7 @@
 
 #include "laghos_solver.hpp"
 #include "m1_solver.hpp"
+#include "eos.hpp"
 #include <memory>
 #include <iostream>
 #include <fstream>
@@ -93,6 +94,7 @@ int main(int argc, char *argv[])
    bool visit = false;
    bool gfprint = false;
    const char *basename = "results/M1hos";
+   double a0 = 1e20;
 
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh",
@@ -132,6 +134,8 @@ int main(int argc, char *argv[])
                   "Enable or disable result output (files in mfem format).");
    args.AddOption(&basename, "-k", "--outputfilename",
                   "Name of the visit dump files");
+   args.AddOption(&a0, "-a0", "--a0",
+                  "Mean-free-path scaling, i.e. lambda = v^4/rho/a0.");
    args.Parse();
    if (!args.Good())
    {
@@ -349,12 +353,11 @@ int main(int argc, char *argv[])
    // Define hydrodynamics related coefficients as mean stopping power and
    // source function depending on plasma temperature and density. 
    const double kB = 1.0, me = 1.0, pi = 3.14159265359;
-   nth::EOS eos(kB, me);
-   nth::M1MeanStoppingPower msp(rho_gf, e_gf, v_gf, material_pcf, 
-                                          &eos);
-   nth::M1HydroCoefficient *msp_pcf = &msp;
-   nth::M1I0Source sourceI0(rho_gf, e_gf, v_gf, material_pcf, &eos);
-   nth::M1HydroCoefficient *sourceI0_pcf = &sourceI0;
+   nth::IGEOS eos(me, kB);
+   nth::ClassicalMeanStoppingPower msp(rho_gf, e_gf, v_gf, material_pcf, &eos);
+   nth::NTHvHydroCoefficient *msp_pcf = &msp;
+   nth::AWBSI0Source sourceI0(rho_gf, e_gf, v_gf, material_pcf, &eos);
+   nth::NTHvHydroCoefficient *sourceI0_pcf = &sourceI0;
 
    // Static coefficient defined in m1_solver.hpp.
    double m1cfl = 0.25;
@@ -362,7 +365,7 @@ int main(int argc, char *argv[])
    // ALWAYS calculate on v in (0, 1)
    double vmax = 1.0;
    double vTmultiple = 10.0;
-   nth::a0 = 2e20; // Maxwellization prove.
+   nth::a0 = a0; // The Maxwellization prove.
    // well, not really, since the lowest v = 0 is singular, so
    double vmin = 1e-10 * vmax;
    // and provide some maximum dv step.

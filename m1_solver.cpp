@@ -81,8 +81,8 @@ M1Operator::M1Operator(int size,
                        Array<int> &essential_tdofs,
                        ParGridFunction &rho0, 
                        double cfl_, 
-                       M1HydroCoefficient *msp_,
-                       M1HydroCoefficient *sourceI0_, 
+                       NTHvHydroCoefficient *msp_,
+                       NTHvHydroCoefficient *sourceI0_,
                        ParGridFunction &x_gf_, 
                        ParGridFunction &T_gf_, 
                        bool pa, double cgt, int cgiter)
@@ -717,8 +717,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
 
             // Extensive scalar quadrature data.
             quad_data.nuinvrho(z_id*nqp + q) = msp / rho; //nue/rho;
-            quad_data.Ef1invvf0rho(z_id*nqp + q) = Efield * f1 / velocity_scaled
-                                                   / f0 / rho;
+            quad_data.Ef1invvf0rho(z_id*nqp + q) = Efield * f1
+                                                   / velocity_scaled / f0
+                                                   / rho;
             const double Zbar = 10.0;
 			quad_data.nutinvrho(z_id*nqp + q) = Zbar * msp / rho;
          }
@@ -734,48 +735,6 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    timer.sw_qdata.Stop();
    timer.quad_tstep += nzones * nqp;
 }
-
-double a0 = 5e3;
-
-double M1MeanStoppingPower::Eval(ElementTransformation &T,
-                                 const IntegrationPoint &ip, double rho)
-{
-   double Te = Te_gf.GetValue(T.ElementNo, ip);
-   //double a = a0 * (Tmax * Tmax); //1e8; // The plasma collision model.
-   double nu = a0 * rho / (pow(alphavT, 3.0) * pow(velocity, 3.0));
-
-   return nu;
-}
-double M1MeanStoppingPower::Eval(ElementTransformation &T,
-                                 const IntegrationPoint &ip)
-{
-   double rho = rho_gf.GetValue(T.ElementNo, ip);
-
-   return Eval(T, ip, rho);
-}
-
-double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip,
-                        double rho)
-{
-   double pi = 3.14159265359;
-   double Te = max(1e-10, Te_gf.GetValue(T.ElementNo, ip));
-   
-   // Maxwell-Boltzmann distribution fM = ne*vT^3*(2/pi)^1.5*exp(-v^2/2/vT^2)
-   double fM = rho / pow(eos->vTe(Te), 3.0) / pow(2.0 * pi, 1.5) *
-               exp(- pow(alphavT, 2.0) / 2.0 / pow(eos->vTe(Te), 2.0) *
-               pow(velocity, 2.0));
-   double dfMdv = - alphavT * velocity / pow(eos->vTe(Te), 2.0) * fM;
-
-   return dfMdv;
-}
-
-double M1I0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip)
-{
-   double rho = rho_gf.GetValue(T.ElementNo, ip);
-
-   return Eval(T, ip, rho);
-}
-
 
 } // namespace nth
 

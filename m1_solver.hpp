@@ -14,11 +14,12 @@
 // software, applications, hardware, advanced system engineering and early
 // testbed platforms, in support of the nation's exascale computing imperative.
 
-#ifndef MFEM_M1_SOLVER
-#define MFEM_M1_SOLVER
+#ifndef MFEM_NTH_M1SOLVER
+#define MFEM_NTH_M1SOLVER
 
 #include "mfem.hpp"
 #include "m1_assembly.hpp"
+#include "physics.hpp"
 
 #ifdef MFEM_USE_MPI
 
@@ -56,7 +57,7 @@ struct TimingData
       : H1dof_iter(0), L2dof_iter(0), dof_tstep(0), quad_tstep(0) { }
 };
 
-class M1HydroCoefficient;
+//class NTHvHydroCoefficient;
 
 // Given a solutions state (f0, f1), this class performs all necessary
 // computations to evaluate the new slopes (df0_dt, df1_dt).
@@ -114,16 +115,16 @@ protected:
    // The grid function is necessary for velocity step estimation. 
    ParGridFunction &x_gf;
    // Velocity dependent coefficients providing physics.
-   M1HydroCoefficient *msp_pcf, *sourceI0_pcf;
+   NTHvHydroCoefficient *msp_pcf, *sourceI0_pcf;
 
 public:
    M1Operator(int size, ParFiniteElementSpace &h1_fes,
               ParFiniteElementSpace &l2_fes, Array<int> &essential_tdofs,
-              ParGridFunction &rho0, double cfl_, M1HydroCoefficient *msp_,
-              M1HydroCoefficient *sourceI0_, ParGridFunction &x_gf_, 
+              ParGridFunction &rho0, double cfl_, NTHvHydroCoefficient *msp_,
+              NTHvHydroCoefficient *sourceI0_, ParGridFunction &x_gf_,
               ParGridFunction &T_gf_, bool pa, double cgt, int cgiter);
 
-   // Solve for dx_dt, dv_dt and de_dt.
+   // Solve for df0_dv  and df1_dv.
    virtual void Mult(const Vector &S, Vector &dS_dt) const;
 
    // Calls UpdateQuadratureData to compute the new quad_data.dt_est.
@@ -140,105 +141,10 @@ public:
    ~M1Operator() {}
 };
 
-// Generic hydro equation of state (EOS) class,
-// providing any physics related evaluation needed in NTH.
-class EOS
-{
-protected:
-   // Fundamental constants of nature.
-   double kB, c, hbar, G;
-   // Corresponding masses of electron and proton.
-   double me;
-public:
-   EOS(double kB_ = 1.0, double me_ = 1.0, double mi_ = 1.0, double c_ = 1.0, 
-       double hbar_ = 1.0, double G_ = 1.0)
-      { kB = kB_, c = c_, hbar = hbar_, G = G_; me = me_; }
-   double vTe(double Te) { return sqrt(kB * Te / me); }
-};
-
-// Generic hydro M1 coefficient.
-class HydroCoefficient : public Coefficient
-{
-protected:
-   // Fluid quantities used in calculations of physics.
-   ParGridFunction &rho_gf, &Te_gf, &v_gf;
-   // Space dependent material coefficient.
-   Coefficient *material_pcf;
-   // General equation of state.
-   EOS *eos;
-public:
-   HydroCoefficient(ParGridFunction &rho_, ParGridFunction &Te_,
-                    ParGridFunction &v_, Coefficient *material_, EOS *eos_)
-      : rho_gf(rho_), Te_gf(Te_), v_gf(v_), material_pcf(material_), eos(eos_) 
-	  {}
-   virtual double Eval(ElementTransformation &T,
-      const IntegrationPoint &ip) = 0;
-
-   virtual ~HydroCoefficient() {};
-};
-
-// M1 hydro coefficient.
-class M1HydroCoefficient : public HydroCoefficient
-{
-   void SetVelocityScale(double alpha_, double Tmax)
-      { alphavT = alpha * eos->vTe(Tmax); }
-protected:
-   // Velocity is always scaled wit respect to maximum thermal velocity 
-   // (its multiple) so it is in (0, 1)
-   double alpha, Tmax, alphavT;
-   // Current particle velocity from the velocity spectra. 
-   double velocity;
-public:
-   M1HydroCoefficient(ParGridFunction &rho_, ParGridFunction &T_,
-                      ParGridFunction &v_, Coefficient *material_, EOS *eos_)
-      : HydroCoefficient(rho_, T_, v_, material_, eos_)
-	  { alpha = 1.0; Tmax = 1.0; SetVelocityScale(alpha, Tmax); }
-   virtual double Eval(ElementTransformation &T,
-      const IntegrationPoint &ip) = 0;
-   virtual double Eval(ElementTransformation &T,
-      const IntegrationPoint &ip, double rho) = 0;
-   void SetVelocity(double v_) { velocity = v_; }
-   void SetThermalVelocityMultiple(double alpha_)
-      { alpha = alpha_; SetVelocityScale(alpha, Tmax); }
-   void SetTmax(double Tmax_)
-      { Tmax = Tmax_; SetVelocityScale(alpha, Tmax); }
-   double GetVelocityScale() { return alphavT; }
-   double GetRho(ElementTransformation &T, const IntegrationPoint &ip) 
-      { return rho_gf.GetValue(T.ElementNo, ip); }
-};
-
-// M1 mean-stopping-power coefficient.
-class M1MeanStoppingPower : public M1HydroCoefficient
-{
-protected:
-public:
-   M1MeanStoppingPower(ParGridFunction &rho_, ParGridFunction &Te_,
-                       ParGridFunction &v_, Coefficient *material_, EOS *eos_)
-      : M1HydroCoefficient(rho_, Te_, v_, material_, eos_) {}
-   double Eval(ElementTransformation &T, const IntegrationPoint &ip);
-   double Eval(ElementTransformation &T, const IntegrationPoint &ip, 
-               double rho);
-};
-
-// M1 source coefficient.
-class M1I0Source : public M1HydroCoefficient
-{
-protected:
-public:
-   M1I0Source(ParGridFunction &rho_, ParGridFunction &Te_, ParGridFunction &v_, 
-              Coefficient *material_, EOS *eos_)
-      : M1HydroCoefficient(rho_, Te_, v_, material_, eos_) {}
-   double Eval(ElementTransformation &T, const IntegrationPoint &ip);
-   double Eval(ElementTransformation &T, const IntegrationPoint &ip,
-               double rho);
-};
-
-extern double a0;
-
 } // namespace nth
 
 } // namespace mfem
 
 #endif // MFEM_USE_MPI
 
-#endif // MFEM_M1_SOLVER
+#endif // MFEM_NTH_M1SOLVER

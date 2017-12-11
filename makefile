@@ -115,10 +115,10 @@ LIBS = $(strip $(LAGHOS_LIBS) $(LDFLAGS))
 CCC  = $(strip $(CXX) $(LAGHOS_FLAGS))
 Ccc  = $(strip $(CC) $(CFLAGS) $(GL_OPTS))
 
-SOURCE_FILES = nth.cpp m1_solver.cpp m1_assembly.cpp $(LAGHOS_DIR)/laghos_solver.cpp $(LAGHOS_DIR)/laghos_assembly.cpp
+SOURCE_FILES = nth.cpp m1_solver.cpp m1_assembly.cpp $(LAGHOS_DIR)/laghos_solver.cpp $(LAGHOS_DIR)/laghos_assembly.cpp physics.cpp
 OBJECT_FILES1 = $(SOURCE_FILES:.cpp=.o)
 OBJECT_FILES = $(OBJECT_FILES1:.c=.o)
-HEADER_FILES = m1_solver.hpp m1_assembly.hpp
+HEADER_FILES = m1_solver.hpp m1_assembly.hpp physics.hpp eos.hpp
 
 # Targets
 
