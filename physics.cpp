@@ -32,7 +32,8 @@ double ClassicalMeanStoppingPower::Eval(ElementTransformation &T,
                                         const IntegrationPoint &ip, double rho)
 {
    double Te = Te_gf.GetValue(T.ElementNo, ip);
-   double nu = a0 * rho / (pow(alphavT, 3.0) * pow(velocity, 3.0));
+   double velocity_real = alphavT * velocity;
+   double nu = a0 * rho / pow(velocity_real, 3.0);
 
    return nu;
 }
@@ -45,18 +46,49 @@ double ClassicalMeanStoppingPower::Eval(ElementTransformation &T,
    return Eval(T, ip, rho);
 }
 
+double ClassicalMeanFreePath::Eval(ElementTransformation &T,
+                                   const IntegrationPoint &ip, double rho)
+{
+   double Te = Te_gf.GetValue(T.ElementNo, ip);
+   // Set the scaled velocity to correspond to the local thermal velocity.
+   velocity = eos->GetvTe(Te) / alphavT;
+   double velocity_real = alphavT * velocity;
+   // Compute the mean free path.
+   double nu = ClassicalMeanStoppingPower::Eval(T, ip, rho);
+   double mfp = velocity_real / nu;
+
+   return mfp;
+}
+
+double ClassicalKnudsenNumber::Eval(ElementTransformation &T,
+                                    const IntegrationPoint &ip, double rho)
+{
+   double Te = Te_gf.GetValue(T.ElementNo, ip);
+   // Compute the mean free path.
+   double mfp = ClassicalMeanFreePath::Eval(T, ip, rho);
+   // Compute the temperature and density length scales.
+   Vector grad_Te;
+   Te_gf.GetGradient(T, grad_Te);
+   double L_Te = Te / grad_Te.Norml2();
+   Vector grad_rho;
+   rho_gf.GetGradient(T, grad_rho);
+   double L_rho = rho / grad_rho.Norml2();
+   // Return the Knudsen number of thermal velocity particle.
+   return mfp / min(L_Te, L_rho);
+}
+
 double AWBSI0Source::Eval(ElementTransformation &T,
                           const IntegrationPoint &ip, double rho)
 {
    double pi = 3.14159265359;
    double Te = max(1e-10, Te_gf.GetValue(T.ElementNo, ip));
    double vTe = eos->GetvTe(Te);
+   double velocity_real = alphavT * velocity;
 
    // Maxwell-Boltzmann distribution fM = ne*vT^3*(2/pi)^1.5*exp(-v^2/2/vT^2)
    double fM = rho / pow(vTe, 3.0) / pow(2.0 * pi, 1.5) *
-               exp(- pow(alphavT, 2.0) / 2.0 / pow(vTe, 2.0) *
-               pow(velocity, 2.0));
-   double dfMdv = - alphavT * velocity / pow(vTe, 2.0) * fM;
+               exp(- pow(velocity_real, 2.0) / 2.0 / pow(vTe, 2.0));
+   double dfMdv = - velocity_real / pow(vTe, 2.0) * fM;
 
    return dfMdv;
 }

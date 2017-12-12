@@ -131,6 +131,32 @@ public:
                        double rho);
 };
 
+// Classical mean-free-path coefficient.
+class ClassicalMeanFreePath : public ClassicalMeanStoppingPower
+{
+protected:
+public:
+   ClassicalMeanFreePath(ParGridFunction &rho_, ParGridFunction &Te_,
+                         ParGridFunction &v_, Coefficient *material_, 
+                         EOS *eos_)
+      : ClassicalMeanStoppingPower(rho_, Te_, v_, material_, eos_) {}
+   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
+                       double rho);
+};
+
+// Classical Kn(mean-stopping-power) coefficient.
+class ClassicalKnudsenNumber : public ClassicalMeanFreePath
+{
+protected:
+public:
+   ClassicalKnudsenNumber(ParGridFunction &rho_, ParGridFunction &Te_,
+                          ParGridFunction &v_, Coefficient *material_,
+                          EOS *eos_)
+      : ClassicalMeanFreePath(rho_, Te_, v_, material_, eos_) {}
+   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
+                       double rho);
+};
+
 // AWBS source coefficient.
 class AWBSI0Source : public NTHvHydroCoefficient
 {

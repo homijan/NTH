@@ -358,10 +358,13 @@ int main(int argc, char *argv[])
    // source function depending on plasma temperature and density. 
    const double kB = 1.0, me = 1.0, pi = 3.14159265359;
    nth::IGEOS eos(me, kB);
-   nth::ClassicalMeanStoppingPower msp(rho_gf, e_gf, v_gf, material_pcf, &eos);
-   nth::NTHvHydroCoefficient *msp_pcf = &msp;
-   nth::AWBSI0Source sourceI0(rho_gf, e_gf, v_gf, material_pcf, &eos);
-   nth::NTHvHydroCoefficient *sourceI0_pcf = &sourceI0;
+   nth::ClassicalMeanStoppingPower msp_cf(rho_gf, e_gf, v_gf, material_pcf,
+                                          &eos);
+   nth::NTHvHydroCoefficient *msp_pcf = &msp_cf;
+   nth::AWBSI0Source sourceI0_cf(rho_gf, e_gf, v_gf, material_pcf, &eos);
+   nth::NTHvHydroCoefficient *sourceI0_pcf = &sourceI0_cf;
+   nth::ClassicalKnudsenNumber Kn_cf(rho_gf, e_gf, v_gf, material_pcf, &eos);
+   Coefficient *Kn_pcf = &Kn_cf;
 
    // Static coefficient defined in m1_solver.hpp.
    double m1cfl = 0.25;
@@ -405,7 +408,8 @@ int main(int argc, char *argv[])
                           m1cfl, msp_pcf, sourceI0_pcf, x_gf, e_gf, 
                           p_assembly, cg_tol, cg_max_iter);
    // Prepare grid functions integrating the moments of I0 and I1.
-   ParGridFunction intf0_gf(&L2FESpace), j_gf(&H1FESpace), hflux_gf(&H1FESpace);
+   ParGridFunction intf0_gf(&L2FESpace), Kn_gf(&L2FESpace);
+   ParGridFunction j_gf(&H1FESpace), hflux_gf(&H1FESpace);
 
    ODESolver *m1ode_solver = NULL;
    //m1ode_solver = new ForwardEulerSolver;
@@ -415,14 +419,16 @@ int main(int argc, char *argv[])
    m1ode_solver->Init(m1oper);
 
    oper.ComputeDensity(rho_gf);
-   msp.SetThermalVelocityMultiple(vTmultiple);
-   sourceI0.SetThermalVelocityMultiple(vTmultiple);
+   msp_cf.SetThermalVelocityMultiple(vTmultiple);
+   sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
+   Kn_cf.SetThermalVelocityMultiple(vTmultiple);
    double loc_Tmax = e_gf.Max(), glob_Tmax;
    MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                  pmesh->GetComm());
-   msp.SetTmax(glob_Tmax);
-   sourceI0.SetTmax(glob_Tmax);
-   double alphavT = msp.GetVelocityScale();
+   msp_cf.SetTmax(glob_Tmax);
+   sourceI0_cf.SetTmax(glob_Tmax);
+   Kn_cf.SetTmax(glob_Tmax);
+   double alphavT = msp_cf.GetVelocityScale();
    m1oper.ResetVelocityStepEstimate();
    m1oper.ResetQuadratureData();
    m1oper.SetTime(vmax);
@@ -435,6 +441,7 @@ int main(int argc, char *argv[])
    intf0_gf = 0.0;
    j_gf = 0.0;
    hflux_gf = 0.0;
+   Kn_gf.ProjectCoefficient(Kn_cf);
 /*
    while (abs(dv) >= abs(dvmin))
    {
@@ -483,7 +490,7 @@ int main(int argc, char *argv[])
 ///// M1 nonlocal solver //////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 
-   socketstream vis_rho, vis_v, vis_e, vis_f0, vis_j, vis_hflux;
+   socketstream vis_rho, vis_v, vis_e, vis_f0, vis_j, vis_Kn, vis_hflux;
    char vishost[] = "localhost";
    int  visport   = 19916;
 
@@ -501,6 +508,7 @@ int main(int argc, char *argv[])
 
       vis_f0.precision(8);
       vis_j.precision(8);
+      vis_Kn.precision(8);
       vis_hflux.precision(8);
 
       int Wx = 0, Wy = 0; // window position
@@ -523,6 +531,9 @@ int main(int argc, char *argv[])
       //Wx += offx;
       //VisualizeField(vis_j, vishost, visport, j_gf,
       //               "Current", Wx, Wy, Ww, Wh);
+      Wx += offx;
+      VisualizeField(vis_Kn, vishost, visport, Kn_gf,
+                     "Kn", Wx, Wy, Ww, Wh);
       Wx += offx;
       VisualizeField(vis_hflux, vishost, visport, hflux_gf,
                      "Heat flux", Wx, Wy, Ww, Wh);
@@ -611,14 +622,15 @@ int main(int argc, char *argv[])
 ///// M1 nonlocal solver //////////////////////////////////////
 ///////////////////////////////////////////////////////////////
          oper.ComputeDensity(rho_gf);
-         msp.SetThermalVelocityMultiple(vTmultiple);
-         sourceI0.SetThermalVelocityMultiple(vTmultiple);
-         double loc_Tmax = e_gf.Max(), glob_Tmax;
+         msp_cf.SetThermalVelocityMultiple(vTmultiple);
+         sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
+         Kn_cf.SetThermalVelocityMultiple(vTmultiple);          double loc_Tmax = e_gf.Max(), glob_Tmax;
          MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                        pmesh->GetComm());
-         msp.SetTmax(glob_Tmax);
-         sourceI0.SetTmax(glob_Tmax);
-         alphavT = msp.GetVelocityScale();
+         msp_cf.SetTmax(glob_Tmax);
+         sourceI0_cf.SetTmax(glob_Tmax);
+         Kn_cf.SetTmax(glob_Tmax);
+         alphavT = msp_cf.GetVelocityScale();
          m1oper.ResetVelocityStepEstimate();
          m1oper.ResetQuadratureData();
          m1oper.SetTime(vmax);
@@ -631,7 +643,8 @@ int main(int argc, char *argv[])
          intf0_gf = 0.0;
          j_gf = 0.0;
          hflux_gf = 0.0;
-		 while (abs(dv) >= abs(dvmin))
+         Kn_gf.ProjectCoefficient(Kn_cf);
+         while (abs(dv) >= abs(dvmin))
          {
             m1ti++;
             m1ode_solver->Step(m1S, v, dv);
@@ -702,6 +715,9 @@ int main(int argc, char *argv[])
             //VisualizeField(vis_j, vishost, visport, j_gf,
             //               "Current", Wx, Wy, Ww, Wh);
             Wx += offx;
+            VisualizeField(vis_Kn, vishost, visport, Kn_gf,
+                           "Kn", Wx, Wy, Ww, Wh);
+            Wx += offx;
             VisualizeField(vis_hflux, vishost, visport, hflux_gf,
                            "Heat flux", Wx, Wy, Ww, Wh);
          }
@@ -745,11 +761,13 @@ int main(int argc, char *argv[])
             e_gf.Save(e_ofs);
             e_ofs.close();
 
-            ostringstream intf0_name, j_name, hflux_name;
+            ostringstream intf0_name, j_name, Kn_name, hflux_name;
             intf0_name << basename << "_" << ti
                    << "_f0." << setfill('0') << setw(6) << myid;
             j_name << basename << "_" << ti
                    << "_j." << setfill('0') << setw(6) << myid;
+            Kn_name << basename << "_" << ti
+                   << "_Kn." << setfill('0') << setw(6) << myid;
             hflux_name << basename << "_" << ti
                    << "_hflux." << setfill('0') << setw(6) << myid;
 
@@ -762,6 +780,11 @@ int main(int argc, char *argv[])
             j_ofs.precision(8);
             j_gf.Save(j_ofs);
             j_ofs.close();
+
+            ofstream Kn_ofs(Kn_name.str().c_str());
+            Kn_ofs.precision(8);
+            Kn_gf.Save(Kn_ofs);
+            Kn_ofs.close();
 
             ofstream hflux_ofs(hflux_name.str().c_str());
             hflux_ofs.precision(8);

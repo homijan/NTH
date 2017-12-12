@@ -79,8 +79,8 @@ rm results/*
 mpirun -np 8 nth -p 6 -m data/square01_quad.mesh -rs 4 -tf 0.0 -ok 4 -ot 3 -vis -fa -print -a0 1e9 | tee M1Philippe_p62D1e9.out
 cp -r results resultsp62D1e9
 rm results/*
-mpirun -np 8 nth -p 6 -m data/square01_quad.mesh -rs 4 -tf 0.0 -ok 4 -ot 3 -vis -fa -print -a0 5e8 | tee M1Philippe_p62D5e8.out
-cp -r results resultsp62D5e8
+mpirun -np 8 nth -p 6 -m data/square01_quad.mesh -rs 4 -tf 0.0 -ok 4 -ot 3 -vis -fa -print -a0 1e8 | tee M1Philippe_p62D1e8.out
+cp -r results resultsp62D1e8
 # problem 6 - step in density and step in temperature in 3D
 rm results/*
 mpirun -np 8 nth -p 6 -m data/cube01_hex.mesh -rs 4 -tf 0.0 -ok 1 -ot 0 -vis -fa -print -a0 1e12 | tee M1Philippe_p63D1e12.out
@@ -95,5 +95,5 @@ rm results/*
 mpirun -np 8 nth -p 6 -m data/cube01_hex.mesh -rs 4 -tf 0.0 -ok 1 -ot 0 -vis -fa -print -a0 1e9 | tee M1Philippe_p63D1e9.out
 cp -r results resultsp63D1e9
 rm results/*
-mpirun -np 8 nth -p 6 -m data/cube01_hex.mesh -rs 4 -tf 0.0 -ok 1 -ot 0 -vis -fa -print -a0 5e8 | tee M1Philippe_p63D5e8.out
-cp -r results resultsp63D5e8
+mpirun -np 8 nth -p 6 -m data/cube01_hex.mesh -rs 4 -tf 0.0 -ok 1 -ot 0 -vis -fa -print -a0 1e8 | tee M1Philippe_p63D1e8.out
+cp -r results resultsp63D1e8
