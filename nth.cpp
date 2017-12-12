@@ -327,6 +327,8 @@ int main(int argc, char *argv[])
       case 2: visc = true; break;
       case 3: visc = true; break;
       case 4: visc = true; break;
+      case 5: visc = true; break;
+      case 6: visc = true; break;
 	  default: MFEM_ABORT("Wrong problem specification!");
    }
 
@@ -366,7 +368,7 @@ int main(int argc, char *argv[])
    vis_steps = 1000000000;
    // ALWAYS calculate on v in (0, 1)
    double vmax = 1.0;
-   double vTmultiple = 10.0;
+   double vTmultiple = 7.0;
    nth::a0 = a0; // The Maxwellization prove.
    // well, not really, since the lowest v = 0 is singular, so
    double vmin = 1e-10 * vmax;

@@ -34,7 +34,9 @@ namespace hydrodynamics
 {
 
 int hydro_problem = 1;
-double Tmax = 1000.0, Tmin = 100.0;
+double T_max = 1000.0, T_min = 100.0;
+double rho_max = 10.0, rho_min = 1.0;
+double T_gradscale = 50.0, rho_gradscale = 50.0;
 
 double rho0(const Vector &x)
 {
@@ -46,7 +48,11 @@ double rho0(const Vector &x)
          else { return 0.1; }
       case 3: if (x(0) > 1.0 && x(1) <= 1.5) { return 1.0; }
          else { return 0.125; }
-      case 4: return 1.0;
+      case 4: return rho_min + (rho_max - rho_min) *
+                     (0.5 * (tanh(rho_gradscale * (x.Norml2() - 0.5)) + 1.0));
+      case 5: return 1.0;
+      case 6: return rho_min + (rho_max - rho_min) *
+                     (0.5 * (tanh(rho_gradscale * (x.Norml2() - 0.5)) + 1.0));
       default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }
 }
@@ -61,6 +67,8 @@ double gamma(const Vector &x)
       case 3: if (x(0) > 1.0 && x(1) <= 1.5) { return 1.4; }
          else { return 1.5; }
       case 4: return 1.4;
+      case 5: return 1.4;
+      case 6: return 1.4;
       default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }
 }
@@ -83,6 +91,8 @@ void v0(const Vector &x, Vector &v)
       case 2: v = 0.0; break;
       case 3: v = 0.0; break;
       case 4: v = 0.0; break;
+      case 5: v = 0.0; break;
+      case 6: v = 0.0; break;
       default: MFEM_ABORT("Bad number given for problem id!");
    }
 }
@@ -111,10 +121,11 @@ double e0(const Vector &x)
          else { return 0.1 / rho0(x) / (gamma(x) - 1.0); }
       case 3: if (x(0) > 1.0) { return 0.1 / rho0(x) / (gamma(x) - 1.0); }
          else { return 1.0 / rho0(x) / (gamma(x) - 1.0); }
-      case 4: return (Tmax - Tmin) * (0.5 * (tanh(50.0 * (0.5 - x(0))) + 1.0)) 
-                     + Tmin;
-	  //case 4: if (x(0) > 0.5) { return 1.0; }
-      //   else { return 0.1; }
+      case 4: return 1.0;
+      case 5: return T_min + (T_max - T_min) *
+                     (0.5 * (tanh(T_gradscale * (0.5 - x.Norml2())) + 1.0));
+      case 6: return T_min + (T_max - T_min) *
+                     (0.5 * (tanh(T_gradscale * (0.5 - x.Norml2())) + 1.0));
       default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }
 }

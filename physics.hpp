@@ -66,7 +66,7 @@ public:
    ~EOS() { }
 };
 
-// Generic hydro M1 coefficient.
+// Generic hydro coefficient.
 class HydroCoefficient : public Coefficient
 {
 protected:
@@ -80,14 +80,14 @@ public:
    HydroCoefficient(ParGridFunction &rho_, ParGridFunction &Te_,
                     ParGridFunction &v_, Coefficient *material_, EOS *eos_)
       : rho_gf(rho_), Te_gf(Te_), v_gf(v_), material_pcf(material_), eos(eos_)
-      {}
+      { }
    virtual double Eval(ElementTransformation &T,
       const IntegrationPoint &ip) = 0;
 
    virtual ~HydroCoefficient() {};
 };
 
-// M1 hydro coefficient.
+// NTH hydro coefficient including velocity dependence.
 class NTHvHydroCoefficient : public HydroCoefficient
 {
    void SetVelocityScale(double alpha_, double Tmax)
@@ -117,7 +117,7 @@ public:
       { return rho_gf.GetValue(T.ElementNo, ip); }
 };
 
-// M1 mean-stopping-power coefficient.
+// Classical mean-stopping-power coefficient.
 class ClassicalMeanStoppingPower : public NTHvHydroCoefficient
 {
 protected:
@@ -126,12 +126,12 @@ public:
                               ParGridFunction &v_, Coefficient *material_,
                               EOS *eos_)
       : NTHvHydroCoefficient(rho_, Te_, v_, material_, eos_) {}
-   double Eval(ElementTransformation &T, const IntegrationPoint &ip);
-   double Eval(ElementTransformation &T, const IntegrationPoint &ip,
-               double rho);
+   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip);
+   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
+                       double rho);
 };
 
-// M1 source coefficient.
+// AWBS source coefficient.
 class AWBSI0Source : public NTHvHydroCoefficient
 {
 protected:

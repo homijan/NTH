@@ -32,7 +32,6 @@ double ClassicalMeanStoppingPower::Eval(ElementTransformation &T,
                                         const IntegrationPoint &ip, double rho)
 {
    double Te = Te_gf.GetValue(T.ElementNo, ip);
-   //double a = a0 * (Tmax * Tmax); //1e8; // The plasma collision model.
    double nu = a0 * rho / (pow(alphavT, 3.0) * pow(velocity, 3.0));
 
    return nu;
