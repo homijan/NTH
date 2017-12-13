@@ -1,0 +1,40 @@
+# Visualization window geometry
+#window 0 0 800 600
+window 0 0 400 300
+
+psolution 8 M1hos_1_mesh 0 M1hos_1_hflux
+
+# Setup the GLVis scene. Executed after pressing the space bar.
+{
+   #perspective off
+   #view 0 0
+   #viewcenter 0 0
+   #keys mscl
+   #scale 1.4
+   #autoscale off
+   #valuerange 0.01 2.
+   #zoom 1.3
+   #plot_caption "Heat flux"
+   keys maaj
+   keys RR
+}
+
+# Take multiple screenshots. Executed after pressing the space bar.
+{
+   plot_caption "Temperature"
+   psolution 8 M1hos_1_mesh 0 M1hos_1_e 
+   scale 1.35
+   screenshot temperature.png
+   plot_caption "Density"
+   psolution 8 M1hos_1_mesh 0 M1hos_1_rho 
+   scale 1.35
+   screenshot density.png
+   plot_caption "Heat flux"
+   psolution 8 M1hos_1_mesh 0 M1hos_1_hflux 
+   scale 1.35
+   screenshot hflux.png
+   plot_caption "Kn"
+   psolution 8 M1hos_1_mesh 0 M1hos_1_Kn
+   scale 1.35
+   screenshot Kn.png
+}
