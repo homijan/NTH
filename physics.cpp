@@ -60,12 +60,21 @@ double ClassicalMeanFreePath::Eval(ElementTransformation &T,
    return mfp;
 }
 
-double ClassicalKnudsenNumber::Eval(ElementTransformation &T,
-                                    const IntegrationPoint &ip, double rho)
+double ClassicalMeanFreePath::EvalThermalMFP(ElementTransformation &T,
+                                             const IntegrationPoint &ip)
 {
+   double rho = rho_gf.GetValue(T.ElementNo, ip);
+
+   return Eval(T, ip, rho);
+}
+
+double KnudsenNumber::Eval(ElementTransformation &T,
+                           const IntegrationPoint &ip)
+{
+   double rho = rho_gf.GetValue(T.ElementNo, ip);
    double Te = Te_gf.GetValue(T.ElementNo, ip);
    // Compute the mean free path.
-   double mfp = ClassicalMeanFreePath::Eval(T, ip, rho);
+   double lambda = mfp->EvalThermalMFP(T, ip);
    // Compute the temperature and density length scales.
    Vector grad_Te;
    Te_gf.GetGradient(T, grad_Te);
@@ -74,7 +83,7 @@ double ClassicalKnudsenNumber::Eval(ElementTransformation &T,
    rho_gf.GetGradient(T, grad_rho);
    double L_rho = rho / grad_rho.Norml2();
    // Return the Knudsen number of thermal velocity particle.
-   return mfp / min(L_Te, L_rho);
+   return lambda / min(L_Te, L_rho);
 }
 
 double AWBSI0Source::Eval(ElementTransformation &T,

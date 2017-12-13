@@ -131,8 +131,19 @@ public:
                        double rho);
 };
 
+// General mean-free-path coefficient.
+class MeanFreePath
+{
+protected:
+public:
+   MeanFreePath() {}
+   virtual double EvalThermalMFP(ElementTransformation &T, 
+                                 const IntegrationPoint &ip) = 0;
+};
+
 // Classical mean-free-path coefficient.
-class ClassicalMeanFreePath : public ClassicalMeanStoppingPower
+class ClassicalMeanFreePath : public MeanFreePath, 
+                              public ClassicalMeanStoppingPower
 {
 protected:
 public:
@@ -142,19 +153,21 @@ public:
       : ClassicalMeanStoppingPower(rho_, Te_, v_, material_, eos_) {}
    virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
                        double rho);
+   virtual double EvalThermalMFP(ElementTransformation &T, 
+                                 const IntegrationPoint &ip);
 };
 
 // Classical Kn(mean-stopping-power) coefficient.
-class ClassicalKnudsenNumber : public ClassicalMeanFreePath
+class KnudsenNumber : public HydroCoefficient
 {
 protected:
+   MeanFreePath *mfp;
 public:
-   ClassicalKnudsenNumber(ParGridFunction &rho_, ParGridFunction &Te_,
-                          ParGridFunction &v_, Coefficient *material_,
-                          EOS *eos_)
-      : ClassicalMeanFreePath(rho_, Te_, v_, material_, eos_) {}
-   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
-                       double rho);
+   KnudsenNumber(ParGridFunction &rho_, ParGridFunction &Te_,
+                 ParGridFunction &v_, Coefficient *material_,
+                 EOS *eos_, MeanFreePath *mfp_)
+      : HydroCoefficient(rho_, Te_, v_, material_, eos_), mfp(mfp_) {}
+   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip);
 };
 
 // AWBS source coefficient.

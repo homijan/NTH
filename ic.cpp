@@ -53,6 +53,8 @@ double rho0(const Vector &x)
       case 5: return 1.0;
       case 6: return rho_min + (rho_max - rho_min) *
                      (0.5 * (tanh(rho_gradscale * (x.Norml2() - 0.5)) + 1.0));
+      case 7: return rho_min + (rho_max - rho_min) *
+                     (0.5 * (tanh(rho_gradscale * (0.5 - x.Norml2())) + 1.0));
       default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }
 }
@@ -69,6 +71,7 @@ double gamma(const Vector &x)
       case 4: return 1.4;
       case 5: return 1.4;
       case 6: return 1.4;
+      case 7: return 1.4;
       default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }
 }
@@ -93,6 +96,7 @@ void v0(const Vector &x, Vector &v)
       case 4: v = 0.0; break;
       case 5: v = 0.0; break;
       case 6: v = 0.0; break;
+      case 7: v = 0.0; break;
       default: MFEM_ABORT("Bad number given for problem id!");
    }
 }
@@ -125,6 +129,8 @@ double e0(const Vector &x)
       case 5: return T_min + (T_max - T_min) *
                      (0.5 * (tanh(T_gradscale * (0.5 - x.Norml2())) + 1.0));
       case 6: return T_min + (T_max - T_min) *
+                     (0.5 * (tanh(T_gradscale * (0.5 - x.Norml2())) + 1.0));
+      case 7: return T_min + (T_max - T_min) *
                      (0.5 * (tanh(T_gradscale * (0.5 - x.Norml2())) + 1.0));
       default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }

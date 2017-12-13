@@ -329,7 +329,8 @@ int main(int argc, char *argv[])
       case 4: visc = true; break;
       case 5: visc = true; break;
       case 6: visc = true; break;
-	  default: MFEM_ABORT("Wrong problem specification!");
+      case 7: visc = true; break;
+      default: MFEM_ABORT("Wrong problem specification!");
    }
 
    LagrangianHydroOperator oper(S.Size(), H1FESpace, L2FESpace,
@@ -361,9 +362,11 @@ int main(int argc, char *argv[])
    nth::ClassicalMeanStoppingPower msp_cf(rho_gf, e_gf, v_gf, material_pcf,
                                           &eos);
    nth::NTHvHydroCoefficient *msp_pcf = &msp_cf;
+   nth::ClassicalMeanFreePath mfp_cf(rho_gf, e_gf, v_gf, material_pcf, &eos);
+   nth::MeanFreePath *mfp_pcf = &mfp_cf;
    nth::AWBSI0Source sourceI0_cf(rho_gf, e_gf, v_gf, material_pcf, &eos);
    nth::NTHvHydroCoefficient *sourceI0_pcf = &sourceI0_cf;
-   nth::ClassicalKnudsenNumber Kn_cf(rho_gf, e_gf, v_gf, material_pcf, &eos);
+   nth::KnudsenNumber Kn_cf(rho_gf, e_gf, v_gf, material_pcf, &eos, mfp_pcf);
    Coefficient *Kn_pcf = &Kn_cf;
 
    // Static coefficient defined in m1_solver.hpp.
@@ -421,13 +424,13 @@ int main(int argc, char *argv[])
    oper.ComputeDensity(rho_gf);
    msp_cf.SetThermalVelocityMultiple(vTmultiple);
    sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
-   Kn_cf.SetThermalVelocityMultiple(vTmultiple);
+   mfp_cf.SetThermalVelocityMultiple(vTmultiple);
    double loc_Tmax = e_gf.Max(), glob_Tmax;
    MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                  pmesh->GetComm());
    msp_cf.SetTmax(glob_Tmax);
    sourceI0_cf.SetTmax(glob_Tmax);
-   Kn_cf.SetTmax(glob_Tmax);
+   mfp_cf.SetTmax(glob_Tmax);
    double alphavT = msp_cf.GetVelocityScale();
    m1oper.ResetVelocityStepEstimate();
    m1oper.ResetQuadratureData();
@@ -624,12 +627,13 @@ int main(int argc, char *argv[])
          oper.ComputeDensity(rho_gf);
          msp_cf.SetThermalVelocityMultiple(vTmultiple);
          sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
-         Kn_cf.SetThermalVelocityMultiple(vTmultiple);          double loc_Tmax = e_gf.Max(), glob_Tmax;
+         mfp_cf.SetThermalVelocityMultiple(vTmultiple);          
+         double loc_Tmax = e_gf.Max(), glob_Tmax;
          MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                        pmesh->GetComm());
          msp_cf.SetTmax(glob_Tmax);
          sourceI0_cf.SetTmax(glob_Tmax);
-         Kn_cf.SetTmax(glob_Tmax);
+         mfp_cf.SetTmax(glob_Tmax);
          alphavT = msp_cf.GetVelocityScale();
          m1oper.ResetVelocityStepEstimate();
          m1oper.ResetQuadratureData();
