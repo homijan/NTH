@@ -420,6 +420,7 @@ Consequently, one obtain a~simple heat flux formula
 \end{multline}
 
 \newcommand{\psize}{0.45}
+\begin{comment} % Problem 4.
 \begin{figure}[tbh]
   \begin{center}
     \begin{tabular}{cc}
@@ -453,6 +454,7 @@ Consequently, one obtain a~simple heat flux formula
   \end{center}
   \label{fig:p4_Kn_hflux}
 \end{figure}
+\end{comment} % Problem 4.
 
 \begin{figure}[tbh]
   \begin{center}
@@ -461,7 +463,9 @@ Consequently, one obtain a~simple heat flux formula
       \includegraphics[width=0.5\textwidth]{figs/temperature_p51D.png}
     \end{tabular}
   \caption{
-    Problem 5 background.
+    %Problem 5 background.
+	VFP-paper corresponding simulations, ion background density and 
+	temperature.
   }
   \end{center}
   \label{fig:p51D_rho_T}
@@ -477,17 +481,22 @@ Consequently, one obtain a~simple heat flux formula
       \includegraphics[width=\psize\textwidth]{figs/Kn_p51D1e10.png} &
       \includegraphics[width=\psize\textwidth]{figs/hflux_p51D1e10.png} \\
       \includegraphics[width=\psize\textwidth]{figs/Kn_p51D1e8.png} &
-      \includegraphics[width=\psize\textwidth]{figs/hflux_p51D1e8.png} \\
-      \includegraphics[width=\psize\textwidth]{figs/Kn_p51D5e7.png} &
-      \includegraphics[width=\psize\textwidth]{figs/hflux_p51D5e7.png} 
+      \includegraphics[width=\psize\textwidth]{figs/hflux_p51D1e8.png} 
+	  %\\
+      %\includegraphics[width=\psize\textwidth]{figs/Kn_p51D5e7.png} &
+      %\includegraphics[width=\psize\textwidth]{figs/hflux_p51D5e7.png} 
     \end{tabular}
   \caption{
-    Problem 5 transport.
+    %Problem 5 transport.
+	VFP-paper corresponding simulations, Kn spans the interval 
+	$(\approx 10^{-7}, \approx 10^{-1})$ where flux goes from diffusive to
+	highly nonlocal.
   }
   \end{center}
   \label{fig:p5_Kn_hflux}
 \end{figure}
 
+\begin{comment} % Problems 6, 7.
 \begin{figure}[tbh]
   \begin{center}
     \begin{tabular}{cc}
@@ -620,6 +629,7 @@ Consequently, one obtain a~simple heat flux formula
   \end{center}
   \label{fig:expl1D2D3D}
 \end{figure}
+\end{comment} % Problems 6, 7.
 
 \subsection{Implicit fully-discrete scheme}\label{sec:impl_fullydiscrete_scheme}
 In order to formulate a~fully-discrete scheme leaning on an~implicit 
