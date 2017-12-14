@@ -37,6 +37,7 @@
 \newcommand{\nue}{\nu_{e}}
 \newcommand{\nutot}{\nu_{t}}
 \newcommand{\vmag}{v}
+\newcommand{\vth}{v_{th}}
 \newcommand{\vn}{\vect{n}}
 \newcommand{\E}{\vect{E}}
 \newcommand{\B}{\vect{B}}
@@ -375,10 +376,27 @@ consequently, we needed 8858 energy groups in 1D, 4348 energy groups in 2D, and
 more than 1000x longer than classical (SH) hydro.
 
 \subsection{Physical analysis of the~diffusive asymptotics}\label{sec:diffusive_asymptotics}
+The~equilibrium (maximized entropy) distribution
+\begin{equation}
+  \fM = \frac{\rho}{\vth^3 \left( 2 \pi \right)^{3/2}} 
+  \exp\left(- \frac{\vmag^2}{2 \vth^2} \right) ,
+  \label{eq:MaxBol}
+\end{equation}
+where $\vth = \sqrt{k_B T/m_e}$.
+\begin{eqnarray}
+  \pdv{\fM}{\vmag} &=& -\frac{\vmag}{\vth^2}\fM ,
+  \nonumber \\
+  \pdv{\fM}{\rho} &=& \frac{1}{\rho}\fM ,
+  \nonumber \\
+  \pdv{\fM}{T} &=& \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right)
+  \frac{1}{T}\fM. 
+\end{eqnarray}
+
 The~BGK equation, valid for highly isotropic transport, represents 
 the~simplest form of the~Boltzmann transport equation
 \begin{equation}
-  \vn\cdot\nabla f = \frac{\left(\fM - f\right)}{\mfp} ,
+  \vn\cdot\nabla f + \vn\cdot\tE\frac{1}{\vmag}\pdv{f}{\vmag} = 
+  \frac{\left(\fM - f\right)}{\mfp} ,
   \label{eq:BGK}
 \end{equation}
 where $\mfp = \frac{\vmag}{\nue} = \frac{a \vmag^4}{\rho}$ is the~mean 
@@ -388,7 +406,8 @@ particle velocity.
 The~Chapman-Enskog based small parameter ($\mfp$) approximation 
 $f\approx f_0 + \lambda f_1 + O(\lambda^2)$ expressed as
 \begin{equation}
-  \vn\cdot\nabla (f_0 + \lambda f_1) = 
+  \vn\cdot\nabla (f_0 + \lambda f_1) +
+  \vn\cdot\tE\frac{1}{\vmag}\pdv{f_0 + \lambda f_1 }{\vmag}= 
   \frac{\left(\fM - (f_0 + \lambda f_1)\right)}{\mfp} ,
   \label{eq:CE_BGK}
 \end{equation}
@@ -396,15 +415,103 @@ tells us, that
 \begin{eqnarray}
   f_0 &=& \fM, 
   \nonumber\\
-  f_1 &=& - \vn\cdot\nabla f_0 = - \vn\cdot\nabla\fM,
+  f_1 &=& - \vn\cdot
+  \left(\nabla f_0 + \tE\frac{1}{\vmag}\pdv{f_0}{\vmag} \right) = 
+  - \vn\cdot\left(\nabla\fM + \tE\frac{1}{\vmag}\pdv{\fM}{\vmag} \right),
   \nonumber
 \end{eqnarray}
 which means, that the~localized approximation of the~distribution function
 should behave as
 \begin{equation}
-  f \approx \fM - \mfp\vn\cdot\nabla \fM .
+  f \approx \fM - \mfp\vn\cdot\left(\nabla \fM + \tE\frac{1}{\vmag}
+  \pdv{\fM}{\vmag} \right)  
+  = \fM \left(1 - \mfp\vn\cdot\left(\frac{\nabla\rho}{\rho} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) \frac{\nabla T}{T} 
+  - \frac{\tE}{\vth^2} \right) \right) .
   \label{eq:f_localized}
 \end{equation}
+Consequently, one obtain a~simple heat flux formula
+\begin{multline}
+  \vect{q}_H = \int_0^\infty \int_{4\pi} 
+  \frac{m \vmag^3}{2} 
+  \vn\left( \fM - \mfp\vn\cdot\nabla \fM \right) \vmag^2\, \dI\vn\, \dI\vmag \\
+  = - \frac{m}{2}\int_0^\infty \int_{4\pi}  
+  \vn\otimes\vn\, \dI\vn \cdot \mfp \nabla\fM \vmag^5\, \dI\vmag 
+  = - \frac{a}{\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
+  \nabla\fM \vmag^9\, \dI\vmag \\
+  = - \frac{a}{\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
+  \left(\pdv{\fM}{\rho}\nabla\rho + \pdv{\fM}{T}\nabla T \right) 
+  \vmag^9\, \dI\vmag .
+\end{multline}
+
+\subsection{Physical analysis of the~diffusive asymptotics of AWBS}\label{sec:diffusive_asymptotics_AWBS}
+The~AWBS equation, valid for fast particle transport, represents 
+one of the~simplest forms of the~Boltzmann transport equation
+\begin{equation}
+  \vn\cdot\nabla f + \vn\cdot\tE\frac{1}{\vmag}\pdv{f}{\vmag}
+  = \nue \pdv{}{\vmag} \left(f - \fM\right) ,
+  \label{eq:BGK}
+\end{equation}
+where $\nue = \frac{a \rho}{\vmag^3}$ is the~collisional frequency.
+
+The~Chapman-Enskog based small parameter ($\mfp$) approximation 
+$f\approx f_0 + \lambda f_1 + O(\lambda^2)$ expressed as
+\begin{equation}
+  \vn\cdot\nabla (f_0 + \nue^{-1} f_1) + 
+  \vn\cdot\tE\frac{1}{\vmag}\pdv{f_0 + \nue^{-1} f_1}{\vmag}
+  = \nue \pdv{}{\vmag}\left(\left((f_0 + \nue^{-1} f_1)\right) - \fM\right) ,
+  \label{eq:CE_BGK}
+\end{equation}
+tells us, that
+\begin{eqnarray}
+  \pdv{}{\vmag}f_0 &=& \pdv{}{\vmag} \fM \rightarrow f_0 = \fM , 
+  \nonumber\\
+  \pdv{f_1}{\vmag} &=& \vn\cdot\nabla f_0
+   + \vn\cdot\tE\frac{1}{\vmag}\pdv{f_0}{\vmag} \rightarrow  f_1
+  = \int_{v_{max}}^v \vn\cdot\left( \nabla f_0 + 
+  \tE\frac{1}{\vmag}\pdv{f_0}{\vmag}\right)\, \dI\vmag , 
+  \nonumber
+\end{eqnarray}
+where one may write the~first order term as
+\begin{equation}
+  f_1 = - \vmag \vn\cdot\left( \nabla \fM - \tE\frac{1}{\vth^2}\fM \right) ,
+\end{equation}
+which means, that the~localized approximation of the~distribution function
+should behave as
+\begin{equation}
+  f \approx \fM 
+  - \mfp\vn\cdot\left( \nabla \fM - \tE\frac{1}{\vth^2}\fM \right) 
+  = \fM \left(1 - \mfp\vn\cdot\left(\frac{\nabla\rho}{\rho} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) \frac{\nabla T}{T} 
+  - \frac{\tE}{\vth^2} \right) \right) .
+  \label{eq:f_localized}
+\end{equation}
+In order to ensure the~plasma to be quasi-neutral, the~zero-current condition
+\begin{equation}
+  \vect{j} = \int_{4\pi}\int_0^{\infty} \qe \vmag \vn f 
+  \vmag^2\, \dI\vmag\, \dI\vn 
+  = \vect{0} ,
+  \label{eq:zero_current}
+\end{equation}
+can be achieved by providing a~consistent electric field in 
+\eqref{eq:f_localized}, i.e.
+\begin{equation}
+  \tE = \int_{4\pi} \vn\otimes\vn\cdot \int_0^{\infty} \vmag  
+  \fM \mfp\left(\frac{\nabla\rho}{\rho} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) 
+  \frac{\nabla T}{T}\right)
+  \vmag^2\, \dI\vmag\, \dI\vn ,
+\end{equation}
+which may be further simplified as
+\begin{equation}
+  \tE = \int_0^{\infty} \left(\frac{\nabla\rho}{\rho} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) 
+  \frac{\nabla T}{T}\right)
+  \fM \vmag^7\, \dI\vmag 
+  = \vth^2\left(\frac{\nabla\rho}{\rho} + \frac{5}{2}\frac{\nabla T}{T} 
+  \right),
+\end{equation}
+
 Consequently, one obtain a~simple heat flux formula
 \begin{multline}
   \vect{q}_H = \int_0^\infty \int_{4\pi} 
