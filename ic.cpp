@@ -27,20 +27,13 @@ namespace nth
 {
 
 int nth_problem = 1;
-
-} // namespace nth
-
-namespace hydrodynamics
-{
-
-int hydro_problem = 1;
 double T_max = 1000.0, T_min = 100.0;
 double rho_max = 10.0, rho_min = 1.0;
 double T_gradscale = 50.0, rho_gradscale = 50.0;
 
 double rho0(const Vector &x)
 {
-   switch (hydro_problem)
+   switch (nth_problem)
    {
       case 0: return 1.0;
       case 1: return 1.0;
@@ -61,7 +54,7 @@ double rho0(const Vector &x)
 
 double gamma(const Vector &x)
 {
-   switch (hydro_problem)
+   switch (nth_problem)
    {
       case 0: return 5./3.;
       case 1: return 1.4;
@@ -78,7 +71,7 @@ double gamma(const Vector &x)
 
 void v0(const Vector &x, Vector &v)
 {
-   switch (hydro_problem)
+   switch (nth_problem)
    {
       case 0:
          v(0) =  sin(M_PI*x(0)) * cos(M_PI*x(1));
@@ -103,7 +96,7 @@ void v0(const Vector &x, Vector &v)
 
 double e0(const Vector &x)
 {
-   switch (hydro_problem)
+   switch (nth_problem)
    {
       case 0:
       {
@@ -136,7 +129,7 @@ double e0(const Vector &x)
    }
 }
 
-} // namespace hydrodynamics
+} // namespace nth
 
 } // namespace mfem
 

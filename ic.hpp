@@ -28,13 +28,6 @@ namespace nth
 {
 
 extern int nth_problem;
-
-} // namespace nth
-
-namespace hydrodynamics
-{
-
-extern int hydro_problem;
 extern double T_max, T_min;
 extern double rho_max, rho_min;
 extern double T_gradscale, rho_gradscale;
@@ -44,7 +37,7 @@ double gamma(const Vector &x);
 void v0(const Vector &x, Vector &v);
 double e0(const Vector &x);
 
-} // namespace hydrodynamics
+} // namespace nth
 
 } // namespace mfem
 

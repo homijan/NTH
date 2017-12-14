@@ -95,6 +95,9 @@ int main(int argc, char *argv[])
    bool visit = false;
    bool gfprint = false;
    const char *basename = "results/M1hos";
+   int nth_problem = 5;
+   double T_max = 1000.0, T_min = 100.0, rho_max = 10.0, rho_min = 1.0;
+   double T_gradscale = 50.0, rho_gradscale = 50.0;
    double a0 = 1e20;
 
    OptionsParser args(argc, argv);
@@ -104,7 +107,7 @@ int main(int argc, char *argv[])
                   "Number of times to refine the mesh uniformly in serial.");
    args.AddOption(&rp_levels, "-rp", "--refine-parallel",
                   "Number of times to refine the mesh uniformly in parallel.");
-   args.AddOption(&hydro_problem, "-p", "--problem", "Problem setup to use.");
+   args.AddOption(&nth_problem, "-p", "--problem", "Problem setup to use.");
    args.AddOption(&order_v, "-ok", "--order-kinematic",
                   "Order (degree) of the kinematic finite element space.");
    args.AddOption(&order_e, "-ot", "--order-thermo",
@@ -137,6 +140,18 @@ int main(int argc, char *argv[])
                   "Name of the visit dump files");
    args.AddOption(&a0, "-a0", "--a0",
                   "Mean-free-path scaling, i.e. lambda = v^4/rho/a0.");
+   args.AddOption(&T_max, "-Tmax", "--Tmax",
+                  "Maximum temperature in the step function tanh(x).");
+   args.AddOption(&T_min, "-Tmin", "--Tmin",
+                  "Minimum temperature in the step function tanh(x).");
+   args.AddOption(&rho_max, "-rmax", "--rhomax",
+                  "Maximum density in the step function tanh(x).");
+   args.AddOption(&rho_min, "-rmin", "--rhomin",
+                  "Minimum density in the step function tanh(x).");
+   args.AddOption(&T_gradscale, "-Tgrad", "--Tgrad",
+                  "Temperature gradient scale in the function tanh(a*x).");
+   args.AddOption(&rho_gradscale, "-rgrad", "--rhograd",
+                  "Density gradient scale in the function tanh(a*x).");
    args.Parse();
    if (!args.Good())
    {
@@ -144,6 +159,15 @@ int main(int argc, char *argv[])
       return 1;
    }
    if (mpi.Root()) { args.PrintOptions(cout); }
+
+   nth::nth_problem = nth_problem;
+   nth::T_max = T_max;
+   nth::T_min = T_min;
+   nth::rho_max = rho_max;
+   nth::rho_min = rho_min;
+   nth::T_gradscale = T_gradscale;
+   nth::rho_gradscale = rho_gradscale;
+   nth::a0 = a0;
 
    // Read the serial mesh from the given mesh file on all processors.
    // Refine the mesh in serial to increase the resolution.
@@ -280,7 +304,7 @@ int main(int argc, char *argv[])
    pmesh->SetNodalGridFunction(&x_gf);
 
    // Initialize the velocity.
-   VectorFunctionCoefficient v_coeff(pmesh->Dimension(), v0);
+   VectorFunctionCoefficient v_coeff(pmesh->Dimension(), nth::v0);
    v_gf.ProjectCoefficient(v_coeff);
 
    // Initialize density and specific internal energy values. We interpolate in
@@ -290,13 +314,13 @@ int main(int argc, char *argv[])
    // this density is a temporary function and it will not be updated during the
    // time evolution.
    ParGridFunction rho_gf(&L2FESpace);
-   FunctionCoefficient rho_coeff(rho0);
+   FunctionCoefficient rho_coeff(nth::rho0);
    L2_FECollection l2_fec(order_e, pmesh->Dimension());
    ParFiniteElementSpace l2_fes(pmesh, &l2_fec);
    ParGridFunction l2_rho(&l2_fes), l2_e(&l2_fes);
    l2_rho.ProjectCoefficient(rho_coeff);
    rho_gf.ProjectGridFunction(l2_rho);
-   if (hydro_problem == 1)
+   if (nth::nth_problem == 1)
    {
       // For the Sedov test, we use a delta function at the origin.
       DeltaCoefficient e_coeff(0, 0, 0.25);
@@ -308,18 +332,18 @@ int main(int argc, char *argv[])
    }
    else
    {
-      FunctionCoefficient e_coeff(e0);
+      FunctionCoefficient e_coeff(nth::e0);
       l2_e.ProjectCoefficient(e_coeff);
    }
    e_gf.ProjectGridFunction(l2_e);
 
    // Space-dependent ideal gas coefficient over the Lagrangian mesh.
-   FunctionCoefficient gamma_cf = (hydrodynamics::gamma);
+   FunctionCoefficient gamma_cf = (nth::gamma);
    Coefficient *material_pcf = &gamma_cf;
 
    // Additional details, depending on the problem.
    int source = 0; bool visc;
-   switch (hydro_problem)
+   switch (nth::nth_problem)
    {
       case 0: if (pmesh->Dimension() == 2) { source = 1; }
          visc = false; break;
@@ -375,7 +399,6 @@ int main(int argc, char *argv[])
    // ALWAYS calculate on v in (0, 1)
    double vmax = 1.0;
    double vTmultiple = 7.0;
-   nth::a0 = a0; // The Maxwellization prove.
    // well, not really, since the lowest v = 0 is singular, so
    double vmin = 1e-10 * vmax;
    // and provide some maximum dv step.
