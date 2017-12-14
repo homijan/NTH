@@ -496,21 +496,24 @@ In order to ensure the~plasma to be quasi-neutral, the~zero-current condition
 can be achieved by providing a~consistent electric field in 
 \eqref{eq:f_localized}, i.e.
 \begin{equation}
-  \tE = \int_{4\pi} \vn\otimes\vn\cdot \int_0^{\infty} \vmag  
+  \tE = \frac{\vth^2~\int_{4\pi} \vn\otimes\vn\cdot \int_0^{\infty} \vmag  
   \fM \mfp\left(\frac{\nabla\rho}{\rho} + 
   \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) 
   \frac{\nabla T}{T}\right)
-  \vmag^2\, \dI\vmag\, \dI\vn ,
+  \vmag^2\, \dI\vmag\, \dI\vn}
+  {\int_{4\pi} \vn\otimes\vn\cdot \int_0^{\infty} \vmag  
+  \fM \mfp\vmag^2\, \dI\vmag\, \dI\vn} ,
 \end{equation}
 which may be further simplified as
 \begin{equation}
-  \tE = \int_0^{\infty} \left(\frac{\nabla\rho}{\rho} + 
-  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) 
-  \frac{\nabla T}{T}\right)
-  \fM \vmag^7\, \dI\vmag 
+  \tE = \frac{\int_0^{\infty} \fM
+  \frac{1}{2}\frac{\nabla T}{T}\vmag^9\, \dI\vmag}
+  {\int_0^{\infty} \fM \vmag^7\, \dI\vmag} + 
+  \vth^2\left(\frac{\nabla\rho}{\rho} - \frac{3}{2}\frac{\nabla T}{T} \right)
   = \vth^2\left(\frac{\nabla\rho}{\rho} + \frac{5}{2}\frac{\nabla T}{T} 
-  \right),
+  \right) ,
 \end{equation}
+
 
 Consequently, one obtain a~simple heat flux formula
 \begin{multline}
