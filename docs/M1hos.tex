@@ -419,8 +419,70 @@ Consequently, one obtain a~simple heat flux formula
   \vmag^9\, \dI\vmag .
 \end{multline}
 
+\begin{equation}
+  \vect{q}_{1} = \tilde{a}_1~T_1^{\alpha}~\nabla T_1 ,\quad 
+  \vect{q}_{0} = \tilde{a}_0~T_0^{\alpha}~\nabla T_0 , 
+  \nonumber 
+\end{equation}
+where we keep $\tilde{a}_1 = \tilde{a}_0 = \tilde{a}$ and 
+$\nabla T_1 = \nabla T_0 = \nabla T$ to be equal in every point of 
+the~computational domain. 
+The ration of the~fluxes than provides a~very important information about
+flux nonlinearity
+\begin{equation}    
+  \frac{\vect{q}_1}{\vect{q}_0} = 
+  \frac{\tilde{a}~T_1^{\alpha}~\nabla T}{\tilde{a}~T_0^{\alpha}~\nabla T} = 
+  \left( \frac{T_1}{T_0} \right)^\alpha ,
+  \nonumber
+\end{equation}
+where the~nonlinearity is better expressed as
+\begin{equation}
+  \alpha = \frac{\log\left( \frac{\vect{q}_1}{\vect{q}_0} \right)}
+  {\log\left( \frac{T_1}{T_0} \right)}
+  \label{eq:AWBS_nonlinearity}
+\end{equation}
+Finally, based on the~simulation results of two runs corresponding to
+temperature $T_0$ with the mean $T = 1000$ executed as
+\begin{multline}
+\text{mpirun -np 8 nth -p 5 -m data/segment01.mesh -rs 6 -tf 0.0 -ok 4 -ot 3} 
+\\
+\text{-vis -fa -print -Tmax 1050 -Tmin 950 -a0 1e12} ,
+\nonumber
+\end{multline}
+and to temperature $T_1$ with the mean $T = 1100$ executed as
+\begin{multline}
+\text{mpirun -np 8 nth -p 5 -m data/segment01.mesh -rs 6 -tf 0.0 -ok 4 -ot 3} 
+\\
+\text{-vis -fa -print -Tmax 1150 -Tmin 1050 -a0 1e12} ,
+\nonumber
+\end{multline}
+we got the~following numbers 
+\begin{equation}
+  \vect{q}_1 = 0.1782,~\vect{q}_0 = 0.1406,~T_1 = 1100,~T_0 = 1000, 
+  \nonumber
+\end{equation}
+which provide the~corresponding nonlinearity
+\begin{equation}
+  \alpha = 2.486487132294661 .
+  \label{eq:AWBS_nonlinearity_computed}
+\end{equation}
+\begin{figure}[tbh]
+  \begin{center}
+    \begin{tabular}{cc}
+      \includegraphics[width=0.5\textwidth]{figs/temperature_p51DT1000.png} &
+      \includegraphics[width=0.5\textwidth]{figs/hflux_p51DT1000.png} \\
+      \includegraphics[width=0.5\textwidth]{figs/temperature_p51DT1100.png} &
+      \includegraphics[width=0.5\textwidth]{figs/hflux_p51DT1100.png}
+    \end{tabular}
+  \caption{
+    Problem 5 - AWBS nonlinearity check.
+  }
+  \end{center}
+  \label{fig:p51D_AWBS_nonlinearity}
+\end{figure}
+
+
 \newcommand{\psize}{0.45}
-\begin{comment} % Problem 4.
 \begin{figure}[tbh]
   \begin{center}
     \begin{tabular}{cc}
@@ -454,7 +516,6 @@ Consequently, one obtain a~simple heat flux formula
   \end{center}
   \label{fig:p4_Kn_hflux}
 \end{figure}
-\end{comment} % Problem 4.
 
 \begin{figure}[tbh]
   \begin{center}
@@ -496,7 +557,6 @@ Consequently, one obtain a~simple heat flux formula
   \label{fig:p5_Kn_hflux}
 \end{figure}
 
-\begin{comment} % Problems 6, 7.
 \begin{figure}[tbh]
   \begin{center}
     \begin{tabular}{cc}
@@ -629,7 +689,6 @@ Consequently, one obtain a~simple heat flux formula
   \end{center}
   \label{fig:expl1D2D3D}
 \end{figure}
-\end{comment} % Problems 6, 7.
 
 \subsection{Implicit fully-discrete scheme}\label{sec:impl_fullydiscrete_scheme}
 In order to formulate a~fully-discrete scheme leaning on an~implicit 

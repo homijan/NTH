@@ -1,4 +1,17 @@
 #!/bin/bash
+# problem 5 proving the AWBS model nonlinearity equal to 5/2.
+cd resultsp51DT1000
+../../../glvis-3.3/glvis -run ../create_parallel_M1Philippe_1Dfigures.glvs
+cd ../resultsp51DT1100
+../../../glvis-3.3/glvis -run ../create_parallel_M1Philippe_1Dfigures.glvs
+cd ..
+# copy figs
+cp resultsp51DT1000/temperature.png ../docs/figs/temperature_p51DT1000.png
+cp resultsp51DT1000/Kn.png ../docs/figs/Kn_p51DT1000.png
+cp resultsp51DT1000/hflux.png ../docs/figs/hflux_p51DT1000.png
+cp resultsp51DT1100/temperature.png ../docs/figs/temperature_p51DT1100.png
+cp resultsp51DT1100/Kn.png ../docs/figs/Kn_p51DT1100.png
+cp resultsp51DT1100/hflux.png ../docs/figs/hflux_p51DT1100.png
 # problem 4 in 1D
 # generate figs locally
 cd resultsp41D1e6

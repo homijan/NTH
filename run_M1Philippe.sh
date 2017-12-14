@@ -1,4 +1,12 @@
 #! /bin/bash
+mkdir results
+# problem 5 proving the AWBS model nonlinearity equal to 5/2.
+rm results/*
+mpirun -np 8 nth -p 5 -m data/segment01.mesh -rs 6 -tf 0.0 -ok 4 -ot 3 -vis -fa -print -Tmax 1050 -Tmin 950 -a0 1e12 | tee M1Philippe_results/M1Philippe_p51DT1000.out
+cp -r results M1Philippe_results/resultsp51DT1000
+rm results/*
+mpirun -np 8 nth -p 5 -m data/segment01.mesh -rs 6 -tf 0.0 -ok 4 -ot 3 -vis -fa -print -Tmax 1150 -Tmin 1050 -a0 1e12 | tee M1Philippe_results/M1Philippe_p51DT1100.out
+cp -r results M1Philippe_results/resultsp51DT1100
 # problem 4 - step in density and constant temperature
 rm results/*
 mpirun -np 8 nth -p 4 -m data/segment01.mesh -rs 6 -tf 0.0 -ok 4 -ot 3 -vis -fa -print -a0 1e6 | tee M1Philippe_results/M1Philippe_p41D1e6.out
