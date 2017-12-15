@@ -154,8 +154,7 @@ M1Operator::M1Operator(int size,
       default: MFEM_ABORT("Unknown zone type!");
    }
    quad_data.h0 /= (double) H1FESpace.GetOrder(0);
-
-   //UpdateQuadratureData(); 
+ 
 
    // Standard local assembly and inversion for energy mass matrices.
    DenseMatrix Mf0_(l2dofs_cnt);
@@ -296,13 +295,21 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
 
       Divf1 = 0.0;
       Divf0 = 0.0;
-      Mf1.Update();
-      Mscattf1.Update();
+      AEfieldf1 = 0.0;
+	  AIEfieldf1 = 0.0;
+	  Efieldf0 = 0.0;
+	  Mf1.Update();
+      Bfieldf1.Update();
+	  Mscattf1.Update();
       timer.sw_force.Start();
       Mf1.Assemble(); 
       Divf1.Assemble();
       Divf0.Assemble();
-      Mscattf1.Assemble();
+      AEfieldf1.Assemble(0);
+	  AIEfieldf1.Assemble(0);
+	  Efieldf0.Assemble(0);
+	  Bfieldf1.Assemble();
+	  Mscattf1.Assemble();
       timer.sw_force.Stop();
    }
 
@@ -338,6 +345,8 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    {
       timer.sw_force.Start();
       Divf0.MultTranspose(I1, I0_rhs);
+      Efieldf0.AddMultTranspose(I1, I0_rhs, 
+                                2.0 / velocity_scaled / velocity_scaled);
       timer.sw_force.Stop();
       timer.dof_tstep += L2FESpace.GlobalTrueVSize();
       for (int z = 0; z < nzones; z++)
@@ -411,7 +420,10 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
       timer.sw_force.Start();
       Divf1.Mult(I0, rhs);
 	  rhs.Neg();
-      Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
+      AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
+	  AIEfieldf1.AddMult(I0, rhs, 1.0 / velocity_scaled / velocity_scaled);
+	  Bfieldf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
+	  Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
 	  timer.sw_force.Stop();
       timer.dof_tstep += H1FESpace.GlobalTrueVSize();
       // Scale rhs because of the normalized velocity, i.e. 
