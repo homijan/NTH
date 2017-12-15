@@ -38,17 +38,11 @@ double ClassicalMeanStoppingPower::Eval(ElementTransformation &T,
    return nu;
 }
 
-double ClassicalMeanStoppingPower::Eval(ElementTransformation &T,
-                                        const IntegrationPoint &ip)
+double ClassicalMeanFreePath::EvalThermalMFP(ElementTransformation &T,
+                                             const IntegrationPoint &ip,
+                                             double rho)
 {
-   double rho = rho_gf.GetValue(T.ElementNo, ip);
-
-   return Eval(T, ip, rho);
-}
-
-double ClassicalMeanFreePath::Eval(ElementTransformation &T,
-                                   const IntegrationPoint &ip, double rho)
-{
+   //double rho = rho_gf.GetValue(T.ElementNo, ip);
    double Te = Te_gf.GetValue(T.ElementNo, ip);
    // Set the scaled velocity to correspond to the local thermal velocity.
    velocity = eos->GetvTe(Te) / alphavT;
@@ -60,21 +54,13 @@ double ClassicalMeanFreePath::Eval(ElementTransformation &T,
    return mfp;
 }
 
-double ClassicalMeanFreePath::EvalThermalMFP(ElementTransformation &T,
-                                             const IntegrationPoint &ip)
-{
-   double rho = rho_gf.GetValue(T.ElementNo, ip);
-
-   return Eval(T, ip, rho);
-}
-
 double KnudsenNumber::Eval(ElementTransformation &T,
                            const IntegrationPoint &ip)
 {
    double rho = rho_gf.GetValue(T.ElementNo, ip);
    double Te = Te_gf.GetValue(T.ElementNo, ip);
    // Compute the mean free path.
-   double lambda = mfp->EvalThermalMFP(T, ip);
+   double lambda = mfp->EvalThermalMFP(T, ip, rho);
    // Compute the temperature and density length scales.
    Vector grad_Te;
    Te_gf.GetGradient(T, grad_Te);
@@ -84,6 +70,39 @@ double KnudsenNumber::Eval(ElementTransformation &T,
    double L_rho = rho / grad_rho.Norml2();
    // Return the Knudsen number of thermal velocity particle.
    return lambda / min(L_Te, L_rho);
+}
+
+void LorentzEfield::Eval(Vector &V, ElementTransformation &T,
+                           const IntegrationPoint &ip)
+{
+   double rho = rho_gf.GetValue(T.ElementNo, ip);
+   double Te = Te_gf.GetValue(T.ElementNo, ip);
+   // Set the scaled velocity to correspond to the local thermal velocity.
+   double v_th = eos->GetvTe(Te);
+   // Compute the temperature and density length scales.
+   Vector grad_Te;
+   Te_gf.GetGradient(T, grad_Te);
+   Vector grad_rho;
+   rho_gf.GetGradient(T, grad_rho);
+   // Return the Lorentz quasi-neutral (zero current) Efield.
+   V = grad_Te;
+   V *= 5./2. / Te;
+   V *= rho;
+   V += grad_rho;
+   V *= 1.0 / rho;
+   //V *= 1e-13 * v_th * v_th;
+   //V *= 4.185e-3 * v_th * v_th;
+   V *= v_th * v_th;
+}
+
+double LorentzEfield::Eval(ElementTransformation &T,
+                           const IntegrationPoint &ip)
+{
+   // Return the Lorentz quasi-neutral (zero current) Efield.
+   Vector V;
+   Eval(V, T, ip);
+
+   return V.Norml2();
 }
 
 double AWBSI0Source::Eval(ElementTransformation &T,

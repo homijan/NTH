@@ -104,9 +104,10 @@ public:
       : HydroCoefficient(rho_, T_, v_, material_, eos_)
 	  { alpha = 1.0; Tmax = 1.0; SetVelocityScale(alpha, Tmax); }
    virtual double Eval(ElementTransformation &T,
-      const IntegrationPoint &ip) = 0;
+      const IntegrationPoint &ip)
+      { double rho = rho_gf.GetValue(T.ElementNo, ip); Eval(T, ip, rho); }
    virtual double Eval(ElementTransformation &T,
-      const IntegrationPoint &ip, double rho) = 0;
+      const IntegrationPoint &ip, double rho) = 0; 
    void SetVelocity(double v_) { velocity = v_; }
    void SetThermalVelocityMultiple(double alpha_)
       { alpha = alpha_; SetVelocityScale(alpha, Tmax); }
@@ -126,7 +127,7 @@ public:
                               ParGridFunction &v_, Coefficient *material_,
                               EOS *eos_)
       : NTHvHydroCoefficient(rho_, Te_, v_, material_, eos_) {}
-   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip);
+   //virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip);
    virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
                        double rho);
 };
@@ -138,7 +139,7 @@ protected:
 public:
    MeanFreePath() {}
    virtual double EvalThermalMFP(ElementTransformation &T, 
-                                 const IntegrationPoint &ip) = 0;
+                                 const IntegrationPoint &ip, double rho) = 0;
 };
 
 // Classical mean-free-path coefficient.
@@ -151,10 +152,8 @@ public:
                          ParGridFunction &v_, Coefficient *material_, 
                          EOS *eos_)
       : ClassicalMeanStoppingPower(rho_, Te_, v_, material_, eos_) {}
-   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
-                       double rho);
    virtual double EvalThermalMFP(ElementTransformation &T, 
-                                 const IntegrationPoint &ip);
+                                 const IntegrationPoint &ip, double rho);
 };
 
 // Classical Kn(mean-stopping-power) coefficient.
@@ -168,6 +167,20 @@ public:
                  EOS *eos_, MeanFreePath *mfp_)
       : HydroCoefficient(rho_, Te_, v_, material_, eos_), mfp(mfp_) {}
    virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip);
+};
+
+// Classical Lorentz approximation E field coefficient.
+class LorentzEfield : public HydroCoefficient, public VectorCoefficient
+{
+protected:
+public:
+   LorentzEfield(int dim_, ParGridFunction &rho_, ParGridFunction &Te_,
+                 ParGridFunction &v_, Coefficient *material_, EOS *eos_)
+      : HydroCoefficient(rho_, Te_, v_, material_, eos_), 
+        VectorCoefficient(dim_) {}
+   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip);
+   virtual void Eval(Vector &V, ElementTransformation &T,
+                     const IntegrationPoint &ip);
 };
 
 // AWBS source coefficient.

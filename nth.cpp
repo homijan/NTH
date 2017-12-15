@@ -392,6 +392,13 @@ int main(int argc, char *argv[])
    nth::NTHvHydroCoefficient *sourceI0_pcf = &sourceI0_cf;
    nth::KnudsenNumber Kn_cf(rho_gf, e_gf, v_gf, material_pcf, &eos, mfp_pcf);
    Coefficient *Kn_pcf = &Kn_cf;
+   nth::LorentzEfield LorentzEfield_cf(pmesh->Dimension(), rho_gf, e_gf, v_gf, 
+                                material_pcf, &eos);
+   VectorCoefficient *Efield_pcf = &LorentzEfield_cf;
+   Vector vZero(pmesh->Dimension());
+   vZero = 0.0;
+   VectorConstantCoefficient ZeroBfield_cf(vZero);
+   VectorCoefficient *Bfield_pcf = &ZeroBfield_cf;
 
    // Static coefficient defined in m1_solver.hpp.
    double m1cfl = 0.25;
@@ -443,8 +450,8 @@ int main(int argc, char *argv[])
 
    // Initialize the M1-AWBS operator
    nth::M1Operator m1oper(m1S.Size(), H1FESpace, L2FESpace, ess_tdofs, rho_gf, 
-                          m1cfl, msp_pcf, sourceI0_pcf, x_gf, e_gf, 
-                          p_assembly, cg_tol, cg_max_iter);
+                          m1cfl, msp_pcf, sourceI0_pcf, Efield_pcf, Bfield_pcf,
+                          x_gf, e_gf, p_assembly, cg_tol, cg_max_iter);
    // Prepare grid functions integrating the moments of I0 and I1.
    ParGridFunction intf0_gf(&L2FESpace), Kn_gf(&L2FESpace);
    ParGridFunction j_gf(&H1FESpace), hflux_gf(&H1FESpace);

@@ -488,6 +488,7 @@ double ExplMass0Integrator::GetIntegrator(int i)
 {
    return (quad_data.nuinvrho(i) - quad_data.Ef1invvf0rho(i))
           * quad_data.rho0DetJ0w(i);
+   //return quad_data.nuinvrho(i) * quad_data.rho0DetJ0w(i);
 }
 
 double Mass1cIntegrator::GetIntegrator(int i)

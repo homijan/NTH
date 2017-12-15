@@ -83,7 +83,9 @@ M1Operator::M1Operator(int size,
                        double cfl_, 
                        NTHvHydroCoefficient *msp_,
                        NTHvHydroCoefficient *sourceI0_,
-                       ParGridFunction &x_gf_, 
+                       VectorCoefficient *Efield_,
+					   VectorCoefficient *Bfield_,
+					   ParGridFunction &x_gf_, 
                        ParGridFunction &T_gf_, 
                        bool pa, double cgt, int cgiter)
    : TimeDependentOperator(size),
@@ -107,7 +109,8 @@ M1Operator::M1Operator(int size,
      AIEfieldf1(&l2_fes, &h1_fes),
      ForcePA(&quad_data, h1_fes, l2_fes),
      VMassPA(&quad_data, H1compFESpace), locEMassPA(&quad_data, l2_fes),
-     locCG(), timer(), msp_pcf(msp_), sourceI0_pcf(sourceI0_), x_gf(x_gf_)
+     locCG(), timer(), msp_pcf(msp_), sourceI0_pcf(sourceI0_), 
+     Efield_pcf(Efield_), Bfield_pcf(Bfield_), x_gf(x_gf_)
 {
    GridFunctionCoefficient rho_coeff(&rho0);
 
@@ -345,8 +348,8 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    {
       timer.sw_force.Start();
       Divf0.MultTranspose(I1, I0_rhs);
-      Efieldf0.AddMultTranspose(I1, I0_rhs, 
-                                2.0 / velocity_scaled / velocity_scaled);
+      //Efieldf0.AddMultTranspose(I1, I0_rhs, 
+      //                          2.0 / velocity_scaled / velocity_scaled);
       timer.sw_force.Stop();
       timer.dof_tstep += L2FESpace.GlobalTrueVSize();
       for (int z = 0; z < nzones; z++)
@@ -366,6 +369,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
          timer.sw_cgL2.Stop();
          timer.L2dof_iter += l2dofs_cnt;
          dI0.SetSubVector(l2dofs, loc_dI0);
+		 //loc_dI0.Print();
       }
    }
 
@@ -420,10 +424,12 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
       timer.sw_force.Start();
       Divf1.Mult(I0, rhs);
 	  rhs.Neg();
-      AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
-	  AIEfieldf1.AddMult(I0, rhs, 1.0 / velocity_scaled / velocity_scaled);
+      // dI0 negative (dfMdv) in diffusive regime.
+	  //AEfieldf1.AddMult(dI0, rhs, - 1.0 / velocity_scaled);
+	  //AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
+	  //AIEfieldf1.AddMult(I0, rhs, 1.0 / velocity_scaled / velocity_scaled);
 	  Bfieldf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
-	  Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
+	  //Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
 	  timer.sw_force.Stop();
       timer.dof_tstep += H1FESpace.GlobalTrueVSize();
       // Scale rhs because of the normalized velocity, i.e. 
@@ -559,6 +565,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    int nqp_batch = nqp * nzones_batch;
    double *msp_b = new double[nqp_batch],
           *rho_b = new double[nqp_batch];
+   // Electric and Magnetic fields for all quadrature points in the batch.
+   //DenseMatrix *Efield_b = new DenseMatrix[nqp_batch],
+   //            *Bfield_b = new DenseMatrix[nqp_batch];
    // Jacobians of reference->physical transformations for all quadrature
    // points in the batch.
    DenseTensor *Jpr_b = new DenseTensor[nqp_batch],
@@ -577,7 +586,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
       for (int z = 0; z < nzones_batch; z++)
       {
          ElementTransformation *T = H1FESpace.GetElementTransformation(z_id);
-         Jpr_b[z].SetSize(dim, dim, nqp);
+         //Efield_b[z].SetSize(dim, nqp);
+		 //Bfield_b[z].SetSize(dim, nqp);
+		 Jpr_b[z].SetSize(dim, dim, nqp);
          AM1_b[z].SetSize(dim, dim, nqp);
 
          if (p_assembly)
@@ -591,6 +602,12 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
          {
             const IntegrationPoint &ip = integ_rule.IntPoint(q);
             T->SetIntPoint(&ip);
+            //Vector Efield;
+            //Efield_pcf->Eval(Efield, *T, ip);
+            //Efield_b[z].SetCol(q, Efield); 
+            //Vector Bfield;
+            //Bfield_pcf->Eval(Bfield, *T, ip);
+            //Bfield_b[z].SetCol(q, Bfield);
             if (!p_assembly) { Jpr_b[z](q) = T->Jacobian(); }
             const double detJ = Jpr_b[z](q).Det();
 
@@ -681,8 +698,10 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             Vector Efield(dim), Bfield(dim), AEfield(dim), AIEfield(dim);
             // TODO Here the vector E and B evaluation.
             // And consequent evaluation of AE and AIE.
-            Efield = 0.0;
-            Bfield = 0.0;
+            //Efield_b[z].GetColumn(q, Efield);
+            Efield_pcf->Eval(Efield, *T, ip);
+			//Efield = 0.0;
+            Bfield = 0.0; 
             AM1.Mult(Efield, AEfield);
             AIEfield = 0.0;
             AM1.AddMult_a(3.0, Efield, AIEfield);
@@ -724,6 +743,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
                // Extensive vector quadrature data.
                quad_data.Einvrho(z_id*nqp + q, vd) = Efield(vd) / rho;
                quad_data.AEinvrho(z_id*nqp + q, vd) = AEfield(vd) / rho;
+               //cout << "AE/rho: " << //Efield(0) 
+			   //  quad_data.AEinvrho(z_id*nqp + q, vd) 
+               //  << endl << flush;
                quad_data.AIEinvrho(z_id*nqp + q, vd) = AIEfield(vd) / rho;
                quad_data.Binvrho(z_id*nqp + q, vd) = Bfield(vd) / rho;
             }
@@ -733,6 +755,8 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             quad_data.Ef1invvf0rho(z_id*nqp + q) = Efield * f1
                                                    / velocity_scaled / f0
                                                    / rho;
+            //cout << "Ef1/v/f0/rho: " <<  quad_data.Ef1invvf0rho(z_id*nqp + q) 
+            //     << endl << flush;
             const double Zbar = 10.0;
 			quad_data.nutinvrho(z_id*nqp + q) = Zbar * msp / rho;
          }
