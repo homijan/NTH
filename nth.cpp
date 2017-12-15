@@ -429,6 +429,18 @@ int main(int argc, char *argv[])
          m1cfl = 0.5;
       }
    }
+
+   oper.ComputeDensity(rho_gf);
+   msp_cf.SetThermalVelocityMultiple(vTmultiple);
+   sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
+   mfp_cf.SetThermalVelocityMultiple(vTmultiple);
+   double loc_Tmax = e_gf.Max(), glob_Tmax;
+   MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
+                 pmesh->GetComm());
+   msp_cf.SetTmax(glob_Tmax);
+   sourceI0_cf.SetTmax(glob_Tmax);
+   mfp_cf.SetTmax(glob_Tmax);
+
    // Initialize the M1-AWBS operator
    nth::M1Operator m1oper(m1S.Size(), H1FESpace, L2FESpace, ess_tdofs, rho_gf, 
                           m1cfl, msp_pcf, sourceI0_pcf, x_gf, e_gf, 
@@ -444,16 +456,6 @@ int main(int argc, char *argv[])
    //m1ode_solver = new RK6Solver;
    m1ode_solver->Init(m1oper);
 
-   oper.ComputeDensity(rho_gf);
-   msp_cf.SetThermalVelocityMultiple(vTmultiple);
-   sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
-   mfp_cf.SetThermalVelocityMultiple(vTmultiple);
-   double loc_Tmax = e_gf.Max(), glob_Tmax;
-   MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
-                 pmesh->GetComm());
-   msp_cf.SetTmax(glob_Tmax);
-   sourceI0_cf.SetTmax(glob_Tmax);
-   mfp_cf.SetTmax(glob_Tmax);
    double alphavT = msp_cf.GetVelocityScale();
    m1oper.ResetVelocityStepEstimate();
    m1oper.ResetQuadratureData();
@@ -477,7 +479,7 @@ int main(int argc, char *argv[])
       // Perform the integration over velocity space.
       intf0_gf.Add(4.0 * pi * pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
       j_gf.Add(pow(alphavT*v, 3.0) * alphavT*abs(dv), I1_gf);
-      hflux_gf.Add(pow(alphavT*v, 5.0) * alphavT*abs(dv), I1_gf);
+      hflux_gf.Add(me / 2.0 * pow(alphavT*v, 5.0) * alphavT*abs(dv), I1_gf);
 
       double loc_minI0 = I0_gf.Min(), glob_minI0;
       MPI_Allreduce(&loc_minI0, &glob_minI0, 1, MPI_DOUBLE, MPI_MIN,
@@ -680,7 +682,8 @@ int main(int argc, char *argv[])
             intf0_gf.Add(4.0 * pi * pow(alphavT*v, 2.0) * alphavT*abs(dv),
                          I0_gf);
             j_gf.Add(pow(alphavT*v, 3.0) * alphavT*abs(dv), I1_gf);
-            hflux_gf.Add(pow(alphavT*v, 5.0) * alphavT*abs(dv), I1_gf);
+            hflux_gf.Add(me / 2.0 * pow(alphavT*v, 5.0) * alphavT*abs(dv), 
+                         I1_gf);
 
 			double loc_minI0 = I0_gf.Min(), glob_minI0;
             MPI_Allreduce(&loc_minI0, &glob_minI0, 1, MPI_DOUBLE, MPI_MIN,

@@ -132,37 +132,6 @@ M1Operator::M1Operator(int size,
       }
    }
 
-   // Standard local assembly and inversion for energy mass matrices.
-   DenseMatrix Mf0_(l2dofs_cnt);
-   DenseMatrixInverse inv(&Mf0_);
-   Mass0cIntegrator mi(quad_data);
-   mi.SetIntRule(&integ_rule);
-   for (int i = 0; i < nzones; i++)
-   {
-      mi.AssembleElementMatrix(*l2_fes.GetFE(i),
-                               *l2_fes.GetElementTransformation(i), Mf0_);
-      MSf0(i) = Mf0_;
-      inv.Factor();
-      inv.GetInverseMatrix(Mf0_inv(i));
-   }
-
-   // Standard assembly for the velocity mass matrix.
-   //Mass1cIntegrator *f1mi = new Mass1cIntegrator(quad_data);
-   Mass1NuIntegrator *f1mi = new Mass1NuIntegrator(quad_data);
-   f1mi->SetIntRule(&integ_rule);
-   Mf1.AddDomainIntegrator(f1mi);
-   Mf1.Assemble();
-
-   Mass1NutIntegrator *f1scati = new Mass1NutIntegrator(quad_data);
-   f1scati->SetIntRule(&integ_rule);
-   Mscattf1.AddDomainIntegrator(f1scati);
-   Mscattf1.Assemble();
-
-   BfieldIntegrator *f1bfi = new BfieldIntegrator(quad_data);
-   f1bfi->SetIntRule(&integ_rule);
-   Bfieldf1.AddDomainIntegrator(f1bfi);
-   Bfieldf1.Assemble();
-
    // Initial local mesh size (assumes similar cells).
    double loc_area = 0.0, glob_area;
    int loc_z_cnt = nzones, glob_z_cnt;
@@ -185,6 +154,38 @@ M1Operator::M1Operator(int size,
       default: MFEM_ABORT("Unknown zone type!");
    }
    quad_data.h0 /= (double) H1FESpace.GetOrder(0);
+
+   //UpdateQuadratureData(); 
+
+   // Standard local assembly and inversion for energy mass matrices.
+   DenseMatrix Mf0_(l2dofs_cnt);
+   DenseMatrixInverse inv(&Mf0_);
+   Mass0cIntegrator mi(quad_data);
+   mi.SetIntRule(&integ_rule);
+   for (int i = 0; i < nzones; i++)
+   {
+      mi.AssembleElementMatrix(*l2_fes.GetFE(i),
+                               *l2_fes.GetElementTransformation(i), Mf0_);
+      MSf0(i) = Mf0_;
+      inv.Factor();
+      inv.GetInverseMatrix(Mf0_inv(i));
+   }
+
+   // Standard assembly for the velocity mass matrix.
+   Mass1NuIntegrator *f1mi = new Mass1NuIntegrator(quad_data);
+   f1mi->SetIntRule(&integ_rule);
+   Mf1.AddDomainIntegrator(f1mi);
+   Mf1.Assemble();
+
+   Mass1NutIntegrator *f1scati = new Mass1NutIntegrator(quad_data);
+   f1scati->SetIntRule(&integ_rule);
+   Mscattf1.AddDomainIntegrator(f1scati);
+   Mscattf1.Assemble();
+
+   BfieldIntegrator *f1bfi = new BfieldIntegrator(quad_data);
+   f1bfi->SetIntRule(&integ_rule);
+   Bfieldf1.AddDomainIntegrator(f1bfi);
+   Bfieldf1.Assemble();
 
    Divf1Integrator *f1di = new Divf1Integrator(quad_data);
    f1di->SetIntRule(&integ_rule);

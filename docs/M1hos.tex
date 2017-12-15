@@ -45,6 +45,8 @@
 \newcommand{\tB}{\vect{\tilde{B}}}
 \newcommand{\qe}{q_e}
 \newcommand{\me}{m_e}
+\newcommand{\kB}{k_B}
+\newcommand{\crs}{\sigma}
 \newcommand{\fM}{f_M}
 \newcommand{\fzero}{f_0}
 \newcommand{\vfzero}{\vect{f}_0}
@@ -382,7 +384,7 @@ The~equilibrium (maximized entropy) distribution
   \exp\left(- \frac{\vmag^2}{2 \vth^2} \right) ,
   \label{eq:MaxBol}
 \end{equation}
-where $\vth = \sqrt{k_B T/m_e}$.
+where $\vth = \sqrt{\kB T/\me}$.
 \begin{eqnarray}
   \pdv{\fM}{\vmag} &=& -\frac{\vmag}{\vth^2}\fM ,
   \nonumber \\
@@ -399,7 +401,7 @@ the~simplest form of the~Boltzmann transport equation
   \frac{\left(\fM - f\right)}{\mfp} ,
   \label{eq:BGK}
 \end{equation}
-where $\mfp = \frac{\vmag}{\nue} = \frac{a \vmag^4}{\rho}$ is the~mean 
+where $\mfp = \frac{\vmag}{\nue} = \frac{\vmag^4}{\crs\rho}$ is the~mean 
 free path expressed as inverse of collisional frequency multiplied by 
 particle velocity.
 
@@ -437,9 +439,9 @@ Consequently, one obtain a~simple heat flux formula
   \vn\left( \fM - \mfp\vn\cdot\nabla \fM \right) \vmag^2\, \dI\vn\, \dI\vmag \\
   = - \frac{m}{2}\int_0^\infty \int_{4\pi}  
   \vn\otimes\vn\, \dI\vn \cdot \mfp \nabla\fM \vmag^5\, \dI\vmag 
-  = - \frac{a}{\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
+  = - \frac{1}{\crs\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
   \nabla\fM \vmag^9\, \dI\vmag \\
-  = - \frac{a}{\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
+  = - \frac{1}{\crs\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
   \left(\pdv{\fM}{\rho}\nabla\rho + \pdv{\fM}{T}\nabla T \right) 
   \vmag^9\, \dI\vmag .
 \end{multline}
@@ -452,7 +454,7 @@ one of the~simplest forms of the~Boltzmann transport equation
   = \nue \pdv{}{\vmag} \left(f - \fM\right) ,
   \label{eq:BGK}
 \end{equation}
-where $\nue = \frac{a \rho}{\vmag^3}$ is the~collisional frequency.
+where $\nue = \frac{\crs \rho}{\vmag^3}$ is the~collisional frequency.
 
 The~Chapman-Enskog based small parameter ($\mfp$) approximation 
 $f\approx f_0 + \lambda f_1 + O(\lambda^2)$ expressed as
@@ -513,35 +515,77 @@ which may be further simplified as
   = \vth^2\left(\frac{\nabla\rho}{\rho} + \frac{5}{2}\frac{\nabla T}{T} 
   \right) ,
 \end{equation}
-
-
-Consequently, one obtain a~simple heat flux formula
-\begin{multline}
-  \vect{q}_H = \int_0^\infty \int_{4\pi} 
-  \frac{m \vmag^3}{2} 
-  \vn\left( \fM - \mfp\vn\cdot\nabla \fM \right) \vmag^2\, \dI\vn\, \dI\vmag \\
-  = - \frac{m}{2}\int_0^\infty \int_{4\pi}  
-  \vn\otimes\vn\, \dI\vn \cdot \mfp \nabla\fM \vmag^5\, \dI\vmag 
-  = - \frac{a}{\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
-  \nabla\fM \vmag^9\, \dI\vmag \\
-  = - \frac{a}{\rho}\frac{m}{2}\int_0^\infty \frac{4\pi}{3}
-  \left(\pdv{\fM}{\rho}\nabla\rho + \pdv{\fM}{T}\nabla T \right) 
-  \vmag^9\, \dI\vmag .
-\end{multline}
-
+One can write the~quasi-neutral distribution function explicitly 
+distinguishing between original part (blue color) and E field correction
+(red color) as
 \begin{equation}
-  \vect{q}_{1} = \tilde{a}_1~T_1^{\alpha}~\nabla T_1 ,\quad 
-  \vect{q}_{0} = \tilde{a}_0~T_0^{\alpha}~\nabla T_0 , 
+  f \approx \fM \left(1 - \mfp\vn\cdot\left( 
+  \textcolor{blue}{
+  \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}
+  }
+  \textcolor{red}{
+  - \frac{5}{2}
+  }
+  \right) \frac{\nabla T}{T} \right) .
+  \label{eq:f_localized_quasineutral}
+\end{equation}
+which leads to the~resulting heat flux
+\begin{equation}
+  \vect{q}_H = \int_{4\pi}\int_0^{\infty} \frac{\me \vmag^2}{2} \vmag \vn f 
+  \vmag^2\, \dI\vmag\, \dI\vn = \frac{4\pi}{3}\frac{\me}{2}\frac{1}{\crs\rho}
+  \int_0^{\infty} \left( 
+  \textcolor{blue}{
+  \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}
+  }
+  \textcolor{red}{
+  - \frac{5}{2}
+  }
+  \right) \vmag^9 \fM\, \dI\vmag \frac{\nabla T}{T} .
+  \nonumber
+\end{equation} 
+Based on the~Gauss integral formula
+\begin{equation}
+  \int \vmag^{2s+1} \exp\left(-\frac{\vmag^2}{2\vth^2}\right)\, \dI\vmag = 
+  \frac{s!~(2 \vth^2)^{s+1}}{2}
   \nonumber 
 \end{equation}
-where we keep $\tilde{a}_1 = \tilde{a}_0 = \tilde{a}$ and 
+and Maxwell-Boltzmann distribution \eqref{eq:MaxBol} the~heat flux can be 
+written as
+\begin{equation}
+  \vect{q}_H = \frac{4\pi}{3}\frac{\me}{2}\frac{1}{\crs\rho}
+  \frac{\rho}{\vth^3 \left( 2 \pi \right)^{3/2}}
+  \frac{4!~2^4 \vth^{10}}{T} \left( 
+  \textcolor{blue}{
+  5 - \frac{3}{2}
+  }
+  \textcolor{red}{
+  - \frac{5}{2}
+  }
+  \right) \nabla T 
+  = \frac{1}{\crs}\frac{256\pi \me}{\left( 2 \pi \right)^{3/2}}
+  \left(\frac{\kB}{\me}\right)^{\frac{3}{2}}T^{\frac{5}{2}} \nabla T .
+  \label{eq:Lorentz_flux}
+\end{equation} 
+In conclusion, equation \eqref{eq:Lorentz_flux} provides nothing else than
+the~well known Lorentz approximation heat flux and its nonlinearity $2.5$
+in temperature. What is worth mentioning is the~effect of E field 
+(quasi-neutrality), which reduces the~flux of about	71.4$\%$ 
+(also assuming constant density).
+
+\subsection{AWBS diffusive asymptotic nonlinearity check}\label{sec:AWBS_nonlinearity_check}
+\begin{equation}
+  \vect{q}_{1} = a_1~T_1^{\alpha}~\nabla T_1 ,\quad 
+  \vect{q}_{0} = a_0~T_0^{\alpha}~\nabla T_0 , 
+  \nonumber 
+\end{equation}
+where we keep $a_1 = a_0 = a$ and 
 $\nabla T_1 = \nabla T_0 = \nabla T$ to be equal in every point of 
 the~computational domain. 
 The ration of the~fluxes than provides a~very important information about
 flux nonlinearity
 \begin{equation}    
   \frac{\vect{q}_1}{\vect{q}_0} = 
-  \frac{\tilde{a}~T_1^{\alpha}~\nabla T}{\tilde{a}~T_0^{\alpha}~\nabla T} = 
+  \frac{a~T_1^{\alpha}~\nabla T}{a~T_0^{\alpha}~\nabla T} = 
   \left( \frac{T_1}{T_0} \right)^\alpha ,
   \nonumber
 \end{equation}
@@ -568,7 +612,7 @@ and to temperature $T_1$ with the mean $T = 1100$ executed as
 \end{multline}
 we got the~following numbers 
 \begin{equation}
-  \vect{q}_1 = 0.1782,~\vect{q}_0 = 0.1406,~T_1 = 1100,~T_0 = 1000, 
+  \vect{q}_1 = 0.0891,~\vect{q}_0 = 0.0703,~T_1 = 1100,~T_0 = 1000, 
   \nonumber
 \end{equation}
 which provide the~corresponding nonlinearity
