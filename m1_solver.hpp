@@ -116,7 +116,7 @@ protected:
    ParGridFunction &x_gf;
    // Velocity dependent coefficients providing physics.
    NTHvHydroCoefficient *msp_pcf, *sourceI0_pcf;
-   // General Vector coefficient for Efield effect.
+   // General Vector coefficient for Efield and Bfield effects.
    VectorCoefficient *Efield_pcf, *Bfield_pcf;
 
 public:

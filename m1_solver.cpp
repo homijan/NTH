@@ -426,7 +426,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
 	  rhs.Neg();
       // dI0 negative (dfMdv) in diffusive regime.
 	  //AEfieldf1.AddMult(dI0, rhs, - 1.0 / velocity_scaled);
-	  //AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
+	  AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
 	  //AIEfieldf1.AddMult(I0, rhs, 1.0 / velocity_scaled / velocity_scaled);
 	  Bfieldf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
 	  //Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
@@ -700,8 +700,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             // And consequent evaluation of AE and AIE.
             //Efield_b[z].GetColumn(q, Efield);
             Efield_pcf->Eval(Efield, *T, ip);
+			Bfield_pcf->Eval(Bfield, *T, ip);
 			//Efield = 0.0;
-            Bfield = 0.0; 
+            //Bfield = 0.0; 
             AM1.Mult(Efield, AEfield);
             AIEfield = 0.0;
             AM1.AddMult_a(3.0, Efield, AIEfield);
@@ -721,10 +722,10 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
 			for (int d = 0; d < dim; d++)
             {
                I0stress(d, d) = 1.0;
-               //I1stress(d, d) = 1.0 / 3.0; // P1 closure.
+               I1stress(d, d) = 1.0 / 3.0; // P1 closure.
             }
             // M1 closure. See the construction above.
-            I1stress = AM1;
+            //I1stress = AM1;
 
             // Quadrature data for partial assembly of the force operator.
             MultABt(I0stress, Jinv, I0stressJiT);

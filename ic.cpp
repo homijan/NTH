@@ -27,6 +27,7 @@ namespace nth
 {
 
 int nth_problem = 1;
+double L = 1.0;
 double T_max = 1000.0, T_min = 100.0;
 double rho_max = 10.0, rho_min = 1.0;
 double T_gradscale = 50.0, rho_gradscale = 50.0;
@@ -42,12 +43,16 @@ double rho0(const Vector &x)
       case 3: if (x(0) > 1.0 && x(1) <= 1.5) { return 1.0; }
          else { return 0.125; }
       case 4: return rho_min + (rho_max - rho_min) *
-                     (0.5 * (tanh(rho_gradscale * (x.Norml2() - 0.5)) + 1.0));
+                     (0.5 * (tanh(rho_gradscale * (x.Norml2() - 0.5 * L)) 
+                     + 1.0));
       case 5: return 1.0;
       case 6: return rho_min + (rho_max - rho_min) *
-                     (0.5 * (tanh(rho_gradscale * (x.Norml2() - 0.5)) + 1.0));
+                     (0.5 * (tanh(rho_gradscale * (x.Norml2() - 0.5 * L)) 
+                     + 1.0));
       case 7: return rho_min + (rho_max - rho_min) *
-                     (0.5 * (tanh(rho_gradscale * (0.5 - x.Norml2())) + 1.0));
+                     (0.5 * (tanh(rho_gradscale * (0.5 * L - x.Norml2())) 
+                     + 1.0));
+      case 8: return 1.0;
       default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }
 }
@@ -65,7 +70,8 @@ double gamma(const Vector &x)
       case 5: return 1.4;
       case 6: return 1.4;
       case 7: return 1.4;
-      default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
+      case 8: return 1.4;
+	  default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }
 }
 
@@ -90,7 +96,8 @@ void v0(const Vector &x, Vector &v)
       case 5: v = 0.0; break;
       case 6: v = 0.0; break;
       case 7: v = 0.0; break;
-      default: MFEM_ABORT("Bad number given for problem id!");
+      case 8: v = 0.0; break;
+	  default: MFEM_ABORT("Bad number given for problem id!");
    }
 }
 
@@ -120,11 +127,17 @@ double e0(const Vector &x)
          else { return 1.0 / rho0(x) / (gamma(x) - 1.0); }
       case 4: return 1.0;
       case 5: return T_min + (T_max - T_min) *
-                     (0.5 * (tanh(T_gradscale * (0.5 - x.Norml2())) + 1.0));
+                     (0.5 * (tanh(T_gradscale * (0.5 * L - x.Norml2())) + 1.0));
       case 6: return T_min + (T_max - T_min) *
-                     (0.5 * (tanh(T_gradscale * (0.5 - x.Norml2())) + 1.0));
+                     (0.5 * (tanh(T_gradscale * (0.5 * L - x.Norml2())) + 1.0));
       case 7: return T_min + (T_max - T_min) *
-                     (0.5 * (tanh(T_gradscale * (0.5 - x.Norml2())) + 1.0));
+                     (0.5 * (tanh(T_gradscale * (0.5 * L - x.Norml2())) + 1.0));
+      case 8: if (x.Norml2() < (0.5 * L * (1.0 - 1.0 / T_gradscale)))
+         { return T_max; }
+         else if (x.Norml2() > (0.5 * L * (1.0 + 1.0 / T_gradscale)))
+         { return T_min; }
+         else return T_gradscale / L * (T_min - T_max) * x.Norml2() +
+                     0.5 * (T_min + T_max - T_gradscale * (T_min - T_max));
       default: MFEM_ABORT("Bad number given for problem id!"); return 0.0;
    }
 }

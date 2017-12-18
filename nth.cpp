@@ -354,6 +354,7 @@ int main(int argc, char *argv[])
       case 5: visc = true; break;
       case 6: visc = true; break;
       case 7: visc = true; break;
+      case 8: visc = true; break;
       default: MFEM_ABORT("Wrong problem specification!");
    }
 
@@ -552,9 +553,12 @@ int main(int argc, char *argv[])
 
       VisualizeField(vis_rho, vishost, visport, rho_gf,
                      "Density", Wx, Wy, Ww, Wh);
+      //Wx += offx;
+      //VisualizeField(vis_v, vishost, visport, v_gf,
+      //               "Velocity", Wx, Wy, Ww, Wh);
       Wx += offx;
-      VisualizeField(vis_v, vishost, visport, v_gf,
-                     "Velocity", Wx, Wy, Ww, Wh);
+      VisualizeField(vis_j, vishost, visport, j_gf,
+                     "Current", Wx, Wy, Ww, Wh);
       Wx += offx;
       VisualizeField(vis_e, vishost, visport, e_gf,
                      "T", Wx, Wy, Ww, Wh);
@@ -563,9 +567,6 @@ int main(int argc, char *argv[])
       Wy +=offx;
       VisualizeField(vis_f0, vishost, visport, intf0_gf,
                      "int(f0 4pi v^2)dv", Wx, Wy, Ww, Wh);
-      //Wx += offx;
-      //VisualizeField(vis_j, vishost, visport, j_gf,
-      //               "Current", Wx, Wy, Ww, Wh);
       Wx += offx;
       VisualizeField(vis_Kn, vishost, visport, Kn_gf,
                      "Kn", Wx, Wy, Ww, Wh);
@@ -737,9 +738,12 @@ int main(int argc, char *argv[])
 
             VisualizeField(vis_rho, vishost, visport, rho_gf,
                            "Density", Wx, Wy, Ww, Wh);
+            //Wx += offx;
+            //VisualizeField(vis_v, vishost, visport,
+            //               v_gf, "Velocity", Wx, Wy, Ww, Wh);
             Wx += offx;
-            VisualizeField(vis_v, vishost, visport,
-						   v_gf, "Velocity", Wx, Wy, Ww, Wh);
+            VisualizeField(vis_j, vishost, visport, j_gf,
+                           "Current", Wx, Wy, Ww, Wh);		
             Wx += offx;
             VisualizeField(vis_e, vishost, visport, e_gf,
                            "T", Wx, Wy, Ww,Wh);
@@ -748,9 +752,6 @@ int main(int argc, char *argv[])
             Wy +=offx;
             VisualizeField(vis_f0, vishost, visport, intf0_gf,
                            "int(f0 4pi v^2)dv", Wx, Wy, Ww, Wh);
-            //Wx += offx;
-            //VisualizeField(vis_j, vishost, visport, j_gf,
-            //               "Current", Wx, Wy, Ww, Wh);
             Wx += offx;
             VisualizeField(vis_Kn, vishost, visport, Kn_gf,
                            "Kn", Wx, Wy, Ww, Wh);
