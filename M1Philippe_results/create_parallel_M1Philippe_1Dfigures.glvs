@@ -33,6 +33,10 @@ psolution 8 M1hos_1_mesh 0 M1hos_1_hflux
    psolution 8 M1hos_1_mesh 0 M1hos_1_hflux 
    scale 1.35
    screenshot hflux.png
+   plot_caption "Electron current"
+   psolution 8 M1hos_1_mesh 0 M1hos_1_j 
+   scale 1.35
+   screenshot jcurrent.png
    plot_caption "Kn"
    psolution 8 M1hos_1_mesh 0 M1hos_1_Kn
    scale 1.35
