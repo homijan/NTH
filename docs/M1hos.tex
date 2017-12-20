@@ -673,7 +673,79 @@ which provide the~corresponding nonlinearity
   \end{center}
   \label{fig:p51D_AWBS_nonlinearity}
 \end{figure}
+\clearpage
+\subsection{Analysis of nonlocality}\label{sec:NonlocalityAnalysis}
+\begin{figure}[tbh]
+  \begin{center}
+    \begin{tabular}{cc}
+      \includegraphics[width=0.45\textwidth]{Nonlocality_analysis_woutE.png} &
+	  \includegraphics[width=0.45\textwidth]{figs/temperature_p51DNonlocAnal.png} 
+    \end{tabular}
+  \caption{
+    M1-AWBS model. Left: The~maximum of computed flux normalized with respect 
+	to the~value of SH flux. E field effect is not included.  
+	Right: Corresponding temperature profile. Density and ionization 
+	(scattering on Z = 100 included) have been kept constant.
+  }
+  \end{center}
+  \label{fig:nonlocality_analysis}
+\end{figure}
 
+\begin{figure}[tbh]
+  \begin{center}
+    \begin{tabular}{ccc}
+      \includegraphics[width=0.3\textwidth]{figs/hflux_p51DKn1e-3.png} &
+	  \includegraphics[width=0.3\textwidth]{figs/hflux_p51DKn1e-2.png} & 
+      \includegraphics[width=0.3\textwidth]{figs/hflux_p51DKn5e-2.png} \\
+	  \includegraphics[width=0.3\textwidth]{figs/hflux_p51DKn1e-1.png} &
+      \includegraphics[width=0.3\textwidth]{figs/hflux_p51DKn5e-1.png} &
+	  \includegraphics[width=0.3\textwidth]{figs/hflux_p51DKn1e0.png} 
+    \end{tabular}
+  \caption{
+    Heat flux calculated by M1-AWBS model. Figures in left-right top-bottom 
+	order correspond to Kn = 0.001, 0.01, 0.05, 0.1, 0.5, 1.0. 
+	E field effect is not included.  
+	Density and ionization (Z = 100) have been kept constant.
+  }
+  \end{center}
+  \label{fig:nonlocality_analysis_fluxes}
+\end{figure}
+
+Some observations:
+\begin{itemize}
+  \item Our calculated distribution function is thermalized, 
+  i.e. $f_0 = \fM$.
+  \item With added scattering we also obtain the correct value of calculated 
+  heat flux, i.e. $q = q_{SH}$, nevertheless, this works with no E field.
+  \item The E field effect is implemented. When tested with the analytic 
+  formula $E_{SH} = \vth^2(\nabla ne /ne + 5/2 nabla T/T)$ 
+  (we consider Z=100),
+  the corresponding flux reduction due to E field is also correct 
+  (flux is reduced to 30$\%$ of its E=0 value).
+  \item However, the $E_{SH}$ does not work under any condition, 
+  i.e. it exhibits some extra dependence on temperature.
+\end{itemize}
+
+\begin{figure}[tbh]
+  \begin{center}
+    \begin{tabular}{cc}
+      \includegraphics[width=0.5\textwidth]{figs/hflux_p51DKn1e-9.png} &
+      \includegraphics[width=0.5\textwidth]{figs/jcurrent_p51DKn1e-9.png} \\
+	  \includegraphics[width=0.5\textwidth]{figs/hflux_p51DKn1e-9Efield.png} &
+      \includegraphics[width=0.5\textwidth]{figs/jcurrent_p51DKn1e-9Efield.png}  
+    \end{tabular}
+  \caption{
+    Preliminary results with respect to the E field effect. 
+	The SH analytic formula for E field leads to the~corresponding current 
+	reduction ($j \approx 0$). The corresponding heat flux is reduced 
+	$\approx$ by 70 $\%$, exactly as predicted. Nevertheless, the~formula 
+	exhibits some dependence on temperature (not on its gradient and also not
+	on the~mean free path).
+  }
+  \end{center}
+  \label{fig:p41D_rho_T}
+\end{figure}
+\clearpage
 
 \newcommand{\psize}{0.45}
 \begin{figure}[tbh]
