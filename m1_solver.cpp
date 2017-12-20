@@ -425,11 +425,10 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
       Divf1.Mult(I0, rhs);
 	  rhs.Neg();
       // dI0 negative (dfMdv) in diffusive regime.
-	  //AEfieldf1.AddMult(dI0, rhs, - 1.0 / velocity_scaled);
 	  AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
 	  //AIEfieldf1.AddMult(I0, rhs, 1.0 / velocity_scaled / velocity_scaled);
 	  Bfieldf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
-	  //Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
+	  Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
 	  timer.sw_force.Stop();
       timer.dof_tstep += H1FESpace.GlobalTrueVSize();
       // Scale rhs because of the normalized velocity, i.e. 
@@ -758,7 +757,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
                                                    / rho;
             //cout << "Ef1/v/f0/rho: " <<  quad_data.Ef1invvf0rho(z_id*nqp + q) 
             //     << endl << flush;
-            const double Zbar = 10.0;
+            const double Zbar = 100.0;
 			quad_data.nutinvrho(z_id*nqp + q) = Zbar * msp / rho;
          }
          ++z_id;

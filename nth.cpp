@@ -408,9 +408,9 @@ int main(int argc, char *argv[])
    double vmax = 1.0;
    double vTmultiple = 7.0;
    // well, not really, since the lowest v = 0 is singular, so
-   double vmin = 1e-10 * vmax;
+   double vmin = 0.01 * vmax;
    // and provide some maximum dv step.
-   double dvmax = vmax*0.01;
+   double dvmax = vmax*0.0005;
    bool nonlocal_test = false;
    if (nonlocal_test)
    {
@@ -485,7 +485,7 @@ int main(int argc, char *argv[])
       m1ode_solver->Step(m1S, v, dv);
 
       // Perform the integration over velocity space.
-      intf0_gf.Add(4.0 * pi * pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
+      intf0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
       j_gf.Add(pow(alphavT*v, 3.0) * alphavT*abs(dv), I1_gf);
       hflux_gf.Add(me / 2.0 * pow(alphavT*v, 5.0) * alphavT*abs(dv), I1_gf);
 
@@ -687,8 +687,7 @@ int main(int argc, char *argv[])
             m1ode_solver->Step(m1S, v, dv);
 
             // Perform the integration over velocity space.
-            intf0_gf.Add(4.0 * pi * pow(alphavT*v, 2.0) * alphavT*abs(dv),
-                         I0_gf);
+            intf0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
             j_gf.Add(pow(alphavT*v, 3.0) * alphavT*abs(dv), I1_gf);
             hflux_gf.Add(me / 2.0 * pow(alphavT*v, 5.0) * alphavT*abs(dv), 
                          I1_gf);

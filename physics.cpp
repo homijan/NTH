@@ -91,7 +91,10 @@ void LorentzEfield::Eval(Vector &V, ElementTransformation &T,
    //V += grad_rho;
    //V *= 1.0 / rho;
    //V *= v_th * v_th;
-   V *= 1e-13 * v_th * v_th;
+   V *= 1e-16 * v_th * v_th;
+   //V *= 4.55e-3 * v_th * v_th; // Reference -p 5 (T in (1000, 100))
+   //V *= 6.085e-3 * v_th * v_th; // Reference -p 8 (T=5e2)
+   //V *= 2.02e-3 * v_th * v_th; // Reference -p 8 (T=5e3)
    //V *= 1.4284e-3 * v_th * v_th; // Reference -p 8 (T=1e4)
    //V *= 1.01e-3 * v_th * v_th; // Reference -p 8 2xT (T=2e4)
    //V *= 0.71425e-3 * v_th * v_th; // Reference -p 8 4xT (T=4e4)
@@ -120,7 +123,8 @@ double AWBSI0Source::Eval(ElementTransformation &T,
    double velocity_real = alphavT * velocity;
 
    // Maxwell-Boltzmann distribution fM = ne*vT^3*(2/pi)^1.5*exp(-v^2/2/vT^2)
-   double fM = rho / pow(vTe, 3.0) / pow(2.0 * pi, 1.5) *
+   double fM = 4.0 * pi *
+               rho / pow(vTe, 3.0) / pow(2.0 * pi, 1.5) *
                exp(- pow(velocity_real, 2.0) / 2.0 / pow(vTe, 2.0));
    double dfMdv = - velocity_real / pow(vTe, 2.0) * fM;
 

@@ -34,6 +34,7 @@
 \newcommand{\ddv}[2]{\odv{#1}{#2}}
 %\newcommand{\ddv}[2]{\frac{\Delta #1}{\Delta #2}}
 \newcommand{\mfp}{\lambda}
+\newcommand{\tmfp}{\tilde{\lambda}}
 \newcommand{\nue}{\nu_{e}}
 \newcommand{\nutot}{\nu_{t}}
 \newcommand{\vmag}{v}
@@ -398,19 +399,22 @@ The~BGK equation, valid for highly isotropic transport, represents
 the~simplest form of the~Boltzmann transport equation
 \begin{equation}
   \vn\cdot\nabla f + \vn\cdot\tE\frac{1}{\vmag}\pdv{f}{\vmag} = 
-  \frac{\left(\fM - f\right)}{\mfp} ,
+  \frac{\left(\fM - f\right)}{\mfp} + \frac{\left(f_0 - f\right)}{\tmfp} ,
   \label{eq:BGK}
 \end{equation}
 where $\mfp = \frac{\vmag}{\nue} = \frac{\vmag^4}{\crs\rho}$ is the~mean 
 free path expressed as inverse of collisional frequency multiplied by 
-particle velocity.
+particle velocity, $\tmfp = \frac{\mfp}{\alpha}$ is a~scattering mean free path 
+expressed as $\alpha$~factor of $\mfp$, and $f_0$ is the~isotropic part
+of the~distribution function, thus making the~scattering operator being 
+conservative.
 
 The~Chapman-Enskog based small parameter ($\mfp$) approximation 
 $f\approx f_0 + \lambda f_1 + O(\lambda^2)$ expressed as
 \begin{equation}
   \vn\cdot\nabla (f_0 + \lambda f_1) +
   \vn\cdot\tE\frac{1}{\vmag}\pdv{f_0 + \lambda f_1 }{\vmag}= 
-  \frac{\left(\fM - (f_0 + \lambda f_1)\right)}{\mfp} ,
+  \frac{\left(\fM - (f_0 + \lambda f_1)\right)}{\mfp} - \alpha f_1,
   \label{eq:CE_BGK}
 \end{equation}
 tells us, that
@@ -418,20 +422,27 @@ tells us, that
   f_0 &=& \fM, 
   \nonumber\\
   f_1 &=& - \vn\cdot
-  \left(\nabla f_0 + \tE\frac{1}{\vmag}\pdv{f_0}{\vmag} \right) = 
-  - \vn\cdot\left(\nabla\fM + \tE\frac{1}{\vmag}\pdv{\fM}{\vmag} \right),
+  \left(\nabla f_0 + \tE\frac{1}{\vmag}\pdv{f_0}{\vmag} \right)
+  \frac{1}{1 + \alpha} 
+  = - \vn\cdot
+  \left(\nabla\fM + \tE\frac{1}{\vmag}\pdv{\fM}{\vmag} \right)
+  \frac{1}{1 + \alpha} ,
   \nonumber
 \end{eqnarray}
 which means, that the~localized approximation of the~distribution function
 should behave as
-\begin{equation}
-  f \approx \fM - \mfp\vn\cdot\left(\nabla \fM + \tE\frac{1}{\vmag}
+\begin{multline}
+  f \approx \fM - \frac{\mfp}{1 + \alpha}\vn\cdot
+  \left(\nabla \fM + \tE\frac{1}{\vmag}
   \pdv{\fM}{\vmag} \right)  
-  = \fM \left(1 - \mfp\vn\cdot\left(\frac{\nabla\rho}{\rho} + 
+  = \\
+  \fM \left(1 - \frac{\mfp}{1 + \alpha}\vn\cdot
+  \left(\frac{\nabla\rho}{\rho} + 
   \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) \frac{\nabla T}{T} 
   - \frac{\tE}{\vth^2} \right) \right) .
   \label{eq:f_localized}
-\end{equation}
+\end{multline}
+\begin{comment} % general flux
 Consequently, one obtain a~simple heat flux formula
 \begin{multline}
   \vect{q}_H = \int_0^\infty \int_{4\pi} 
@@ -445,54 +456,76 @@ Consequently, one obtain a~simple heat flux formula
   \left(\pdv{\fM}{\rho}\nabla\rho + \pdv{\fM}{T}\nabla T \right) 
   \vmag^9\, \dI\vmag .
 \end{multline}
+\end{comment} % general flux
 
 \subsection{Physical analysis of the~diffusive asymptotics of AWBS}\label{sec:diffusive_asymptotics_AWBS}
 The~AWBS equation, valid for fast particle transport, represents 
 one of the~simplest forms of the~Boltzmann transport equation
 \begin{equation}
-  \vn\cdot\nabla f + \vn\cdot\tE\frac{1}{\vmag}\pdv{f}{\vmag}
-  = \nue \pdv{}{\vmag} \left(f - \fM\right) ,
-  \label{eq:BGK}
+  \vmag\vn\cdot\nabla f + \vn\cdot\tE\pdv{f}{\vmag}
+  = \vmag \nue \pdv{}{\vmag} \left(f - \fM\right) + \nutot \left(f_0 - f\right),
+  \label{eq:AWBS}
 \end{equation}
-where $\nue = \frac{\crs \rho}{\vmag^3}$ is the~collisional frequency.
+where $\nue = \frac{\crs \rho}{\vmag^3}$ is the~collisional frequency and
+$\nutot = \alpha \nue$ is the~scattering collisional frequency expressed as
+$\alpha$ factor of the~collisional frequency. 
+%For the~sake of completeness, it should be noted that 
+%$\pdv{f}{\epsilon} = \pdv{\vmag}{\epsilon}\pdv{f}{\vmag} = 
+%\frac{2}{\me\vmag}\pdv{f}{\vmag}$, and so, the~original form of AWBS 
+%is coherently covered by \eqref{eq:AWBS} in the~non-relativistic case.
+We can further proceed 
+by writing the~AWBS transport equation in terms of mean free path as
+\begin{equation}
+  \vn\cdot\nabla f + \vn\cdot\tE\frac{1}{\vmag}\pdv{f}{\vmag}
+  = \frac{\vmag}{\mfp} \pdv{}{\vmag} \left(f - \fM\right) 
+  + \frac{\alpha}{\mfp} \left(f_0 - f\right),
+  \label{eq:AWBS_mfp}
+\end{equation}
 
 The~Chapman-Enskog based small parameter ($\mfp$) approximation 
 $f\approx f_0 + \lambda f_1 + O(\lambda^2)$ expressed as
 \begin{equation}
-  \vn\cdot\nabla (f_0 + \nue^{-1} f_1) + 
-  \vn\cdot\tE\frac{1}{\vmag}\pdv{f_0 + \nue^{-1} f_1}{\vmag}
-  = \nue \pdv{}{\vmag}\left(\left((f_0 + \nue^{-1} f_1)\right) - \fM\right) ,
-  \label{eq:CE_BGK}
+  \vn\cdot\nabla (f_0 + \mfp f_1) + 
+  \vn\cdot\tE\frac{1}{\vmag}\pdv{f_0 + \mfp f_1}{\vmag}
+  = \frac{\vmag}{\mfp} \pdv{}{\vmag}
+  \left(\left((f_0 + \mfp f_1)\right) - \fM\right) - \alpha f_1,
+  \label{eq:CE_AWBS}
 \end{equation}
 tells us, that
 \begin{eqnarray}
-  \pdv{}{\vmag}f_0 &=& \pdv{}{\vmag} \fM \rightarrow f_0 = \fM , 
+  \pdv{f_0}{\vmag} &=& \pdv{\fM}{\vmag} \rightarrow f_0 = \fM , 
   \nonumber\\
-  \pdv{f_1}{\vmag} &=& \vn\cdot\nabla f_0
-   + \vn\cdot\tE\frac{1}{\vmag}\pdv{f_0}{\vmag} \rightarrow  f_1
-  = \int_{v_{max}}^v \vn\cdot\left( \nabla f_0 + 
-  \tE\frac{1}{\vmag}\pdv{f_0}{\vmag}\right)\, \dI\vmag , 
+  f_1 &=& - \left(\vn\cdot\left(\nabla f_0 + 
+  \tE\frac{1}{\vmag}\pdv{f_0}{\vmag}\right) - \vmag \pdv{f_1}{\vmag}\right)
+  \frac{1}{\alpha} ,
+  %\pdv{f_1}{\vmag} &=& \vn\cdot\nabla f_0
+  % + \vn\cdot\tE\frac{1}{\vmag}\pdv{f_0}{\vmag} \rightarrow  f_1
+  %= \int_{v_{max}}^v \vn\cdot\left( \nabla f_0 + 
+  %\tE\frac{1}{\vmag}\pdv{f_0}{\vmag}\right)\, \dI\vmag , 
   \nonumber
 \end{eqnarray}
-where one may write the~first order term as
-\begin{equation}
-  f_1 = - \vmag \vn\cdot\left( \nabla \fM - \tE\frac{1}{\vth^2}\fM \right) ,
-\end{equation}
+%where one may write the~first order term as
+%\begin{equation}
+%  f_1 = - \vmag \vn\cdot\left( \nabla \fM - \tE\frac{1}{\vth^2}\fM \right) ,
+%\end{equation}
 which means, that the~localized approximation of the~distribution function
 should behave as
-\begin{equation}
+\begin{multline}
   f \approx \fM 
-  - \frac{\vmag}{\nue}\vn\cdot
-  \left( \nabla \fM - \tE\frac{1}{\vth^2}\fM \right) 
-  = \fM \left(1 - \mfp\vn\cdot\left(\frac{\nabla\rho}{\rho} + 
+  - \frac{\mfp}{\alpha}\vn\cdot\left(\nabla \fM + 
+  \tE\frac{1}{\vmag}\pdv{\fM}{\vmag}\right) 
+  + \frac{\vmag\mfp}{\alpha} \pdv{f_1}{\vmag} 
+  = \\
+  \fM \left(1 - \frac{\mfp}{\alpha}\vn\cdot\left(\frac{\nabla\rho}{\rho} + 
   \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) \frac{\nabla T}{T} 
-  - \frac{\tE}{\vth^2} \right) \right) .
+  - \frac{\tE}{\vth^2} \right) \right) 
+  + \frac{\vmag\mfp}{\alpha} \pdv{f_1}{\vmag} .
   \label{eq:f_localized}
-\end{equation}
+\end{multline}
 In order to ensure the~plasma to be quasi-neutral, the~zero-current condition
 \begin{equation}
-  \vect{j} = \int_{4\pi}\int_0^{\infty} \qe \vmag \vn f 
-  \vmag^2\, \dI\vmag\, \dI\vn 
+  \vect{j} = \int_0^{\infty}\int_{4\pi} \qe \vmag \vn f 
+  \, \dI\vn~\vmag^2~\dI\vmag 
   = \vect{0} ,
   \label{eq:zero_current}
 \end{equation}
@@ -500,12 +533,12 @@ can be achieved by providing a~consistent electric field in
 \eqref{eq:f_localized}, i.e.
 \begin{equation}
   \tE = \frac{\vth^2~\int_{4\pi} \vn\otimes\vn\cdot \int_0^{\infty} \vmag  
-  \fM \mfp\left(\frac{\nabla\rho}{\rho} + 
+  \fM \frac{\mfp}{\alpha}\left(\frac{\nabla\rho}{\rho} + 
   \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right) 
   \frac{\nabla T}{T}\right)
   \vmag^2\, \dI\vmag\, \dI\vn}
   {\int_{4\pi} \vn\otimes\vn\cdot \int_0^{\infty} \vmag  
-  \fM \mfp\vmag^2\, \dI\vmag\, \dI\vn} ,
+  \fM \frac{\mfp}{\alpha}\vmag^2\, \dI\vmag\, \dI\vn} ,
 \end{equation}
 which may be further simplified as
 \begin{equation}
@@ -516,24 +549,29 @@ which may be further simplified as
   = \vth^2\left(\frac{\nabla\rho}{\rho} + \frac{5}{2}\frac{\nabla T}{T} 
   \right) ,
 \end{equation}
+where it is worth mentioning, that the~part 
+$\fM + \frac{\vmag\mfp}{\alpha} \pdv{f_1}{\vmag}$ of the~distribution
+does not contribute to the~current since it is isotropic.
 One can write the~quasi-neutral distribution function explicitly 
 distinguishing between original part (blue color) and E field correction
 (red color) as
 \begin{equation}
-  f \approx \fM \left(1 - \mfp\vn\cdot\left( 
+  f \approx \fM \left(1 - \frac{\mfp}{\alpha}\vn\cdot\left( 
   \textcolor{blue}{
   \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}
   }
   \textcolor{red}{
   - \frac{5}{2}
   }
-  \right) \frac{\nabla T}{T} \right) .
+  \right) \frac{\nabla T}{T} \right) 
+  + \frac{\vmag\mfp}{\alpha} \pdv{f_1}{\vmag} .
   \label{eq:f_localized_quasineutral}
 \end{equation}
 which leads to the~resulting heat flux
 \begin{equation}
   \vect{q}_H = \int_{4\pi}\int_0^{\infty} \frac{\me \vmag^2}{2} \vmag \vn f 
-  \vmag^2\, \dI\vmag\, \dI\vn = \frac{4\pi}{3}\frac{\me}{2}\frac{1}{\crs\rho}
+  \vmag^2\, \dI\vmag\, \dI\vn = \frac{4\pi}{3}\frac{\me}{2}
+  \frac{1}{\alpha \crs\rho}
   \int_0^{\infty} \left( 
   \textcolor{blue}{
   \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}
@@ -553,7 +591,7 @@ Based on the~Gauss integral formula
 and Maxwell-Boltzmann distribution \eqref{eq:MaxBol} the~heat flux can be 
 written as
 \begin{equation}
-  \vect{q}_H = \frac{4\pi}{3}\frac{\me}{2}\frac{1}{\crs\rho}
+  \vect{q}_H = \frac{4\pi}{3}\frac{\me}{2}\frac{1}{\alpha \crs\rho}
   \frac{\rho}{\vth^3 \left( 2 \pi \right)^{3/2}}
   \frac{4!~2^4 \vth^{10}}{T} \left( 
   \textcolor{blue}{
@@ -563,7 +601,7 @@ written as
   - \frac{5}{2}
   }
   \right) \nabla T 
-  = \frac{\me}{\crs}\frac{128}{\sqrt{2 \pi}}
+  = \frac{\me}{\alpha \crs}\frac{128}{\sqrt{2 \pi}}
   \left(\frac{\kB}{\me}\right)^{\frac{3}{2}}T^{\frac{5}{2}} \nabla T .
   \label{eq:Lorentz_flux}
 \end{equation} 
