@@ -32,6 +32,8 @@
 \newcommand{\dI}{\text{d}}
 \newcommand{\odv}[2]{\frac{\dI #1}{\dI #2}}
 \newcommand{\ddv}[2]{\odv{#1}{#2}}
+\newcommand{\christ}[3]{\genfrac{\{}{\}}{0pt}{}{#1}{#2 #3}}
+%\newcommand{\christ}[3]{\Gamma^{#1}_{#2 #3}}
 %\newcommand{\ddv}[2]{\frac{\Delta #1}{\Delta #2}}
 \newcommand{\mfp}{\lambda}
 \newcommand{\tmfp}{\tilde{\lambda}}
@@ -62,6 +64,7 @@
 \newcommand{\IB}{\boldsymbol{\mathcal{B}}}
 \newcommand{\anisomega}{\fone/\fzero}
 \newcommand{\acl}{\vect{M}_{\left(\anisomega\right)}}
+
 
 \newcommand{\figref}[1]{FIG.~\ref{#1}}
 \renewcommand{\refeq}[1]{(\ref{#1})}
@@ -108,7 +111,658 @@ Nonlocal transport \sep Kinetics \sep MHD \sep High-order methods \sep FEM
 
 %---------------------------------------------------------------------
 %---------------------------------------------------------------------
-%\section{Moments method}\label{sec:moment_method}
+\section{Introduction to Tensor Calculus}
+\subsection{Transformation properties} 
+The~representation of a~tensor in the~Cartesian (reference) coordinate
+system is in the~case of tensor of first rank
+\begin{equation}
+  \vect{x} = \bar{x}^1 \vect{e}_1 + \bar{x}^2 \vect{e}_2 + 
+  \bar{x}^3 \vect{e}_3 = \bar{x}^i \vect{e}_i ,
+  \label{eq:Cart_vector}
+\end{equation}
+and in the case of tensor of second rank
+\begin{eqnarray}
+  \vect{u}\vect{v} = \matr{A} &=& 
+  \bar{A}^{11} \vect{e}_1\vect{e}_1  + \bar{A}^{12} \vect{e}_1\vect{e}_2 
+  + \bar{A}^{13} \vect{e}_1\vect{e}_3 \nonumber\\
+  && \bar{A}^{21} \vect{e}_2\vect{e}_1  + \bar{A}^{22} \vect{e}_2\vect{e}_2 
+  + \bar{A}^{23} \vect{e}_2\vect{e}_3\nonumber\\
+  && \bar{A}^{31} \vect{e}_3\vect{e}_1  + \bar{A}^{32} \vect{e}_3\vect{e}_2 
+  + \bar{A}^{33} \vect{e}_3\vect{e}_3 = \bar{A}^{ij}\vect{e}_i\vect{e}_j 
+  = \bar{u}^i\vect{e}_i \bar{v}^j\vect{e}_j ,
+  \label{eq:Cart_tensor}
+\end{eqnarray}  
+where \eqref{eq:Cart_vector} defines the~Cartesian coordinates (vector) 
+$\bar{x}^i$ of $\vect{x}$  in orthonormal global basis 
+$\vect{e}_1 = [1, 0, 0]$, $\vect{e}_2 = [0, 1, 0]$,
+$\vect{e}_3 = [0, 0, 1]$, and \eqref{eq:Cart_tensor} shows the~creation of
+second rank tensor $\matr{A}$ as a~outer (tensor) product of first rank tensors
+$\vect{u}$ and $\vect{v}$, 
+and consequently, its coordinates (matrix) $\bar{A}^{ij} = \bar{u}^i \bar{v}^j$.
+
+While introducing a~general curvilinear coordinates
+\begin{eqnarray}
+  q^i &=& f^i(\bar{x}^1, \bar{x}^2, \bar{x}^3) , \nonumber \\
+  \bar{x}^i &=& g^i(q^1, q^2, q^3) , \nonumber \\
+  q_i &=& f_i(\bar{x}_1, \bar{x}_2, \bar{x}_3) , \nonumber \\
+  \bar{x}_i &=& g_i(q_1, q_2, q_3) , 
+  \label{eq:Curvilinear_coordinates} 
+\end{eqnarray}
+where the~condition on the~transformation Jacobian to be nonzero
+\begin{equation}
+  J = \bigg| \pdv{\bar{x}^i}{q^j}\bigg| \neq 0
+  \label{eq:transformation}
+\end{equation}
+is sufficient to have a~well defined curvilinear coordinate system.
+It is worth mentioning that two types of coordinates are used in definition
+\eqref{eq:Curvilinear_coordinates}, i.e. \textit{covariant} $q_i$ and 
+\textit{contravariant} $q^i$ in the case of curvilinear coordinates, and
+also in the~case of the~Cartesian coordinates, where the~equality 
+$\bar{x}^i = \bar{x}_i$  
+holds. The~transformation represented by \eqref{eq:transformation} can be
+used to act on \textit{covariant} tensor as
+\begin{equation}
+  A_{\alpha\beta...\mu} = \pdv{\bar{x}^a}{q^\alpha} \pdv{\bar{x}^b}{q^\beta} ...
+  \pdv{\bar{x}^m}{q^\mu} \bar{A}_{ab...m} ,
+  \label{eq:covariant_tensor_transformation}
+\end{equation}
+and the~corresponding inverse transformation can be
+used to act on \textit{contravariant} tensor as
+\begin{equation}
+  A^{\alpha\beta...\mu} = \pdv{q^\alpha}{\bar{x}^a} \pdv{q^\beta}{\bar{x}^b} ...
+  \pdv{q^\mu}{\bar{x}^m} \bar{A}^{ab...m} ,
+  \label{eq:contravariant_tensor_transformation}
+\end{equation}
+and finally, in the case of a~mixed tensor the~transformation acts as
+\begin{equation}
+  A^{\alpha\beta...\mu}_{\kappa\lambda...\nu}  = 
+  \pdv{q^\alpha}{\bar{x}^a} \pdv{q^\beta}{\bar{x}^b} ...
+  \pdv{q^\mu}{\bar{x}^m}~
+  \pdv{\bar{x}^k}{q^\kappa} \pdv{\bar{x}^l}{q^\lambda} ...
+  \pdv{\bar{x}^n}{q^\nu} 
+  \bar{A}^{ab...m}_{kl...n}.
+  \label{eq:mixed_tensor_transformation}
+\end{equation}
+Equation \eqref{eq:mixed_tensor_transformation} represents a~general rule of
+transformation of tensor components $\bar{A}^{ab...m}_{kl...n}$ defined in
+the~Cartesian coordinates to the~tensor components 
+$A^{\alpha\beta...\mu}_{\kappa\lambda...\nu}$ applying in curvilinear 
+coordinates. 
+Then, tensor $\matr{A}$ treated in \eqref{eq:mixed_tensor_transformation} 
+can be expressed as
+\begin{multline}
+  \matr{A} = A^{\alpha\beta...\mu}_{\kappa\lambda...\nu} 
+  \vect{b}_\alpha\vect{b}_\beta...\vect{b}_\mu
+  \vect{b}^{\kappa}\vect{b}^{\lambda}...\vect{b}^{\nu}
+  = \bar{A}^{ab...m}_{kl...n}\vect{e}_a\vect{e}_b...\vect{e}_m
+  \vect{e}^{k}\vect{e}^{l}...\vect{e}^{n}\\ 
+  = \bar{A}^{ab...m...kl...n}\vect{e}_a\vect{e}_b...\vect{e}_m
+  \vect{e}_{k}\vect{e}_{l}...\vect{e}_{n}, 
+  \label{eq:tensor_representation}
+\end{multline}
+where $\vect{b}_\alpha$ and $\vect{b}^{\kappa}$ are 
+\textit{covariant} and \textit{contravariant} bases in curvilinear coordinates. 
+The~last equality in \eqref{eq:tensor_representation} applies only to 
+the~global Cartesian basis, because the~\textit{covariant} and 
+\textit{contravariant} tensor components and also
+the~bases vectors are identical. 
+The~\textit{contravariant} basis vectors 
+are defined as locally normal to the isosurface created by other coordinates as
+\begin{equation}
+  \vect{b}^i = \nabla q^i ,
+  \label{eq:contravariant_bases}
+\end{equation}
+and the~\textit{covariant} basis vectors are defined as locally tangent to 
+their associated coordinate path-line given by radius vector $\vect{r}$ as
+\begin{equation}
+  \vect{b}_i = \pdv{\vect{r}}{q^i} ,
+  \label{eq:covariant_bases}
+\end{equation}
+and the~following important equality holds
+\begin{equation}
+  \vect{b}_i\cdot\vect{b}^j = \delta_i^j ,
+  \label{eq:basis_vectors_alignement}
+\end{equation}
+which stresses the~property, that covariant and contravariant bases vectors
+are always aligned in direction.
+
+The~line element can be described in the~Cartesian coordinates as
+\begin{equation}
+  \dI s^2 = \dI\vect{r}\cdot\dI\vect{r} = 
+  (\dI \bar{x}^i \vect{e}_i)\cdot(\dI \bar{x}^j \vect{e}_j) = 
+  \vect{e}_i\cdot\vect{e}_j \dI \bar{x}^i \dI \bar{x}^j 
+  = \dI \bar{x}^i \dI \bar{x}^i ,
+  \label{eq:line_element_Cartesian}
+\end{equation}
+where the~last equality is due to the~orthonormal Cartesian basis.
+The~same line element can be described in the~curvilinear coordinates as
+\begin{equation}
+  \dI s^2 = \dI\vect{r}\cdot\dI\vect{r} = 
+  (\dI q^i \vect{b}_i)\cdot(\dI q^j \vect{b}_j) = 
+  \vect{b}_i\cdot\vect{b}_j \dI q^i \dI q^j ,
+  \label{eq:line_element_curvilinear}
+\end{equation}
+More importantly, one can use \eqref{eq:line_element_Cartesian},
+\eqref{eq:contravariant_tensor_transformation}, and 
+\eqref{eq:line_element_Cartesian} to write
+\begin{equation}
+  \dI s^2 = \dI \bar{x}^k \dI \bar{x}^k = 
+  \pdv{\bar{x}^k}{q^i} \dI q^{i} \pdv{\bar{x}^k}{q^j} \dI q^{j} 
+  = \vect{b}_i\cdot\vect{b}_j \dI q^i \dI q^j 
+  = g_{ij} \dI q^i \dI q^j ,
+  \label{eq:metric_tensor}
+\end{equation}
+which provides a~fundamental definition of the~metric tensor
+\begin{equation}
+  g_{ij} = \pdv{\bar{x}^k}{q^i}\pdv{\bar{x}^k}{q^j} 
+  = \vect{b}_i\cdot\vect{b}_j .
+  \label{eq:metric_tensor_explicit}
+\end{equation}
+Similarly to \eqref{eq:line_element_curvilinear}
+one can find the~definition of contravariant metric tensor
+\begin{equation}
+  \dI s^2 = \dI\vect{r}\cdot\dI\vect{r} = 
+  (\dI q_i \vect{b}^i)\cdot(\dI q_j \vect{b}^j) = 
+  \vect{b}^i\cdot\vect{b}^j \dI q_i \dI q_j 
+  = g^{ij}\dI q_i \dI q_j ,
+  \label{eq:contravariant_metric_tensor}
+\end{equation}
+It is quite easy to show 
+based on \eqref{eq:basis_vectors_alignement}, 
+\eqref{eq:metric_tensor_explicit} and \eqref{eq:contravariant_metric_tensor}
+that
+\begin{equation}
+  g_{ij} g^{jk} = \delta_i^k ,
+  \label{eq:contravariant_metric_tensor_explicit}
+\end{equation}
+which represents a~practical way to express the~contravariant metric tensor 
+explicitly.
+
+One of the~most useful operations with the~metric tensors is converting 
+\textit{contravariant} to \textit{covariant} components and vice versa, i.e.
+\begin{equation}
+  g_{ij} T^{kj}_{..ab} = T^k_{.iab},\quad g^{ij} T^k_{.iab} = T^{kj}_{..ab} .
+  \label{eq:contravariant2covariant}
+\end{equation}
+
+\subsection{Tensor operations} 
+General tensors obey simple algebraic rules. Thus if 
+$\matr{B} = \alpha \matr{A}$ then 
+$B^{ab...m}_{kl...n} = \alpha A^{ab...m}_{kl...n}$ and also if
+$\matr{C} = \matr{A}\pm\matr{B}$, 
+$C^{ab...m}_{kl...n} = A^{ab...m}_{kl...n} \pm B^{ab...m}_{kl...n}$.
+Similarly $\matr{A} + \matr{B} = \matr{B} + \matr{A}$ and
+$\matr{A} + (\matr{B} + \matr{C}) = (\matr{A} + \matr{B}) + \matr{C}$.
+
+The~meaning of the~\textit{null tensor} $\matr{0}$, i.e. a~tensor whose 
+components are all zero in some coordinate system, 
+is of a~particular importance,
+because it represents a~physical quantity, which is zero in every coordinate
+system, as can be seen from  \eqref{eq:mixed_tensor_transformation}.
+Consequently, any tensor equation $\matr{A} = \matr{B}$, or component-wise
+$A^{ab...m}_{kl...n} = B^{ab...m}_{kl...n}$, is valid in any coordinate system,
+because $\matr{A} - \matr{B} = \matr{0}$, and for any two coordinate systems
+$\bar{x}^i$ and $q^i$ holds
+\begin{equation} 
+  \pdv{q^\alpha}{\bar{x}^a} \pdv{q^\beta}{\bar{x}^b} ...
+  \pdv{q^\mu}{\bar{x}^m}~
+  \pdv{\bar{x}^k}{q^\kappa} \pdv{\bar{x}^l}{q^\lambda} ...
+  \pdv{\bar{x}^n}{q^\nu} 
+  (\bar{A}^{ab...m}_{kl...n} - \bar{B}^{ab...m}_{kl...n})
+  = A^{\alpha\beta...\mu}_{\kappa\lambda...\nu} 
+  - B^{\alpha\beta...\mu}_{\kappa\lambda...\nu} = 0 .
+  \label{eq:tensor_equation}
+\end{equation}
+
+A~special case of a~tensor operation is the~general formula of the~scalar 
+product of two vectors, which can be written based
+on \eqref{eq:basis_vectors_alignement} and \eqref{eq:contravariant2covariant} as
+\begin{equation}
+  \vect{u}\cdot\vect{v} = (u^i \vect{b}_i)\cdot(v_j \vect{b}^j) 
+  = \vect{b}_i\cdot\vect{b}^j u^i v_j = u^j v_j = g^{ij} u_i v_j = 
+  g_{ij} u^i v^j = u_i v^j .
+  \label{eq:general_scalar_product}
+\end{equation} 
+It is worth noting, that even though neither 
+\textit{contravariant} nor \textit{covariant} components are in general
+real physical representation (have different units), the~product of 
+contra- with co-variant components provides physically correct units.
+
+The~general form of the~cross product $\vect{c}=\vect{u}\times\vect{v}$ 
+based on the~\textit{Levi-Civita tensor} is given by
+\begin{equation}
+  c^i\vect{b}_i = 
+  \varepsilon^{ijk}\vect{b}_i\vect{b}_j\vect{b}_k 
+  \cdot u_n\vect{b}^n \cdot v_m\vect{b}^m 
+  = \varepsilon^{ijk}\vect{b}_i u_j v_k ,
+  \nonumber 
+\end{equation}
+and further can be written the~covariant and contravariant components as
+\begin{equation}
+  c_i = g^{1/2}e_{ijk}u^j v^k,~c^i = g^{-1/2}e^{ijk}u_j v_k ,
+  \label{eq:general_crossproduct}
+\end{equation}
+where the~scaling $\varepsilon^{ijk} = g^{-1/2}e^{ijk}$ and
+$\varepsilon_{ijk} = g^{1/2}e_{ijk}$ with respect to curvilinear coordinates
+has been used. 
+
+Any tensor of rank two $T^{ij}$ can be uniquely decomposed into a~symmetric 
+part and an~antisymmetric part as $\matr{T} = \matr{S} + \matr{A}$, 
+which are defined as
+\begin{equation}
+  S^{ij} = \frac{1}{2}(T^{ij} + T^{ji}),~
+  A^{ij} = \frac{1}{2}(T^{ij} - T^{ji}) .
+  \label{eq:matrix_decomposition}
+\end{equation}
+
+\subsection{Covariant differentiation}
+In \cite{Mihalas_Mihalas-Foundations_of_Radiation_Hydrodynamics} a~very 
+important result (A3.70) is obtained
+\begin{equation}
+  \frac{\partial^2\bar{x}^\lambda}{\partial q^i\partial q^j} = 
+  \pdv{\bar{x}^\lambda}{q^k}\christ{k}{i}{j} -
+  \pdv{\bar{x}^\alpha}{q^i}\pdv{\bar{x}^\beta}{q^j}
+  \christ{\lambda}{\alpha}{\beta} ,
+  \label{eq:Christ_result}
+\end{equation}
+where $\christ{i}{j}{k}$ is the~Christoffel symbol of second kind.
+
+If we differentiate the~\textit{covariant} vector
+\begin{equation}
+  u_i = \pdv{\bar{x}^\alpha}{q^i} \bar{u}_\alpha ,
+  \nonumber
+\end{equation}
+we obtain
+\begin{equation}
+  u_{i,j} = \pdv{u_i}{q^j} = 
+  \pdv{\bar{x}^\alpha}{q^i}\pdv{\bar{x}^\beta}{q^j}
+  \pdv{\bar{u}_\alpha}{\bar{x}^\beta} 
+  + \frac{\partial^2\bar{x}^\alpha}{\partial q^i\partial q^j} 
+  \bar{u}_\alpha 
+  = \bar{x}^\alpha_{,i}\bar{x}^\beta_{,j}
+  \bar{u}_{\alpha,\beta} 
+  + \bar{x}^\alpha_{,ij} 
+  \bar{u}_\alpha ,
+\end{equation}
+which does not represent a~tensor equation, because the~differentiation
+in bar coordinate system $\bar{u}_{\alpha,\beta}$ does not transform 
+properly to $u_{i,j}$ in curvilinear coordinate system. However, when
+multiplying \eqref{eq:Christ_result} by a~vector component in bar space,
+we obtain
+\begin{equation}
+  \pdv{u_i}{q^j} = 
+  \pdv{\bar{x}^\alpha}{q^i}\pdv{\bar{x}^\beta}{q^j}
+  \pdv{\bar{u}_\alpha}{\bar{x}^\beta} 
+  + \pdv{\bar{x}^\lambda}{q^k}\christ{k}{i}{j}\bar{u}_\lambda
+  - \pdv{\bar{x}^\alpha}{q^i}\pdv{\bar{x}^\beta}{q^j}
+  \christ{\lambda}{\alpha}{\beta}\bar{u}_\lambda .
+  \nonumber
+\end{equation}
+This can be finally rewritten as
+\begin{equation}
+  u_{i;j} = \pdv{u_i}{q^j} 
+  - \christ{k}{i}{j} u_k
+  = \pdv{\bar{x}^\alpha}{q^i}\pdv{\bar{x}^\beta}{q^j}
+  \left(\pdv{\bar{u}_\alpha}{\bar{x}^\beta} 
+  - \christ{\lambda}{\alpha}{\beta}\bar{u}_\lambda\right) ,
+  \label{eq:vector_covariant_diff}
+\end{equation}
+which represents definition of \textit{covariant differentiation} of vector
+$u_{i;j}$, which apparently obeys the~tensor transformation.
+
+The~\textit{covariant differentiation} of a~general tensor reads
+\begin{multline}
+  A^{ab...m}_{kl...n;j} = \pdv{A^{ab...m}_{kl...n}}{q^j} 
+  + \christ{a}{j}{d}A^{db...m}_{kl...n}
+  + \christ{b}{j}{d}A^{ad...m}_{kl...n} + ...
+  + \christ{m}{j}{d}A^{ab...d}_{kl...n} \\
+  - \christ{d}{j}{k}A^{ab...m}_{dl...n}
+  - \christ{d}{j}{l}A^{ab...m}_{kd...n} - ...
+  - \christ{d}{j}{n}A^{ab...m}_{kl...d} ,
+\end{multline} 
+where the~notation above means 
+the~$^{ab...m}_{kl...n}$ component of the~differentiation of tensor 
+$\matr{A}$ along the~covariant basis vector $\vect{b}_j$.
+
+For the~sake of applicability, some \textit{covariant differentiation}
+explicit formulas of tensors of various ranks are presented
+\begin{eqnarray}
+  f_{;j} &=& (\nabla f)_j = f_{,j} , \label{eq:cd_scalar}\\
+  u^a_{;j} &=& (\nabla u^a)_j = u^a_{,j} + \christ{a}{j}{k} u^k , 
+  \label{eq:cd_contravector} \\
+  u_{a;j} &=& (\nabla u_a)_j = u_{a,j} - \christ{k}{j}{a} u_k , 
+  \label{eq:cd_covector} \\
+  A^{ab}_{;j} &=& (\nabla A^{ab})_j = A^{ab}_{,j} + \christ{a}{j}{k} A^{kb} 
+  + \christ{b}{j}{k} A^{ak} , 
+  \label{eq:cd_contratensor} \\
+  A_{ab;j} &=& (\nabla A_{ab})_j = A_{ab,j} - \christ{k}{j}{a} A_{kb} 
+  - \christ{k}{j}{b} A_{ak} ,
+  \label{eq:cd_cotensor} \\
+  A^a_{b;j} &=& (\nabla A^a_{b})_j = A_{ab,j} + \christ{a}{j}{k} A^k_b
+  - \christ{k}{j}{b} A^a_k ,
+  \label{eq:cd_mixedtensor}
+\end{eqnarray} 
+where $f$ is a~scalar function, $\vect{u}$ is a~vector field, and
+$\matr{A}$ is a~second rank tensor field.
+
+\subsection{General form of Gradient, Divergence, Laplace, and Curl}
+Covariant generalization of operations with the~\textit{del operator} $\nabla$
+can in most instances be obtained simply by replacing the~partial derivatives
+in the~Cartesian coordinate system with covariant derivatives.
+
+Then, the~gradient operator acting on a~general tensor $\nabla \matr{A}$ can
+be expressed component-wise as
+\begin{equation}
+  \nabla A^{ab...m}_{kl...n} = (\nabla A^{ab...m}_{kl...n})_j\vect{b}^j 
+  = A^{ab...m}_{kl...n;j}\vect{b}^j .
+  \label{eq:general_grad}
+\end{equation}
+Consequently, the~divergence operation on a~vector field reads
+\begin{equation}
+  \nabla\cdot\vect{v} = \nabla_i\vect{b}^i\cdot v^j\vect{b}_j 
+  = (\vect{b}^i\cdot\vect{b}_j) \nabla_i v^j = \delta^i_j \nabla_i v^j
+  = \nabla_i v^i = v^i_{;i} = v^i_{,i} + \christ{i}{i}{j}v^j ,
+  \nonumber
+\end{equation}
+where the~right hand side can be further simplified and the~general form
+of divergence reads
+\begin{equation}
+  \nabla\cdot\vect{v} = v^i_{;i} = \frac{(g^{1/2}v^i)_{,i}}{g^{1/2}} ,
+  \label{eq:general_divvec}
+\end{equation}
+where $g$ is the~determinant of the~metric tensor $\matr{g}$.
+
+The~tensor contraction due to the~divergence operation on its second component
+reads
+\begin{equation}
+  T^{ij}_{;j} = \frac{(g^{1/2}S^{ij})_{,j}}{g^{1/2}} + \christ{i}{j}{k}S^{jk} 
+  + \frac{(g^{1/2}A^{ij})_{,j}}{g^{1/2}} ,
+  \label{eq:general_divtens}
+\end{equation}
+where the~decomposition \eqref{eq:matrix_decomposition} has been used.
+
+The~Laplace operator in curvilinear coordinate system acts as
+\begin{equation}
+  \nabla\cdot\nabla f = \nabla_j\vect{b}^j\cdot g^{ik}f_{,i}\vect{b}_k = 
+  \delta^j_k \nabla_j (g^{ik}f_{,i}) = \nabla_j (g^{ij}f_{,i}) 
+  = (g^{ij}f_{,i})_{;j} , 
+  \nonumber
+\end{equation}
+where the~contravariant representation $f^{,k} = g^{ik}f_{,i}$ of gradient
+of scalar function has been used.
+Then the~general form of Laplace operator can be written as
+\begin{equation}
+  \nabla\cdot\nabla f = \frac{(g^{1/2}g^{ij}f_{,i})_{,j}}{g^{1/2}} .
+  \label{eq:general_laplace}
+\end{equation}
+
+The~contravariant generalization of the~curl of vector can be obtained while
+using the~Levi-Civita tensor and covariant derivative
+\begin{equation}
+  (\nabla\times\vect{u})^i = g^{-1/2}e^{ijk} u_{k;j} 
+  = g^{-1/2} (u_{k;j} - u_{j;k}) ,
+  \nonumber
+\end{equation} 
+however, since the~Christoffel symbols of second kind are symmetric in lower 
+indices, the~general form of curl can be written as 
+\begin{equation}
+  (\nabla\times\vect{u})^i = g^{-1/2} (u_{k,j} - u_{j,k}) .
+  \label{eq:general_curlvec}
+\end{equation} 
+
+\subsection{Spherical coordinates}
+Spherical coordinates, also called spherical polar coordinates 
+(Walton 1967, Arfken 1985), are a system of curvilinear coordinates with 
+local orthogonal basis that are natural for describing positions on a~sphere 
+or spheroid. Define $\theta$ to be the azimuthal angle in the $xy$-plane from 
+the~x-axis with $0<\theta<2\pi$, $\phi$ to be the polar angle from 
+the~positive z-axis with $0<\phi<\pi$, and $r$ to be distance (radius) from 
+a~point to the~origin. This is the convention commonly used in mathematics. 
+
+Based on the~curvilinear coordinates transformation 
+\eqref{eq:Curvilinear_coordinates}
+\begin{equation}
+  r = \sqrt{x^2 + y^2 + z^2} ,~ 
+  %\nonumber\\
+  \theta = \tan^{-1}\left( \frac{y}{x} \right) ,~ 
+  %\nonumber\\
+  \phi = \cos^{-1} \left( \frac{z}{\sqrt{x^2 + y^2 + z^2}} \right),
+  \label{eq:spher_curvilinear_transformation}
+\end{equation}
+and its Cartesian inverse
+\begin{equation}
+  x = r \cos(\theta)\sin(\phi) ,~ 
+  %\nonumber\\
+  y = r \sin(\theta)\sin(\phi) ,~ 
+  %\nonumber\\
+  z = r \cos(\phi),
+  \label{eq:spher_Cartesian_transformation}
+\end{equation}
+we can write the~spherical curvilinear transformation
+\begin{equation}
+  \matr{T}_{s} = \begin{bmatrix}
+        \pdv{x}{r} & \pdv{x}{\theta} & \pdv{x}{\phi} \\
+        \pdv{y}{r} & \pdv{y}{\theta} & \pdv{y}{\phi} \\
+        \pdv{z}{r} & \pdv{z}{\theta} & \pdv{z}{\phi} 
+	  \end{bmatrix}
+  = \begin{bmatrix}
+  \cos(\theta)\sin(\phi) & -r\sin(\theta)\sin(\phi) & r\cos(\theta)\cos(\phi) \\
+  \sin(\theta)\sin(\phi) & r\cos(\theta)\sin(\phi) & r\sin(\theta)\cos(\phi) \\
+  \cos(\phi) & 0 & -r\sin(\phi) 
+  \end{bmatrix} ,
+  \label{eq:spher_transformation}
+\end{equation}
+which is well defined \eqref{eq:transformation}
+\begin{equation}
+  J = |\matr{T}_{s}| = r^2\sin(\phi) = g_s^{1/2}.
+  \label{eq:spher_J}
+\end{equation}
+Then according to \eqref{eq:metric_tensor_explicit} we can express the~metric
+tensor (diagonal for orthogonal basis) as
+\begin{equation}
+  \matr{g}_s = \begin{bmatrix}
+                 g_{rr} & 0 & 0 \\
+			     0 & g_{\theta\theta} & 0 \\
+			     0 & 0 & g_{\phi\phi}
+			   \end{bmatrix}
+             = \begin{bmatrix}
+                 1 & 0 & 0 \\
+			     0 & r^2\sin^2(\phi) & 0 \\
+			     0 & 0 & r^2
+			   \end{bmatrix} .
+  \label{eq:spher_metric_tensor}		   
+\end{equation}
+From \eqref{eq:basis_vectors_alignement} it is obvious, 
+that in general contravariant basis vectors are aligned with covariant basis 
+vectors, and are inverse in magnitude.
+It can be directly observed, that the~covariant basis vectors are orthogonal
+from \eqref{eq:metric_tensor_explicit} and explicit formulation of 
+the~metric tensor \eqref{eq:spher_metric_tensor}, which further provides
+the~information about the~basis vectors length
+\begin{equation}
+  |\vect{b}_r| = 1,~ |\vect{b}_\theta| = r\sin(\phi),~ |\vect{b}_\phi| = r,
+  \nonumber
+\end{equation} 
+and from \eqref{eq:basis_vectors_alignement} one can directly write
+\begin{equation}
+  |\vect{b}^r| = 1,~ |\vect{b}^\theta| = \frac{1}{r\sin(\phi)},~ 
+  |\vect{b}^\phi| = \frac{1}{r}.
+  \nonumber
+\end{equation}
+In the~case of orthogonal coordinate system it makes sense to define 
+the~scaling
+\begin{equation}
+  h_r = 1,~ h_\theta = r\sin(\phi),~ h_\phi = r,
+  \label{eq:spher_scaling}
+\end{equation} 
+which comes to be handy when defining the~relation between 
+\textit{physical}, \textit{covariant}, and \textit{contravariant} components as
+\begin{equation}
+  \vect{u} = u^i \vect{b}_i = u_i \vect{b}^i = \sum_i u^i h_i \vect{e}_i
+  = \sum_i \frac{u_i}{h_i} \vect{e}_i = u(i) \vect{e}_i,
+\end{equation}
+where a~unique basis vectors $\vect{e}_i$ have been used, because they are 
+identical for both covariant and contravariant bases, and they are also used
+as the~basis for physical components $u(i)$.
+The~explicit relations between physical, covariant, and contravariant components
+of vector in spherical coordinates are
+\begin{eqnarray}
+  u(r) &=& u^r = u_r , \nonumber\\
+  u(\theta) &=& u^\theta r\sin(\phi) = \frac{u_\theta}{r\sin(\phi)} , 
+  \nonumber\\
+  u(\phi) &=& u^\phi r = \frac{u_\phi}{r} , 
+  \label{eq:spher_physical_components}
+\end{eqnarray}
+
+The~gradient of a~scalar function $f$ in spherical coordinates based on 
+\eqref{eq:general_grad} reads
+\begin{equation}
+  \nabla f = f_{,i}\vect{b}^i = \pdv{f}{r}\vect{e}_r 
+  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} 
+  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi .
+  \label{eq:spher_gradf}
+\end{equation}
+The~divergence of a~vector field $\vect{v}$ in spherical coordinates based on
+\eqref{eq:general_divvec}
+\begin{eqnarray}
+  \nabla\cdot\vect{u} = v^i_{;i} &=& 
+  \frac{(r^2\sin(\phi)v^i)_{,i}}{r^2\sin(\phi)}
+  = \pdv{v^r}{r} + \pdv{v^\theta}{\theta} 
+  + \pdv{v^\phi}{\phi} + \frac{2v^r}{r} + \cot(\phi) v^\phi \nonumber \\
+  &=& \pdv{v(r)}{r} + \pdv{v(\theta)/r\sin(\phi)}{\theta} 
+  + \pdv{v(\phi)/r}{\phi} + \frac{2 v(r)}{r} + \cot(\phi) v(\phi)/r 
+  \nonumber \\
+  &=& \frac{1}{r^2}\pdv{v(r)}{r} + \frac{1}{r\sin(\phi)}\pdv{v(\theta)}{\theta} 
+  + \frac{1}{r\sin(\phi)}\pdv{\sin(\phi)v(\phi)}{\phi} .
+  \label{eq:spher_gradf}
+\end{eqnarray}
+
+\subsection{Cylindrical coordinates}
+%Spherical coordinates, also called spherical polar coordinates 
+%(Walton 1967, Arfken 1985), are a system of curvilinear coordinates with 
+%local orthogonal basis that are natural for describing positions on a~sphere 
+%or spheroid. Define $\theta$ to be the azimuthal angle in the $xy$-plane from 
+%the~x-axis with $0<\theta<2\pi$, $\phi$ to be the polar angle from 
+%the~positive z-axis with $0<\phi<\pi$, and $r$ to be distance (radius) from 
+%a~point to the~origin. This is the convention commonly used in mathematics. 
+
+Based on the~curvilinear coordinates transformation 
+\eqref{eq:Curvilinear_coordinates}
+\begin{equation}
+  r = \sqrt{x^2 + y^2 + z^2} ,~ 
+  %\nonumber\\
+  \theta = \tan^{-1}\left( \frac{y}{x} \right) ,~ 
+  %\nonumber\\
+  \phi = \cos^{-1} \left( \frac{z}{\sqrt{x^2 + y^2 + z^2}} \right),
+  \label{eq:cyl_curvilinear_transformation}
+\end{equation}
+and its Cartesian inverse
+\begin{equation}
+  x = r \cos(\theta)\sin(\phi) ,~ 
+  %\nonumber\\
+  y = r \sin(\theta)\sin(\phi) ,~ 
+  %\nonumber\\
+  z = z,
+  \label{eq:cyl_Cartesian_transformation}
+\end{equation}
+we can write the~spherical curvilinear transformation
+\begin{equation}
+  \matr{T}_{s} = \begin{bmatrix}
+        \pdv{x}{r} & \pdv{x}{\theta} & \pdv{x}{\phi} \\
+        \pdv{y}{r} & \pdv{y}{\theta} & \pdv{y}{\phi} \\
+        \pdv{z}{r} & \pdv{z}{\theta} & \pdv{z}{\phi} 
+	  \end{bmatrix}
+  = \begin{bmatrix}
+  \cos(\theta)\sin(\phi) & -r\sin(\theta)\sin(\phi) & r\cos(\theta)\cos(\phi) \\
+  \sin(\theta)\sin(\phi) & r\cos(\theta)\sin(\phi) & r\sin(\theta)\cos(\phi) \\
+  \cos(\phi) & 0 & -r\sin(\phi) 
+  \end{bmatrix} ,
+  \label{eq:cyl_transformation}
+\end{equation}
+which is well defined \eqref{eq:transformation}
+\begin{equation}
+  J = |\matr{T}_{s}| = r^2\sin(\phi) = g_s^{1/2}.
+  \label{eq:cyl_J}
+\end{equation}
+Then according to \eqref{eq:metric_tensor_explicit} we can express the~metric
+tensor (diagonal for orthogonal basis) as
+\begin{equation}
+  \matr{g}_s = \begin{bmatrix}
+                 g_{rr} & 0 & 0 \\
+			     0 & g_{\theta\theta} & 0 \\
+			     0 & 0 & g_{\phi\phi}
+			   \end{bmatrix}
+             = \begin{bmatrix}
+                 1 & 0 & 0 \\
+			     0 & r^2\sin^2(\phi) & 0 \\
+			     0 & 0 & r^2
+			   \end{bmatrix} .
+  \label{eq:cyl_metric_tensor}		   
+\end{equation}
+From \eqref{eq:basis_vectors_alignement} it is obvious, 
+that in general contravariant basis vectors are aligned with covariant basis 
+vectors, and are inverse in magnitude.
+It can be directly observed, that the~covariant basis vectors are orthogonal
+from \eqref{eq:metric_tensor_explicit} and explicit formulation of 
+the~metric tensor \eqref{eq:cyl_metric_tensor}, which further provides
+the~information about the~basis vectors length
+\begin{equation}
+  |\vect{b}_r| = 1,~ |\vect{b}_\theta| = r\sin(\phi),~ |\vect{b}_\phi| = r,
+  \nonumber
+\end{equation} 
+and from \eqref{eq:basis_vectors_alignement} one can directly write
+\begin{equation}
+  |\vect{b}^r| = 1,~ |\vect{b}^\theta| = \frac{1}{r\sin(\phi)},~ 
+  |\vect{b}^\phi| = \frac{1}{r}.
+  \nonumber
+\end{equation}
+In the~case of orthogonal coordinate system it makes sense to define 
+the~scaling
+\begin{equation}
+  h_r = 1,~ h_\theta = r\sin(\phi),~ h_\phi = r,
+  \label{eq:cyl_scaling}
+\end{equation} 
+which comes to be handy when defining the~relation between 
+\textit{physical}, \textit{covariant}, and \textit{contravariant} components as
+\begin{equation}
+  \vect{u} = u^i \vect{b}_i = u_i \vect{b}^i = \sum_i u^i h_i \vect{e}_i
+  = \sum_i \frac{u_i}{h_i} \vect{e}_i = u(i) \vect{e}_i,
+\end{equation}
+where a~unique basis vectors $\vect{e}_i$ have been used, because they are 
+identical for both covariant and contravariant bases, and they are also used
+as the~basis for physical components $u(i)$.
+The~explicit relations between physical, covariant, and contravariant components
+of vector in spherical coordinates are
+\begin{eqnarray}
+  u(r) &=& u^r = u_r , \nonumber\\
+  u(\theta) &=& u^\theta r\sin(\phi) = \frac{u_\theta}{r\sin(\phi)} , 
+  \nonumber\\
+  u(\phi) &=& u^\phi r = \frac{u_\phi}{r} , 
+  \label{eq:cyl_physical_components}
+\end{eqnarray}
+
+The~gradient of a~scalar function $f$ in spherical coordinates based on 
+\eqref{eq:general_grad} reads
+\begin{equation}
+  \nabla f = f_{,i}\vect{b}^i = \pdv{f}{r}\vect{e}_r 
+  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} 
+  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi .
+  \label{eq:cyl_gradf}
+\end{equation}
+The~divergence of a~vector field $\vect{v}$ in spherical coordinates based on
+\eqref{eq:general_divvec}
+\begin{eqnarray}
+  \nabla\cdot\vect{u} = v^i_{;i} &=& 
+  \frac{(r^2\sin(\phi)v^i)_{,i}}{r^2\sin(\phi)}
+  = \pdv{v^r}{r} + \pdv{v^\theta}{\theta} 
+  + \pdv{v^\phi}{\phi} + \frac{2v^r}{r} + \cot(\phi) v^\phi \nonumber \\
+  &=& \pdv{v(r)}{r} + \pdv{v(\theta)/r\sin(\phi)}{\theta} 
+  + \pdv{v(\phi)/r}{\phi} + \frac{2 v(r)}{r} + \cot(\phi) v(\phi)/r 
+  \nonumber \\
+  &=& \frac{1}{r^2}\pdv{v(r)}{r} + \frac{1}{r\sin(\phi)}\pdv{v(\theta)}{\theta} 
+  + \frac{1}{r\sin(\phi)}\pdv{\sin(\phi)v(\phi)}{\phi} .
+  \label{eq:cyl_gradf}
+\end{eqnarray}
 
 \section{M1 model}\label{sec:m1_model}
 \subsection{AWBS Boltzmann transport equation}
@@ -149,234 +803,10 @@ which corresponds to the~distribution function approximation
 \end{equation}
 where $\acl \rightarrow 0$ when $\anisomega \rightarrow \vect{0}$. 
 
-%---------------------------------------------------------------------
-\section{High-order finite element scheme}\label{sec:hos}
-\begin{comment}
-\begin{eqnarray}
-  \rho \pdv{\fzero}{\vmag} &=& 
-  \frac{\rho}{\nue}\MI:\nabla\fone + 
-  \frac{\qe\rho}{\me\nue\vmag}\E\cdot\pdv{\fone}{\vmag}
-  + \frac{2 \qe\rho}{\me\nue\vmag^2}\E\cdot\fone + \rho \pdv{\fM}{\vmag} , 
-  \label{eq:M1hosf0}\\
-  \rho \pdv{\fone}{\vmag} &=&
-  %\frac{\rho}{\nue}\nabla\cdot\left(\MA\fzero\right) + 
-  \nabla\cdot\left(\frac{\rho\MA}{\nue}\fzero\right) +
-  \left(\frac{\qe\rho}{\me\nue\vmag^2}\E\cdot\left( 3\MA - \MI \right) - 
-  \nabla\left( \frac{\rho}{\nue}\right)\cdot\MA \right)\fzero \nonumber\\
-  &&+ \frac{\qe\rho}{\me\nue\vmag}\E\cdot\pdv{}{\vmag}
-  \left( \MA\fzero\right) + \frac{\qe\rho}{\me c \nue\vmag}\B\times\fone + 
-  \frac{\rho \nutot}{\nue\vmag}\fone .
-  \label{eq:M1hosf1}
-\end{eqnarray}
-\end{comment}
-\subsection{Variational principle}
-First, the~electro-magnetic scaling
-\begin{equation}
-  \tE = \frac{\qe}{\me}\E,~\tB = \frac{\qe}{\me c} \B,
-\end{equation}
-is defined in order to make the~algebraic operations easier to follow.
-The~general variational formulation of \eqref{eq:M1f0} and \eqref{eq:M1f1} 
-constructed above the~scalar (zero moment) functional space
-represented by test functions $\phi$ and the~vector
-(first moment) functional space represented by test functions $\vect{w}$ 
-takes the~form
-\begin{eqnarray}
-  \intO\phi\nue\pdv{\fzero}{\vmag} &=& 
-  \intO\phi
-  \left(\MI:\nabla\fone + 
-  \frac{1}{\vmag}\tE\cdot\pdv{\fone}{\vmag}
-  + \frac{2}{\vmag^2}\tE\cdot\fone + \nue \pdv{\fM}{\vmag}\right) , 
-  \label{eq:M1hosf0_variational}\\
-  \intO\vect{w}\cdot\nue\pdv{\fone}{\vmag} &=&
-  %\frac{\rho}{\nue}\nabla\cdot\left(\MA\fzero\right) + 
-  \intO\vect{w}\cdot\Bigg(\nabla\cdot\left(\MA\fzero\right)  
-  + \frac{1}{\vmag^2}\tE\cdot\left( 3\MA - \MI \right)\fzero
-  \nonumber\\
-  && 
-  + \frac{1}{\vmag}\tE\cdot\pdv{}{\vmag}
-  \left( \MA\fzero\right) + \frac{1}{\vmag}\tB\times\fone + 
-  \frac{\nutot}{\vmag}\fone\Bigg) .
-  \label{eq:M1hosf1_variational}
-\end{eqnarray}
-
-The~corresponding discrete variational principal based on the~method of 
-finite elements then reads
-\begin{multline}
-  \intO\vect{\phi}\, \otimes\, \vect{\phi}^T 
-  \nue\, \dI \Omega \cdot \pdv{\vfzero}{\vmag} = 
-  \intO\vect{\phi}\, \otimes \left(\MI:\nabla\matr{w}^T + 
-  \frac{2}{\vmag^2}\tE^T \cdot\matr{w}^T \right)\dI \Omega
-  \cdot \fone \\
-  + \intO\vect{\phi}\, \otimes
-  \frac{1}{\vmag}\tE^T \cdot \matr{w}^T\, \dI \Omega 
-  \cdot \pdv{\fone}{\vmag} + 
-  \intO\vect{\phi}\, \otimes\, \vect{\phi}^T \nue\, \dI\Omega\,
-  \cdot \pdv{\vect{\fM}}{\vmag} , 
-  \label{eq:FEM1hosf0}
-\end{multline}
-\begin{multline}
-  \intO\matr{w} \cdot \matr{w}^T \nue\, \dI\Omega \cdot 
-  \pdv{\fone}{\vmag} =
-  - \intO
-  \left(\MA : \nabla\matr{w}\right)
-  \vect{\phi}^T\, \dI \Omega\, 
-  \cdot \vfzero \\
-  + \intO\matr{w} \cdot 
-  \frac{1}{\vmag^2} \left( 3\MA - \MI \right) \cdot \tE\,  
-  \vect{\phi}^T\, \dI\Omega \cdot \vfzero 
-  + \intO\matr{w} \cdot
-  \frac{1}{\vmag} \MA \cdot \tE\, \vect{\phi}^T\, \dI \Omega 
-  \cdot \pdv{\vfzero}{\vmag}\\
-  + \intO\matr{w} \cdot
-  \left(\frac{1}{\vmag}\tilde{\B}\times\matr{w}^T + 
-  \frac{\nutot}{\vmag} \matr{w}^T\right)\, \dI\Omega 
-  \cdot \fone ,
-  \label{eq:FEM1hosf1}
-\end{multline}
-where $\vect{\phi}$ is the~finite vector of scalar bases functions, 
-$\matr{w}$ is the~finite vector of vector bases functions,
-$\Omega$ represents the~computational domain, in principle 1D/2D/3D 
-spatial mesh. 
-
-\subsection{Semi-discrete formulation}\label{sec:semidiscrete_form}
-
-In principle, only five following integrators need to be coded to provide
-a~discrete representation \eqref{eq:FEM1hosf0} and \eqref{eq:FEM1hosf1}, i.e.
-\begin{eqnarray}
-  \IM^0_{(g)} &=& \intO\vect{\phi}\, \otimes\, \vect{\phi}^T g\, \dI \Omega ,
-  \label{eq:IM0}\\
-  \IM^1_{(g)} &=& \intO\matr{w} \cdot \matr{w}^T g\, \dI\Omega ,
-  \label{eq:IM1}\\
-  \ID_{(\matr{G})} &=& \intO \matr{G} : \nabla\matr{w}
-  \, \otimes\, \vect{\phi}^T\, \dI \Omega ,
-  \label{eq:ID}\\
-  \IV_{(\vect{g})} &=& \intO\matr{w} \cdot
-  \vect{g}\, \otimes\, \vect{\phi}^T\, \dI \Omega ,
-  \label{eq:IV}\\
-  \IB_{(\vect{g})} &=& \intO\matr{w} \cdot
-  \vect{g} \times \matr{w}^T\, \dI \Omega .
-  \label{eq:IB}
-\end{eqnarray}
-The~algebraic representation of the~above mathematical objects, which
-form the~basis for numerical discretization, reads 
-\begin{equation}
-  \vect{\phi} = \begin{bmatrix}
-    \phi_{1} \\
-	\vdots   \\
-	\phi_{N_0}
-  \end{bmatrix},~
-  \matr{w} = \begin{bmatrix}
-    w_{1, 1} & \hdots & w_{1, d} \\
-	\vdots   & \ddots & \vdots \\
-	w_{N_1, 1} & \hdots & w_{N_1, d}
-  \end{bmatrix},~
-  \vect{g} = \begin{bmatrix}
-    g_{1} \\
-	\vdots   \\
-	g_{d}
-  \end{bmatrix},~
-  \matr{G} = \begin{bmatrix}
-    G_{1, 1} & \hdots & G_{1, d} \\
-	\vdots   & \ddots & \vdots \\
-	G_{d, 1} & \hdots & G_{d, d}
-  \end{bmatrix},
-\end{equation}
-where $d$ is the~number of spatial dimensions, $N_0$ the~number of
-degrees of freedom of scalar unknown $\vfzero$, and $N_1$ is the~number
-of degrees of freedom of vector unknown $\fone$.
-
-Consequently, the~discrete analog of M1-AWBS equations
-\eqref{eq:M1f0} and \eqref{eq:M1f1} can be written based on 
- \eqref{eq:FEM1hosf0}, \eqref{eq:FEM1hosf1} as
-\begin{multline}
-  \IM^0_{(\nue)} \cdot \pdv{\vfzero}{\vmag} 
-  - \IM^0_{(\nue)} \cdot \pdv{\vect{\fM}}{\vmag}
-  = 
-  \ID^T_{\left(\MI\right)} \cdot \fone
-  + \frac{1}{\vmag}\IV^T_{\left(\tE\right)} \cdot 
-  \pdv{\fone}{\vmag} 
-  + \frac{2}{\vmag^2}\IV^T_{\left(\tE\right)} \cdot \fone ,  
-  \label{eq:semiM1hosf0}
-\end{multline}
-\begin{multline}
-  \IM^1_{(\nue)} \cdot \pdv{\fone}{\vmag} 
-  - \frac{1}{\vmag}\IM^1_{\left( \nutot \right)} 
-  \cdot \fone 
-  = 
-  - \ID_{\left(\MA\right)}\cdot \vfzero \\ 
-  + \frac{1}{\vmag}\IV_{\left(\MA \cdot \tE\right)} \cdot
-  \pdv{\vfzero}{\vmag}
-  + \frac{1}{\vmag^2}\IV_{\left(\left( 3\MA - \MI \right) \cdot \tE \right)} 
-  \cdot \vfzero
-  + \frac{1}{\vmag}\IB_{\left( \tB \right)} \cdot \fone ,
-  \label{eq:semiM1hosf1}
-\end{multline}
-where the~integrators \eqref{eq:IM0}, \eqref{eq:IM1},
-\eqref{eq:ID}, \eqref{eq:IV}, \eqref{eq:IB} are used acting on appropriate
-functions $\rho$, $\nue$, $\nutot$, vectors $\tE$, $\tB$, and matrices $\MA$
-and $\MI$.
-
-
-%Also, it proves to be useful to define mass matrices
-%\begin{equation}
-%  \matr{M}_0^c = \IM^0_{(\rho)},~\matr{M}_1^c = \IM^1_{(\rho)} ,
-%  \label{eq:massmatrices} 
-%\end{equation}
-%since these are constant during the~time evolution of the~Lagrangian mesh,
-%thus making the~overall matrix evaluation more efficient.
-
-\subsection{Explicit fully-discrete scheme}\label{sec:expl_fullydiscrete_scheme}
-The~easiest way to define a~fully discrete scheme is to apply the~explicit
-integration in time, e.g. RK4.
-Because of the~use of different finite element spaces for zero and first moment,
-and a~consequent difficulties of "mass" inversion, a~modified two-step explicit
-scheme is used.
-
-In the~first step the~time evolution of zero moment quantity $\vfzero$ is 
-computed as
-\begin{multline}
-  \left( \IM^0_{\left( \nue \right)} 
-  - \IM^0_{\left(\frac{1}{\vmag \vfzero^n}\tE^T\cdot\fone^n\right)}
-  \right) \cdot {\ddv{\vfzero}{\vmag}}^* 
-  = 
-  \ID^T_{\left(\MI\right)} \cdot \fone^n 
-  + \frac{2}{\vmag^2}\IV^T_{\left(\tE\right)} \cdot \fone^n
-  + \IM^0_{\left( \nue \right)} \cdot \pdv{\vect{\fM}}{\vmag} ,  
-  \label{eq:explM1hosf0}
-\end{multline}
-where the~actual evolution of $\fone$ has been redefined as similar to 
-the~time evolution of $\vfzero$ (compare \eqref{eq:explM1hosf0} to 
-\eqref{eq:semiM1hosf0}). Then, the~actual computation of the~time evolution 
-of $\fone$ follows
-\begin{multline}
-  \IM^1_{\left( \nue \right)} \cdot \ddv{\fone}{\vmag} 
-  = 
-  - \ID_{\left(\MA\right)}\cdot \vfzero^n  
-  + \frac{1}{\vmag}\IV_{\left(\MA \cdot \tE\right)} \cdot
-  {\ddv{\vfzero}{\vmag}}^* \\
-  + \frac{1}{\vmag^2}\IV_{\left( 
-  \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero^n
-  + \frac{1}{\vmag}\IB_{\left( \tB \right)} \cdot \fone^n
-  + \frac{1}{\vmag}\IM^1_{\left( \nutot \right)} 
-  \cdot \fone^n .
-  \label{eq:explM1hosf1}
-\end{multline}
-The~superscript $n$ stands for quantities from the~previous level of velocity.
-
-As can be seen in \figref{fig:expl1D2D3D} we get a~heat flux profile 
-corresponding to temperature and density profiles computed by Laghos 
-\cite{Dobrev_Kolev_Rieben-High-order_curvilinear_finite_element_methods_for_Lagrangian_hydrodynamics}
-in 1D and we have also double checked the~numerical scheme in 2D and 3D, where
-apparently the~flux profiles exhibit the~same physical background.
-It is important to note, that the~current implementation does not include
-neither electric or magnetic field ($\tE$, $\tB$).
-
-It is worth mentioning, that the~proposed discrete scheme 
-\eqref{eq:explM1hosf0} and \eqref{eq:explM1hosf1} naturally obeys the~CFL
-condition with respect to the~mesh smallest cell size/mean-stopping-power, and
-consequently, we needed 8858 energy groups in 1D, 4348 energy groups in 2D, and
-10030 energy groups in 3D. This would make the~hydro simulation to take 
-more than 1000x longer than classical (SH) hydro.
+\section{Diffusive regime}
+\subsection{Lorentz approximation}
+\subsubsection{BGK collision operator}
+\subsubsection{AWBS collision operator}
 
 \subsection{Physical analysis of the~diffusive asymptotics}\label{sec:diffusive_asymptotics}
 The~equilibrium (maximized entropy) distribution
@@ -610,6 +1040,236 @@ the~well known Lorentz approximation heat flux and its nonlinearity $2.5$
 in temperature. What is worth mentioning is the~effect of E field 
 (quasi-neutrality), which reduces the~flux of about	71.4$\%$ 
 (also assuming constant density).
+
+
+%---------------------------------------------------------------------
+\section{High-order finite element scheme}\label{sec:hos}
+\begin{comment}
+\begin{eqnarray}
+  \rho \pdv{\fzero}{\vmag} &=& 
+  \frac{\rho}{\nue}\MI:\nabla\fone + 
+  \frac{\qe\rho}{\me\nue\vmag}\E\cdot\pdv{\fone}{\vmag}
+  + \frac{2 \qe\rho}{\me\nue\vmag^2}\E\cdot\fone + \rho \pdv{\fM}{\vmag} , 
+  \label{eq:M1hosf0}\\
+  \rho \pdv{\fone}{\vmag} &=&
+  %\frac{\rho}{\nue}\nabla\cdot\left(\MA\fzero\right) + 
+  \nabla\cdot\left(\frac{\rho\MA}{\nue}\fzero\right) +
+  \left(\frac{\qe\rho}{\me\nue\vmag^2}\E\cdot\left( 3\MA - \MI \right) - 
+  \nabla\left( \frac{\rho}{\nue}\right)\cdot\MA \right)\fzero \nonumber\\
+  &&+ \frac{\qe\rho}{\me\nue\vmag}\E\cdot\pdv{}{\vmag}
+  \left( \MA\fzero\right) + \frac{\qe\rho}{\me c \nue\vmag}\B\times\fone + 
+  \frac{\rho \nutot}{\nue\vmag}\fone .
+  \label{eq:M1hosf1}
+\end{eqnarray}
+\end{comment}
+\subsection{Variational principle}
+First, the~electro-magnetic scaling
+\begin{equation}
+  \tE = \frac{\qe}{\me}\E,~\tB = \frac{\qe}{\me c} \B,
+\end{equation}
+is defined in order to make the~algebraic operations easier to follow.
+The~general variational formulation of \eqref{eq:M1f0} and \eqref{eq:M1f1} 
+constructed above the~scalar (zero moment) functional space
+represented by test functions $\phi$ and the~vector
+(first moment) functional space represented by test functions $\vect{w}$ 
+takes the~form
+\begin{eqnarray}
+  \intO\phi\nue\pdv{\fzero}{\vmag} &=& 
+  \intO\phi
+  \left(\MI:\nabla\fone + 
+  \frac{1}{\vmag}\tE\cdot\pdv{\fone}{\vmag}
+  + \frac{2}{\vmag^2}\tE\cdot\fone + \nue \pdv{\fM}{\vmag}\right) , 
+  \label{eq:M1hosf0_variational}\\
+  \intO\vect{w}\cdot\nue\pdv{\fone}{\vmag} &=&
+  %\frac{\rho}{\nue}\nabla\cdot\left(\MA\fzero\right) + 
+  \intO\vect{w}\cdot\Bigg(\nabla\cdot\left(\MA\fzero\right)  
+  + \frac{1}{\vmag^2}\tE\cdot\left( 3\MA - \MI \right)\fzero
+  \nonumber\\
+  && 
+  + \frac{1}{\vmag}\tE\cdot\pdv{}{\vmag}
+  \left( \MA\fzero\right) + \frac{1}{\vmag}\tB\times\fone + 
+  \frac{\nutot}{\vmag}\fone\Bigg) .
+  \label{eq:M1hosf1_variational}
+\end{eqnarray}
+
+The~corresponding discrete variational principal based on the~method of 
+finite elements then reads
+\begin{multline}
+  \intO\vect{\phi}\, \otimes\, \vect{\phi}^T 
+  \nue\, \dI \Omega \cdot \pdv{\vfzero}{\vmag} = 
+  \intO\vect{\phi}\, \otimes \left(\MI:\nabla\matr{w}^T + 
+  \frac{2}{\vmag^2}\tE^T \cdot\matr{w}^T \right)\dI \Omega
+  \cdot \fone \\
+  + \intO\vect{\phi}\, \otimes
+  \frac{1}{\vmag}\tE^T \cdot \matr{w}^T\, \dI \Omega 
+  \cdot \pdv{\fone}{\vmag} + 
+  \intO\vect{\phi}\, \otimes\, \vect{\phi}^T \nue\, \dI\Omega\,
+  \cdot \pdv{\vect{\fM}}{\vmag} , 
+  \label{eq:FEM1hosf0}
+\end{multline}
+\begin{multline}
+  \intO\matr{w} \cdot \matr{w}^T \nue\, \dI\Omega \cdot 
+  \pdv{\fone}{\vmag} =
+  - \intO
+  \left(\MA : \nabla\matr{w}\right)
+  \vect{\phi}^T\, \dI \Omega\, 
+  \cdot \vfzero \\
+  + \intO\matr{w} \cdot 
+  \frac{1}{\vmag^2} \left( 3\MA - \MI \right) \cdot \tE\,  
+  \vect{\phi}^T\, \dI\Omega \cdot \vfzero 
+  + \intO\matr{w} \cdot
+  \frac{1}{\vmag} \MA \cdot \tE\, \vect{\phi}^T\, \dI \Omega 
+  \cdot \pdv{\vfzero}{\vmag}\\
+  + \intO\matr{w} \cdot
+  \left(\frac{1}{\vmag}\tilde{\B}\times\matr{w}^T + 
+  \frac{\nutot}{\vmag} \matr{w}^T\right)\, \dI\Omega 
+  \cdot \fone ,
+  \label{eq:FEM1hosf1}
+\end{multline}
+where $\vect{\phi}$ is the~finite vector of scalar bases functions, 
+$\matr{w}$ is the~finite vector of vector bases functions,
+$\Omega$ represents the~computational domain, in principle 1D/2D/3D 
+spatial mesh. 
+
+\subsection{Semi-discrete formulation}\label{sec:semidiscrete_form}
+
+In principle, only five following integrators need to be coded to provide
+a~discrete representation \eqref{eq:FEM1hosf0} and \eqref{eq:FEM1hosf1}, i.e.
+\begin{eqnarray}
+  \IM^0_{(g)} &=& \intO\vect{\phi}\, \otimes\, \vect{\phi}^T g\, \dI \Omega ,
+  \label{eq:IM0}\\
+  \IM^1_{(g)} &=& \intO\matr{w} \cdot \matr{w}^T g\, \dI\Omega ,
+  \label{eq:IM1}\\
+  \ID_{(\matr{G})} &=& \intO \matr{G} : \nabla\matr{w}
+  \, \otimes\, \vect{\phi}^T\, \dI \Omega ,
+  \label{eq:ID}\\
+  \IV_{(\vect{g})} &=& \intO\matr{w} \cdot
+  \vect{g}\, \otimes\, \vect{\phi}^T\, \dI \Omega ,
+  \label{eq:IV}\\
+  \IB_{(\vect{g})} &=& \intO\matr{w} \cdot
+  \vect{g} \times \matr{w}^T\, \dI \Omega .
+  \label{eq:IB}
+\end{eqnarray}
+The~algebraic representation of the~above mathematical objects, which
+form the~basis for numerical discretization, reads 
+\begin{equation}
+  \vect{\phi} = \begin{bmatrix}
+    \phi_{1} \\
+	\vdots   \\
+	\phi_{N_0}
+  \end{bmatrix},~
+  \matr{w} = \begin{bmatrix}
+    w_{1, 1} & \hdots & w_{1, d} \\
+	\vdots   & \ddots & \vdots \\
+	w_{N_1, 1} & \hdots & w_{N_1, d}
+  \end{bmatrix},~
+  \vect{g} = \begin{bmatrix}
+    g_{1} \\
+	\vdots   \\
+	g_{d}
+  \end{bmatrix},~
+  \matr{G} = \begin{bmatrix}
+    G_{1, 1} & \hdots & G_{1, d} \\
+	\vdots   & \ddots & \vdots \\
+	G_{d, 1} & \hdots & G_{d, d}
+  \end{bmatrix},
+\end{equation}
+where $d$ is the~number of spatial dimensions, $N_0$ the~number of
+degrees of freedom of scalar unknown $\vfzero$, and $N_1$ is the~number
+of degrees of freedom of vector unknown $\fone$.
+
+Consequently, the~discrete analog of M1-AWBS equations
+\eqref{eq:M1f0} and \eqref{eq:M1f1} can be written based on 
+ \eqref{eq:FEM1hosf0}, \eqref{eq:FEM1hosf1} as
+\begin{multline}
+  \IM^0_{(\nue)} \cdot \pdv{\vfzero}{\vmag} 
+  - \IM^0_{(\nue)} \cdot \pdv{\vect{\fM}}{\vmag}
+  = 
+  \ID^T_{\left(\MI\right)} \cdot \fone
+  + \frac{1}{\vmag}\IV^T_{\left(\tE\right)} \cdot 
+  \pdv{\fone}{\vmag} 
+  + \frac{2}{\vmag^2}\IV^T_{\left(\tE\right)} \cdot \fone ,  
+  \label{eq:semiM1hosf0}
+\end{multline}
+\begin{multline}
+  \IM^1_{(\nue)} \cdot \pdv{\fone}{\vmag} 
+  - \frac{1}{\vmag}\IM^1_{\left( \nutot \right)} 
+  \cdot \fone 
+  = 
+  - \ID_{\left(\MA\right)}\cdot \vfzero \\ 
+  + \frac{1}{\vmag}\IV_{\left(\MA \cdot \tE\right)} \cdot
+  \pdv{\vfzero}{\vmag}
+  + \frac{1}{\vmag^2}\IV_{\left(\left( 3\MA - \MI \right) \cdot \tE \right)} 
+  \cdot \vfzero
+  + \frac{1}{\vmag}\IB_{\left( \tB \right)} \cdot \fone ,
+  \label{eq:semiM1hosf1}
+\end{multline}
+where the~integrators \eqref{eq:IM0}, \eqref{eq:IM1},
+\eqref{eq:ID}, \eqref{eq:IV}, \eqref{eq:IB} are used acting on appropriate
+functions $\rho$, $\nue$, $\nutot$, vectors $\tE$, $\tB$, and matrices $\MA$
+and $\MI$.
+
+
+%Also, it proves to be useful to define mass matrices
+%\begin{equation}
+%  \matr{M}_0^c = \IM^0_{(\rho)},~\matr{M}_1^c = \IM^1_{(\rho)} ,
+%  \label{eq:massmatrices} 
+%\end{equation}
+%since these are constant during the~time evolution of the~Lagrangian mesh,
+%thus making the~overall matrix evaluation more efficient.
+
+\subsection{Explicit fully-discrete scheme}\label{sec:expl_fullydiscrete_scheme}
+The~easiest way to define a~fully discrete scheme is to apply the~explicit
+integration in time, e.g. RK4.
+Because of the~use of different finite element spaces for zero and first moment,
+and a~consequent difficulties of "mass" inversion, a~modified two-step explicit
+scheme is used.
+
+In the~first step the~time evolution of zero moment quantity $\vfzero$ is 
+computed as
+\begin{multline}
+  \left( \IM^0_{\left( \nue \right)} 
+  - \IM^0_{\left(\frac{1}{\vmag \vfzero^n}\tE^T\cdot\fone^n\right)}
+  \right) \cdot {\ddv{\vfzero}{\vmag}}^* 
+  = 
+  \ID^T_{\left(\MI\right)} \cdot \fone^n 
+  + \frac{2}{\vmag^2}\IV^T_{\left(\tE\right)} \cdot \fone^n
+  + \IM^0_{\left( \nue \right)} \cdot \pdv{\vect{\fM}}{\vmag} ,  
+  \label{eq:explM1hosf0}
+\end{multline}
+where the~actual evolution of $\fone$ has been redefined as similar to 
+the~time evolution of $\vfzero$ (compare \eqref{eq:explM1hosf0} to 
+\eqref{eq:semiM1hosf0}). Then, the~actual computation of the~time evolution 
+of $\fone$ follows
+\begin{multline}
+  \IM^1_{\left( \nue \right)} \cdot \ddv{\fone}{\vmag} 
+  = 
+  - \ID_{\left(\MA\right)}\cdot \vfzero^n  
+  + \frac{1}{\vmag}\IV_{\left(\MA \cdot \tE\right)} \cdot
+  {\ddv{\vfzero}{\vmag}}^* \\
+  + \frac{1}{\vmag^2}\IV_{\left( 
+  \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero^n
+  + \frac{1}{\vmag}\IB_{\left( \tB \right)} \cdot \fone^n
+  + \frac{1}{\vmag}\IM^1_{\left( \nutot \right)} 
+  \cdot \fone^n .
+  \label{eq:explM1hosf1}
+\end{multline}
+The~superscript $n$ stands for quantities from the~previous level of velocity.
+
+As can be seen in \figref{fig:expl1D2D3D} we get a~heat flux profile 
+corresponding to temperature and density profiles computed by Laghos 
+\cite{Dobrev_Kolev_Rieben-High-order_curvilinear_finite_element_methods_for_Lagrangian_hydrodynamics}
+in 1D and we have also double checked the~numerical scheme in 2D and 3D, where
+apparently the~flux profiles exhibit the~same physical background.
+It is important to note, that the~current implementation does not include
+neither electric or magnetic field ($\tE$, $\tB$).
+
+It is worth mentioning, that the~proposed discrete scheme 
+\eqref{eq:explM1hosf0} and \eqref{eq:explM1hosf1} naturally obeys the~CFL
+condition with respect to the~mesh smallest cell size/mean-stopping-power, and
+consequently, we needed 8858 energy groups in 1D, 4348 energy groups in 2D, and
+10030 energy groups in 3D. This would make the~hydro simulation to take 
+more than 1000x longer than classical (SH) hydro.
 
 \subsection{AWBS diffusive asymptotic nonlinearity check}\label{sec:AWBS_nonlinearity_check}
 \begin{equation}
