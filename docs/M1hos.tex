@@ -671,12 +671,18 @@ in physical components $u(i), v(j)$ in spherical coordinates can be expressed
 based on \eqref{eq:general_contravariant_cross_product} 
 and \eqref{eq:spher_components} as
 \begin{multline}
-  \vect{u}\times\vect{v} = \vect{c} = c^r \vect{e}_r + c^\phi r \vect{e}_\phi
-  + c^\theta r\sin(\phi) \vect{e}_\theta \\
+  \vect{u}\times\vect{v} = \vect{c} = c^i \vect{b}_i = 
+  c^r \vect{b}_r + c^\phi \vect{b}_\phi
+  + c^\theta \vect{b}_\theta \\
+  = \frac{1}{r^2\sin(\phi)}\left[
+  (u_\phi v_\theta - u_\theta v_\phi) \vect{b}_r 
+  +  (u_\theta v_r - u_r v_\theta) \vect{b}_\phi
+  +  (u_r v_\phi - u_\phi v_r)\vect{b}_\theta
+  \right] \\
   = \frac{1}{r^2\sin(\phi)}\left[
   (u_\phi v_\theta - u_\theta v_\phi) \vect{e}_r 
-  +  (u_\theta v_r - u_r v_\theta) \vect{e}_\phi
-  +  (u_r v_\phi - u_\phi v_r)\vect{e}_\theta
+  +  (u_\theta v_r - u_r v_\theta) r\vect{e}_\phi
+  +  (u_r v_\phi - u_\phi v_r)r\sin(\phi)\vect{e}_\theta
   \right] \\
  %= \frac{1}{r^2\sin(\phi)}\left[
  % (r u(\phi) r\sin(\phi)v(\theta) - r\sin(\phi)u(\theta) r v(\phi)) \vect{e}_r 
@@ -684,11 +690,11 @@ and \eqref{eq:spher_components} as
  % +  (u(r) r v(\phi) - r u(\phi) v(r))\vect{e}_\theta
  % \right] \\ 
  = [u(\phi) v(\theta) - u(\theta) v(\phi)] \vect{e}_r
- +  \frac{1}{r}[u(\theta) v(r) - u(r) v(\theta)] \vect{e}_\phi \\
- + \frac{1}{r\sin(\phi)} [u(r) v(\phi) - u(\phi) v(r)]\vect{e}_\theta .
+ + [u(\theta) v(r) - u(r) v(\theta)] \vect{e}_\phi
+ + [u(r) v(\phi) - u(\phi) v(r)]\vect{e}_\theta .
  \label{eq:spher_cross_product}
 \end{multline}
-%$\frac{u_j v_k - u_k v_j}{g^{1/2}}$
+%$c^i = \frac{u_j v_k - u_k v_j}{g^{1/2}}$
 
 The~gradient of a~scalar function $f$ in spherical coordinates based on 
 \eqref{eq:general_grad} reads
@@ -895,11 +901,16 @@ in physical components $u(i), v(j)$ in cylindrical coordinates can be expressed
 based on \eqref{eq:general_contravariant_cross_product} 
 and \eqref{eq:cyl_components} as
 \begin{multline}
-  \vect{u}\times\vect{v} = \vect{c} = c^r \vect{e}_r 
-  + c^\theta r \vect{e}_\theta + c^z \vect{e}_z \\
+  \vect{u}\times\vect{v} = \vect{c} = c^r \vect{b}_r 
+  + c^\theta \vect{b}_\theta + c^z \vect{b}_z \\
+  = \frac{1}{r}\left[
+  (u_\theta v_z - u_z v_\theta) \vect{b}_r 
+  +  (u_z v_r - u_r v_z) \vect{b}_\theta
+  +  (u_r v_\theta - u_\theta v_r)\vect{b}_z
+  \right] \\
   = \frac{1}{r}\left[
   (u_\theta v_z - u_z v_\theta) \vect{e}_r 
-  +  (u_z v_r - u_r v_z) \vect{e}_\theta
+  +  (u_z v_r - u_r v_z) r\vect{e}_\theta
   +  (u_r v_\theta - u_\theta v_r)\vect{e}_z
   \right] \\
  %= \frac{1}{r}\left[
@@ -908,11 +919,11 @@ and \eqref{eq:cyl_components} as
  % +  (u(r) r v(\theta) - r u(\theta) v(r))\vect{e}_z
  % \right] \\ 
  = [u(\theta) v(z) - u(z) v(\theta)] \vect{e}_r
- + \frac{1}{r}[u(z) v(r) - u(r) v(z)] \vect{e}_\theta 
+ + [u(z) v(r) - u(r) v(z)] \vect{e}_\theta 
  + [u(r) v(\theta) - u(\theta) v(r)]\vect{e}_z .
  \label{eq:cyl_cross_product}
 \end{multline}
-%$\frac{u_j v_k - u_k v_j}{g^{1/2}}$
+%$c^i =  \frac{u_j v_k - u_k v_j}{g^{1/2}}$
 
 The~gradient of a~scalar function $f$ in cylindrical coordinates based on 
 \eqref{eq:general_grad} reads
