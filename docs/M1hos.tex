@@ -493,7 +493,7 @@ of scalar function has been used.
 Then the~general form of Laplace operator can be written as
 \begin{equation}
   \nabla\cdot\nabla f = \frac{(g^{1/2}g^{ij}f_{,i})_{,j}}{g^{1/2}} .
-  \label{eq:general_laplace}
+  \label{eq:general_Laplace}
 \end{equation}
 
 The~contravariant generalization of the~curl of vector can be obtained while
@@ -506,9 +506,177 @@ using the~Levi-Civita tensor and covariant derivative
 however, since the~Christoffel symbols of second kind are symmetric in lower 
 indices, the~general form of curl can be written as 
 \begin{equation}
-  (\nabla\times\vect{u})^i = g^{-1/2} (u_{k,j} - u_{j,k}) .
+  (\nabla\times\vect{u})^i = g^{-1/2} (u_{k,j} - u_{j,k}) ,
   \label{eq:general_curlvec}
 \end{equation} 
+where $(i,j,k)$ are distinct and are a~cyclic permutation of (1,2,3).
+
+\subsection{Cylindrical coordinates}
+Cylindrical coordinates are a generalization of two-dimensional polar coordinates to three dimensions by superposing a height (z) axis. Unfortunately, there are a number of different notations used for the other two coordinates. Either  r or rho is used to refer to the radial coordinate and either phi or theta to the azimuthal coordinates. Arfken (1985), for instance, uses (rho,phi,z), while Beyer (1987) uses (r,theta,z). In this work, the notation (r,theta,z) is used.
+
+Based on the~curvilinear coordinates transformation 
+\eqref{eq:Curvilinear_coordinates}
+\begin{equation}
+  r = \sqrt{x^2 + z^2} ,~ 
+  %\nonumber\\
+  \theta = \tan^{-1}\left( \frac{y}{x} \right) ,~ 
+  %\nonumber\\
+  z = z,
+  \label{eq:cyl_curvilinear_transformation}
+\end{equation}
+and its Cartesian inverse
+\begin{equation}
+  x = r \cos(\theta) ,~ 
+  %\nonumber\\
+  y = r \sin(\theta) ,~ 
+  %\nonumber\\
+  z = z,
+  \label{eq:cyl_Cartesian_transformation}
+\end{equation}
+we can write the~spherical curvilinear transformation
+\begin{equation}
+  \matr{T}_{s} = \begin{bmatrix}
+        \pdv{x}{r} & \pdv{x}{\theta} & \pdv{x}{z} \\
+        \pdv{y}{r} & \pdv{y}{\theta} & \pdv{y}{z} \\
+        \pdv{z}{r} & \pdv{z}{\theta} & \pdv{z}{z} 
+	  \end{bmatrix}
+  = \begin{bmatrix}
+  \cos(\theta) & -r\sin(\theta) & 0 \\
+  \sin(\theta) & r\cos(\theta) & 0 \\
+  0 & 0 & 1
+  \end{bmatrix} ,
+  \label{eq:cyl_transformation}
+\end{equation}
+which is well defined \eqref{eq:transformation}
+\begin{equation}
+  J = |\matr{T}_{s}| = r = g_c^{1/2}.
+  \label{eq:cyl_J}
+\end{equation}
+Then according to \eqref{eq:metric_tensor_explicit} we can express the~metric
+tensor (diagonal for orthogonal basis) as
+\begin{equation}
+  \matr{g}_s = \begin{bmatrix}
+                 g_{rr} & 0 & 0 \\
+			     0 & g_{\theta\theta} & 0 \\
+			     0 & 0 & g_{zz}
+			   \end{bmatrix}
+             = \begin{bmatrix}
+                 1 & 0 & 0 \\
+			     0 & r^2 & 0 \\
+			     0 & 0 & 1
+			   \end{bmatrix} .
+  \label{eq:cyl_metric_tensor}		   
+\end{equation}
+From \eqref{eq:basis_vectors_alignement} it is obvious, 
+that in general contravariant basis vectors are aligned with covariant basis 
+vectors, and are inverse in magnitude.
+It can be directly observed, that the~covariant basis vectors are orthogonal
+from \eqref{eq:metric_tensor_explicit} and explicit formulation of 
+the~metric tensor \eqref{eq:cyl_metric_tensor}, which further provides
+the~information about the~basis vectors length
+\begin{equation}
+  |\vect{b}_r| = 1,~ |\vect{b}_\theta| = r,~ |\vect{b}_z| = 1,
+  \nonumber
+\end{equation} 
+and from \eqref{eq:basis_vectors_alignement} one can directly write
+\begin{equation}
+  |\vect{b}^r| = 1,~ |\vect{b}^\theta| = \frac{1}{r},~ 
+  |\vect{b}^z| = 1.
+  \nonumber
+\end{equation}
+In the~case of orthogonal coordinate system it makes sense to define 
+the~scaling
+\begin{equation}
+  h_r = 1,~ h_\theta = r,~ h_z = 1,
+  \label{eq:cyl_scaling}
+\end{equation} 
+which comes to be handy when defining the~relation between 
+\textit{physical}, \textit{covariant}, and \textit{contravariant} components as
+\begin{equation}
+  \vect{u} = u^i \vect{b}_i = u_i \vect{b}^i = \sum_i u^i h_i \vect{e}_i
+  = \sum_i \frac{u_i}{h_i} \vect{e}_i = u(i) \vect{e}_i,
+\end{equation}
+where a~unique basis vectors $\vect{e}_i$ have been used, because they are 
+identical for both covariant and contravariant bases, and they are also used
+as the~basis for physical components $u(i)$.
+The~explicit relations between physical, covariant, and contravariant components
+of vector in spherical coordinates are
+\begin{eqnarray}
+  u(r) &=& u^r = u_r , \nonumber\\
+  u(\theta) &=& u^\theta r = \frac{u_\theta}{r} , 
+  \nonumber\\
+  u(z) &=& u^z = u_z , 
+  \label{eq:cyl_physical_components}
+\end{eqnarray}
+
+The~gradient of a~scalar function $f$ in spherical coordinates based on 
+\eqref{eq:general_grad} reads
+\begin{equation}
+  \nabla f = f_{,i}\vect{b}^i = \pdv{f}{r}\vect{e}_r 
+  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} 
+  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi .
+  \label{eq:cyl_gradf}
+\end{equation}
+The~divergence of a~vector field $\vect{v}$ in spherical coordinates based on
+\eqref{eq:general_divvec}
+\begin{multline}
+  \nabla\cdot\vect{u} = v^i_{;i} = 
+  \frac{(r^2\sin(\phi)v^i)_{,i}}{r^2\sin(\phi)}
+  = \pdv{v^r}{r} + \pdv{v^\theta}{\theta} 
+  + \pdv{v^\phi}{\phi} + \frac{2v^r}{r} + \cot(\phi) v^\phi \\
+  = \pdv{v(r)}{r} + \pdv{(v(\theta)/r\sin(\phi))}{\theta} 
+  + \pdv{(v(\phi)/r)}{\phi} + \frac{2 v(r)}{r} + \cot(\phi) v(\phi)/r  \\
+  = \frac{1}{r^2}\pdv{v(r)}{r} + \frac{1}{r\sin(\phi)}\pdv{v(\theta)}{\theta} 
+  + \frac{1}{r\sin(\phi)}\pdv{(\sin(\phi)v(\phi))}{\phi} .
+  \label{eq:cyl_gradf}
+\end{multline}
+
+In the~case of Laplacian operator, we first need to find the~contravariant 
+representation of gradient, i.e.
+\begin{equation}
+  \nabla f = f^{,j}\vect{b}_j = g^{ij} f_{,i}\vect{b}_j 
+  = \pdv{f}{r}\vect{b}_r 
+  + \frac{1}{r^2\sin^2(\phi)}\pdv{f}{\theta}\vect{b}_{\theta}
+  + \frac{1}{r^2}\pdv{f}{\phi}\vect{b}_\phi ,
+  \nonumber
+\end{equation}
+then, the~Laplace of a~scalar $f$ in spherical coordinates based on
+\eqref{eq:general_Laplace} reads
+\begin{multline}
+  \nabla\cdot\nabla f = (f^{,i})_{;i} = 
+  \frac{(r^2\sin(\phi)f^{,i})_{,i}}{r^2\sin(\phi)} \\
+  = \frac{1}{r^2\sin(\phi)}\left( \pdv{}{r}\left(r^2\sin(\phi)f_{,r} \right) 
+  + \pdv{}{\theta}\left(\frac{f_{,\theta}}{\sin(\phi)}\right)
+  + \pdv{}{\phi}\left(\sin(\phi) f_{,\phi} \right) \right) \\
+  = \frac{1}{r^2}\pdv{}{r}\left(r^2\pdv{f}{r} \right) 
+  + \frac{1}{r^2\sin^2(\phi)} \frac{\partial^2 f}{\partial\theta^2}
+  + \frac{1}{r^2\sin(\phi)} \pdv{}{\phi}\left(\sin(\phi) \pdv{f}{\phi} \right).
+  \label{eq:cyl_Laplacef}
+\end{multline}
+
+The~curl applied on a~vector field $\vect{v}$ in spherical coordinates based on
+\eqref{eq:general_curlvec} reads
+\begin{eqnarray}
+  (\nabla\times\vect{v})(r) &=& (\nabla\times\vect{v})^r 
+  = \frac{v_{\theta,\phi} - v_{\phi,\theta}}{r^2\sin(\phi)} 
+  = \frac{1}{r\sin(\phi)}
+  \left[\pdv{(\sin(\phi)v(\theta))}{\phi} - \pdv{v(\phi)}{\theta} \right] , 
+  \nonumber \\
+  (\nabla\times\vect{v})(\phi) &=& (\nabla\times\vect{v})^\phi r 
+  = \frac{v_{r,\theta} - v_{\theta,r}}{r^2\sin(\phi)} r  
+  = \frac{1}{r}
+  \left[\frac{1}{\sin(\phi)}\pdv{v(r)}{\theta} 
+  - \pdv{(r v(\theta))}{r} \right] , 
+  \nonumber \\
+  (\nabla\times\vect{v})(\theta) &=& (\nabla\times\vect{v})^\theta r\sin(\phi) 
+  = \frac{v_{\phi,r} - v_{r, \phi}}{r^2\sin(\phi)} r\sin(\phi) 
+  = \frac{1}{r}
+  \left[\pdv{(r v(\phi))}{r} 
+  - \pdv{v(r)}{\phi} \right] , \nonumber
+\end{eqnarray}
+where one should be aware, that the~coordinates follow the~order 
+$(r, \theta, z)$.
+
 
 \subsection{Spherical coordinates}
 Spherical coordinates, also called spherical polar coordinates 
@@ -541,14 +709,14 @@ and its Cartesian inverse
 we can write the~spherical curvilinear transformation
 \begin{equation}
   \matr{T}_{s} = \begin{bmatrix}
-        \pdv{x}{r} & \pdv{x}{\theta} & \pdv{x}{\phi} \\
-        \pdv{y}{r} & \pdv{y}{\theta} & \pdv{y}{\phi} \\
-        \pdv{z}{r} & \pdv{z}{\theta} & \pdv{z}{\phi} 
+        \pdv{x}{r} & \pdv{x}{\phi} & \pdv{x}{\theta} \\
+        \pdv{y}{r} & \pdv{y}{\phi} & \pdv{y}{\theta} \\
+        \pdv{z}{r} & \pdv{z}{\phi} & \pdv{z}{\theta} 
 	  \end{bmatrix}
   = \begin{bmatrix}
-  \cos(\theta)\sin(\phi) & -r\sin(\theta)\sin(\phi) & r\cos(\theta)\cos(\phi) \\
-  \sin(\theta)\sin(\phi) & r\cos(\theta)\sin(\phi) & r\sin(\theta)\cos(\phi) \\
-  \cos(\phi) & 0 & -r\sin(\phi) 
+  \cos(\theta)\sin(\phi) & r\cos(\theta)\cos(\phi) & -r\sin(\theta)\sin(\phi) \\
+  \sin(\theta)\sin(\phi) & r\sin(\theta)\cos(\phi) & r\cos(\theta)\sin(\phi) \\
+  \cos(\phi) & -r\sin(\phi) & 0  
   \end{bmatrix} ,
   \label{eq:spher_transformation}
 \end{equation}
@@ -562,13 +730,13 @@ tensor (diagonal for orthogonal basis) as
 \begin{equation}
   \matr{g}_s = \begin{bmatrix}
                  g_{rr} & 0 & 0 \\
-			     0 & g_{\theta\theta} & 0 \\
-			     0 & 0 & g_{\phi\phi}
+			     0 & g_{\phi\phi} & 0 \\
+			     0 & 0 & g_{\theta\theta}
 			   \end{bmatrix}
              = \begin{bmatrix}
                  1 & 0 & 0 \\
-			     0 & r^2\sin^2(\phi) & 0 \\
-			     0 & 0 & r^2
+			     0 & r^2 & 0 \\
+			     0 & 0 & r^2\sin^2(\phi)
 			   \end{bmatrix} .
   \label{eq:spher_metric_tensor}		   
 \end{equation}
@@ -623,146 +791,64 @@ The~gradient of a~scalar function $f$ in spherical coordinates based on
   \label{eq:spher_gradf}
 \end{equation}
 The~divergence of a~vector field $\vect{v}$ in spherical coordinates based on
-\eqref{eq:general_divvec}
-\begin{eqnarray}
-  \nabla\cdot\vect{u} = v^i_{;i} &=& 
+\eqref{eq:general_divvec} reads
+\begin{multline}
+  \nabla\cdot\vect{u} = v^i_{;i} = 
   \frac{(r^2\sin(\phi)v^i)_{,i}}{r^2\sin(\phi)}
   = \pdv{v^r}{r} + \pdv{v^\theta}{\theta} 
-  + \pdv{v^\phi}{\phi} + \frac{2v^r}{r} + \cot(\phi) v^\phi \nonumber \\
-  &=& \pdv{v(r)}{r} + \pdv{v(\theta)/r\sin(\phi)}{\theta} 
-  + \pdv{v(\phi)/r}{\phi} + \frac{2 v(r)}{r} + \cot(\phi) v(\phi)/r 
-  \nonumber \\
-  &=& \frac{1}{r^2}\pdv{v(r)}{r} + \frac{1}{r\sin(\phi)}\pdv{v(\theta)}{\theta} 
-  + \frac{1}{r\sin(\phi)}\pdv{\sin(\phi)v(\phi)}{\phi} .
+  + \pdv{v^\phi}{\phi} + \frac{2v^r}{r} + \cot(\phi) v^\phi \\
+  = \pdv{v(r)}{r} + \pdv{(v(\theta)/r\sin(\phi))}{\theta} 
+  + \pdv{(v(\phi)/r)}{\phi} + \frac{2 v(r)}{r} + \cot(\phi) v(\phi)/r \\
+  = \frac{1}{r^2}\pdv{v(r)}{r} + \frac{1}{r\sin(\phi)}\pdv{v(\theta)}{\theta} 
+  + \frac{1}{r\sin(\phi)}\pdv{(\sin(\phi)v(\phi))}{\phi} .
   \label{eq:spher_gradf}
-\end{eqnarray}
+\end{multline}
 
-\subsection{Cylindrical coordinates}
-%Spherical coordinates, also called spherical polar coordinates 
-%(Walton 1967, Arfken 1985), are a system of curvilinear coordinates with 
-%local orthogonal basis that are natural for describing positions on a~sphere 
-%or spheroid. Define $\theta$ to be the azimuthal angle in the $xy$-plane from 
-%the~x-axis with $0<\theta<2\pi$, $\phi$ to be the polar angle from 
-%the~positive z-axis with $0<\phi<\pi$, and $r$ to be distance (radius) from 
-%a~point to the~origin. This is the convention commonly used in mathematics. 
-
-Based on the~curvilinear coordinates transformation 
-\eqref{eq:Curvilinear_coordinates}
+In the~case of Laplacian operator, we first need to find the~contravariant 
+representation of gradient, i.e.
 \begin{equation}
-  r = \sqrt{x^2 + y^2 + z^2} ,~ 
-  %\nonumber\\
-  \theta = \tan^{-1}\left( \frac{y}{x} \right) ,~ 
-  %\nonumber\\
-  \phi = \cos^{-1} \left( \frac{z}{\sqrt{x^2 + y^2 + z^2}} \right),
-  \label{eq:cyl_curvilinear_transformation}
-\end{equation}
-and its Cartesian inverse
-\begin{equation}
-  x = r \cos(\theta)\sin(\phi) ,~ 
-  %\nonumber\\
-  y = r \sin(\theta)\sin(\phi) ,~ 
-  %\nonumber\\
-  z = z,
-  \label{eq:cyl_Cartesian_transformation}
-\end{equation}
-we can write the~spherical curvilinear transformation
-\begin{equation}
-  \matr{T}_{s} = \begin{bmatrix}
-        \pdv{x}{r} & \pdv{x}{\theta} & \pdv{x}{\phi} \\
-        \pdv{y}{r} & \pdv{y}{\theta} & \pdv{y}{\phi} \\
-        \pdv{z}{r} & \pdv{z}{\theta} & \pdv{z}{\phi} 
-	  \end{bmatrix}
-  = \begin{bmatrix}
-  \cos(\theta)\sin(\phi) & -r\sin(\theta)\sin(\phi) & r\cos(\theta)\cos(\phi) \\
-  \sin(\theta)\sin(\phi) & r\cos(\theta)\sin(\phi) & r\sin(\theta)\cos(\phi) \\
-  \cos(\phi) & 0 & -r\sin(\phi) 
-  \end{bmatrix} ,
-  \label{eq:cyl_transformation}
-\end{equation}
-which is well defined \eqref{eq:transformation}
-\begin{equation}
-  J = |\matr{T}_{s}| = r^2\sin(\phi) = g_s^{1/2}.
-  \label{eq:cyl_J}
-\end{equation}
-Then according to \eqref{eq:metric_tensor_explicit} we can express the~metric
-tensor (diagonal for orthogonal basis) as
-\begin{equation}
-  \matr{g}_s = \begin{bmatrix}
-                 g_{rr} & 0 & 0 \\
-			     0 & g_{\theta\theta} & 0 \\
-			     0 & 0 & g_{\phi\phi}
-			   \end{bmatrix}
-             = \begin{bmatrix}
-                 1 & 0 & 0 \\
-			     0 & r^2\sin^2(\phi) & 0 \\
-			     0 & 0 & r^2
-			   \end{bmatrix} .
-  \label{eq:cyl_metric_tensor}		   
-\end{equation}
-From \eqref{eq:basis_vectors_alignement} it is obvious, 
-that in general contravariant basis vectors are aligned with covariant basis 
-vectors, and are inverse in magnitude.
-It can be directly observed, that the~covariant basis vectors are orthogonal
-from \eqref{eq:metric_tensor_explicit} and explicit formulation of 
-the~metric tensor \eqref{eq:cyl_metric_tensor}, which further provides
-the~information about the~basis vectors length
-\begin{equation}
-  |\vect{b}_r| = 1,~ |\vect{b}_\theta| = r\sin(\phi),~ |\vect{b}_\phi| = r,
-  \nonumber
-\end{equation} 
-and from \eqref{eq:basis_vectors_alignement} one can directly write
-\begin{equation}
-  |\vect{b}^r| = 1,~ |\vect{b}^\theta| = \frac{1}{r\sin(\phi)},~ 
-  |\vect{b}^\phi| = \frac{1}{r}.
+  \nabla f = f^{,j}\vect{b}_j = g^{ij} f_{,i}\vect{b}_j 
+  = \pdv{f}{r}\vect{b}_r 
+  + \frac{1}{r^2\sin^2(\phi)}\pdv{f}{\theta}\vect{b}_{\theta}
+  + \frac{1}{r^2}\pdv{f}{\phi}\vect{b}_\phi ,
   \nonumber
 \end{equation}
-In the~case of orthogonal coordinate system it makes sense to define 
-the~scaling
-\begin{equation}
-  h_r = 1,~ h_\theta = r\sin(\phi),~ h_\phi = r,
-  \label{eq:cyl_scaling}
-\end{equation} 
-which comes to be handy when defining the~relation between 
-\textit{physical}, \textit{covariant}, and \textit{contravariant} components as
-\begin{equation}
-  \vect{u} = u^i \vect{b}_i = u_i \vect{b}^i = \sum_i u^i h_i \vect{e}_i
-  = \sum_i \frac{u_i}{h_i} \vect{e}_i = u(i) \vect{e}_i,
-\end{equation}
-where a~unique basis vectors $\vect{e}_i$ have been used, because they are 
-identical for both covariant and contravariant bases, and they are also used
-as the~basis for physical components $u(i)$.
-The~explicit relations between physical, covariant, and contravariant components
-of vector in spherical coordinates are
-\begin{eqnarray}
-  u(r) &=& u^r = u_r , \nonumber\\
-  u(\theta) &=& u^\theta r\sin(\phi) = \frac{u_\theta}{r\sin(\phi)} , 
-  \nonumber\\
-  u(\phi) &=& u^\phi r = \frac{u_\phi}{r} , 
-  \label{eq:cyl_physical_components}
-\end{eqnarray}
+then, the~Laplace of a~scalar $f$ in spherical coordinates based on
+\eqref{eq:general_Laplace} reads
+\begin{multline}
+  \nabla\cdot\nabla f = (f^{,i})_{;i} = 
+  \frac{(r^2\sin(\phi)f^{,i})_{,i}}{r^2\sin(\phi)} \\
+  = \frac{1}{r^2\sin(\phi)}\left( \pdv{}{r}\left(r^2\sin(\phi)f_{,r} \right) 
+  + \pdv{}{\theta}\left(\frac{f_{,\theta}}{\sin(\phi)}\right)
+  + \pdv{}{\phi}\left(\sin(\phi) f_{,\phi} \right) \right) \\
+  = \frac{1}{r^2}\pdv{}{r}\left(r^2\pdv{f}{r} \right) 
+  + \frac{1}{r^2\sin^2(\phi)} \frac{\partial^2 f}{\partial\theta^2}
+  + \frac{1}{r^2\sin(\phi)} \pdv{}{\phi}\left(\sin(\phi) \pdv{f}{\phi} \right).
+  \label{eq:spher_Laplacef}
+\end{multline}
 
-The~gradient of a~scalar function $f$ in spherical coordinates based on 
-\eqref{eq:general_grad} reads
-\begin{equation}
-  \nabla f = f_{,i}\vect{b}^i = \pdv{f}{r}\vect{e}_r 
-  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} 
-  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi .
-  \label{eq:cyl_gradf}
-\end{equation}
-The~divergence of a~vector field $\vect{v}$ in spherical coordinates based on
-\eqref{eq:general_divvec}
+The~curl applied on a~vector field $\vect{v}$ in spherical coordinates based on
+\eqref{eq:general_curlvec} reads
 \begin{eqnarray}
-  \nabla\cdot\vect{u} = v^i_{;i} &=& 
-  \frac{(r^2\sin(\phi)v^i)_{,i}}{r^2\sin(\phi)}
-  = \pdv{v^r}{r} + \pdv{v^\theta}{\theta} 
-  + \pdv{v^\phi}{\phi} + \frac{2v^r}{r} + \cot(\phi) v^\phi \nonumber \\
-  &=& \pdv{v(r)}{r} + \pdv{v(\theta)/r\sin(\phi)}{\theta} 
-  + \pdv{v(\phi)/r}{\phi} + \frac{2 v(r)}{r} + \cot(\phi) v(\phi)/r 
+  (\nabla\times\vect{v})(r) &=& (\nabla\times\vect{v})^r 
+  = \frac{v_{\theta,\phi} - v_{\phi,\theta}}{r^2\sin(\phi)} 
+  = \frac{1}{r\sin(\phi)}
+  \left[\pdv{(\sin(\phi)v(\theta))}{\phi} - \pdv{v(\phi)}{\theta} \right] , 
   \nonumber \\
-  &=& \frac{1}{r^2}\pdv{v(r)}{r} + \frac{1}{r\sin(\phi)}\pdv{v(\theta)}{\theta} 
-  + \frac{1}{r\sin(\phi)}\pdv{\sin(\phi)v(\phi)}{\phi} .
-  \label{eq:cyl_gradf}
+  (\nabla\times\vect{v})(\phi) &=& (\nabla\times\vect{v})^\phi r 
+  = \frac{v_{r,\theta} - v_{\theta,r}}{r^2\sin(\phi)} r  
+  = \frac{1}{r}
+  \left[\frac{1}{\sin(\phi)}\pdv{v(r)}{\theta} 
+  - \pdv{(r v(\theta))}{r} \right] , 
+  \nonumber \\
+  (\nabla\times\vect{v})(\theta) &=& (\nabla\times\vect{v})^\theta r\sin(\phi) 
+  = \frac{v_{\phi,r} - v_{r, \phi}}{r^2\sin(\phi)} r\sin(\phi) 
+  = \frac{1}{r}
+  \left[\pdv{(r v(\phi))}{r} 
+  - \pdv{v(r)}{\phi} \right] , \nonumber
 \end{eqnarray}
+where one should be aware, that the~coordinates follow the~order 
+$(r, \phi, \theta)$.
 
 \section{M1 model}\label{sec:m1_model}
 \subsection{AWBS Boltzmann transport equation}
