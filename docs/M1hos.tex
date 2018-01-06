@@ -87,13 +87,55 @@
 
 
 \begin{abstract}
-
+A~novel high-order method for solving the~Bhatnagar-Gross-Krook form of 
+the~Boltzmann transport equation is presented.  
+Consequently, the~classical diffusive transport closure to the~Euler equations 
+in a~moving Lagrangian frame can be generalized to the~nonlocal regime. 
+Our approach presents a~phase-space (including photon and electron momentum) 
+extension of the~general high-order curvilinear finite element approach 
+for solving Lagrangian hydrodynamics. 
+%The~numerical approximation of the~transport equation implemented
+%directly within the~model of compressible hydrodynamics brings 
+%new possibilities of using the~fluid codes under extreme conditions when 
+%the~traditional diffusion transport is no more valid. In many applications 
+%as astrophysics or inertial confinement fusion, the~generated plasma very 
+%often takes place under nonlocal transport conditions. 
+We discretize the~transported quantity in space and momentum using 
+a~discontinuous Galerkin high-order basis of arbitrary polynomial degree 
+defined on a~curvilinear mesh via a~corresponding high-order parametric 
+mapping from a~standard reference element. Even though extra dimensions of 
+momentum need to be discretized, the~computational cost remains comparable 
+with usual diffusion transport methods. 
+By the~means of hydrodynamic simulations, the~effect of nonlocal transport is 
+investigated for high-power laser interactions with matter. 
+%Subsequently, 
+%the~obtained plasma profiles manifestly demonstrate that the~classical 
+%diffusive electron transport cannot model properly the~physics of ablation. 
+%and that the~Hugoniot jump condition determining the shock velocity can be 
+%significantly altered due to the~nonlocal transport preheat. 
+%The obtained results stress the~importance and applicability of our nonlocal 
+%transport scheme.
 \end{abstract}
 
 \begin{keyword}
 Nonlocal transport \sep Kinetics \sep MHD \sep High-order methods \sep FEM
 %\MSC[2010] 00-01\sep  99-00
 \end{keyword}
+
+\begin{comment} % LAGHOS-NTH fig
+\begin{figure}[htbp]
+\centering
+  %\includegraphics[height=2in]{figs_NTH/nth_sedov.png} \\
+  \includegraphics[height=0.3\textwidth]{presentation/figs_NTH/nth_sedov.png}
+  \begin{tabular}{cc}
+    LAGHOS $\qquad\qquad\qquad\qquad\qquad\qquad\qquad$ & NTH
+  \end{tabular} 
+  \caption{Left: LAGHOS - curvilinear mesh of Sedov problem. 
+           Right: Nonlocal Transport Hydrodynamics (NTH) - 
+		   high-order radiation energy density computed on the~curvilinear mesh.
+  \label{fig:FirstFigure}}
+\end{figure}
+\end{comment} % LAGHOS-NTH fig
 
 \end{frontmatter}
 
