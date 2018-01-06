@@ -1003,6 +1003,88 @@ based on \eqref{eq:general_curlvec} reads
   \label{eq:cyl_curlvec}
 \end{equation}
 
+\section{Diffusive regime}
+\subsection{Lorentz approximation}
+\begin{equation}
+  C_{ei}(f, f_i) = 
+  \frac{\rho\sigma}{2}\nabla_{\vect{v}}\cdot
+  \left[\frac{1}{\vmag}
+  \left(\matr{\delta} - \frac{\vect{v}\vect{v}}{\vmag^2} \right)\cdot
+  \nabla_{\vect{v}} f\right] ,
+  \label{eq:ei_collision_operator}
+\end{equation}
+
+\begin{equation}
+  \vect{v} = \vmag\vn = \vmag\vect{b}^\vmag = \vmag\vect{b}_\vmag ,
+  \label{eq:v}
+\end{equation}
+
+\begin{equation}
+  \matr{\delta} = \delta^i_j \vect{b}_i \vect{b}^j ,
+  \label{eq:delta}
+\end{equation}
+
+\begin{equation}
+  \nabla_{\vect{v}} f = f^{,j}\vect{b}_j = g^{ij} f_{,i}\vect{b}_j 
+  = \pdv{f}{\vmag}\vect{b}_\vmag + \frac{1}{\vmag^2}\pdv{f}{\phi}\vect{b}_\phi
+  + \frac{1}{\vmag^2\sin^2(\phi)}\pdv{f}{\theta}\vect{b}_{\theta} 
+  = u^j\vect{b}_j = \vect{u} ,
+  \nonumber
+\end{equation}
+
+\begin{equation}
+  \matr{\delta}\cdot\vect{u} = 
+  \delta^i_j\vect{b}_i\vect{b}^j\cdot u^k\vect{b}_k =  
+  \delta^i_j\vect{b}_i \delta^j_k u^k = \delta^i_k\vect{b}_i u^k 
+  = u^k \vect{b}_k = \vect{u} ,
+  \nonumber
+\end{equation}
+
+\begin{eqnarray}
+  \left(\matr{\delta} - \frac{\vect{v}\vect{v}}{\vmag^2} \right)
+  \cdot\nabla_{\vect{v}} f &=& 
+  \pdv{f}{\vmag}\vect{b}_\vmag + \frac{1}{\vmag^2}\pdv{f}{\phi}\vect{b}_\phi
+  + \frac{1}{\vmag^2\sin^2(\phi)}\pdv{f}{\theta}\vect{b}_{\theta} \nonumber \\ 
+  &&- \vect{b}_\vmag\vect{b}^\vmag\cdot\left[\pdv{f}{\vmag}\vect{b}_\vmag 
+  + \frac{1}{\vmag^2}\pdv{f}{\phi}\vect{b}_\phi
+  + \frac{1}{\vmag^2\sin^2(\phi)}\pdv{f}{\theta}\vect{b}_{\theta} \right]
+  \nonumber \\
+  &=& \pdv{f}{\vmag}\vect{b}_\vmag 
+  + \frac{1}{\vmag^2}\pdv{f}{\phi}\vect{b}_\phi
+  + \frac{1}{\vmag^2\sin^2(\phi)}\pdv{f}{\theta}\vect{b}_{\theta}  
+  - \pdv{f}{\vmag}\vect{b}_\vmag \nonumber \\
+  &=& \frac{1}{\vmag^2}\pdv{f}{\phi}\vect{b}_\phi
+  + \frac{1}{\vmag^2\sin^2(\phi)}\pdv{f}{\theta}\vect{b}_{\theta} 
+  = u^i\vect{b}_i ,
+\end{eqnarray}
+
+\begin{eqnarray}
+  C_{ei}(f, f_i) &=& \frac{\sigma\rho}{2}\left(\frac{1}{\vmag}u^i\right)_{;i} 
+  = \frac{\sigma\rho}{2} \frac{(g^{1/2} \frac{1}{\vmag}u^i)_{,i}}{g^{1/2}}
+  = \frac{\sigma\rho}{2} \frac{(\vmag\sin(\phi)u^i)_{,i}}{\vmag^2\sin(\phi)}
+  \nonumber\\
+  &=& \frac{\sigma\rho}{2} \frac{1}{\vmag^2\sin(\phi)}
+  \left[\pdv{}{\phi}\left(\frac{\sin(\phi)}{\vmag}\pdv{f}{\phi}\right)
+  + \pdv{}{\theta}\left(\frac{1}{\vmag\sin(\phi)}\pdv{f}{\theta}\right) \right]
+  \nonumber\\
+  &=& \frac{\sigma\rho}{2\vmag^3} \frac{1}{\sin(\phi)}
+  \left[\pdv{}{\phi}\left(\sin(\phi)\pdv{f}{\phi}\right)
+  + \frac{1}{\sin(\phi)}\frac{\partial^2f}{\partial\theta^2} \right]
+\end{eqnarray}
+
+\begin{equation}
+  \odv{f}{\phi} = \pdv{f}{\cos(\phi)}\pdv{\cos{\phi}}{\phi} 
+  = - \pdv{f}{\cos(\phi)}\sin(\phi)
+\end{equation}
+
+\begin{equation}
+  C_{ei}(f, f_i) = \frac{\sigma\rho}{2\vmag^3} 
+  \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
+  + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right)
+\end{equation}
+where $\mu = \cos(\phi)$
+\subsubsection{BGK collision operator}
+\subsubsection{AWBS collision operator}
 
 \section{M1 model}\label{sec:m1_model}
 \subsection{AWBS Boltzmann transport equation}
@@ -1042,11 +1124,6 @@ which corresponds to the~distribution function approximation
   \exp\left(\vn\cdot\acl\right) ,
 \end{equation}
 where $\acl \rightarrow 0$ when $\anisomega \rightarrow \vect{0}$. 
-
-\section{Diffusive regime}
-\subsection{Lorentz approximation}
-\subsubsection{BGK collision operator}
-\subsubsection{AWBS collision operator}
 
 \subsection{Physical analysis of the~diffusive asymptotics}\label{sec:diffusive_asymptotics}
 The~equilibrium (maximized entropy) distribution
