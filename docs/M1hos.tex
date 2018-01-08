@@ -1004,6 +1004,11 @@ based on \eqref{eq:general_curlvec} reads
 \end{equation}
 
 \section{Diffusive regime}
+First, the~electro-magnetic scaling
+\begin{equation}
+  \tE = \frac{\qe}{\me}\E,~\tB = \frac{\qe}{\me c} \B,
+\end{equation}
+is defined in order to make the~algebraic operations easier to follow.
 \subsection{Lorentz approximation}
 \begin{equation}
   C_{ei}(f, f_i) = 
@@ -1084,7 +1089,107 @@ based on \eqref{eq:general_curlvec} reads
 \end{equation}
 where $\mu = \cos(\phi)$
 \subsubsection{BGK collision operator}
+\begin{equation}
+  \vect{v}\cdot\nabla_{\vect{x}} f 
+  + \frac{\qe}{\me}\left(\E + \frac{1}{c}\vect{v}\times\B\right)\cdot
+  \nabla_{\vect{v}}f = 
+  \nue \left(\fM - f\right) 
+  + \frac{\rho\sigma_{ei}}{2}\nabla_{\vect{v}}\cdot
+  \left[\frac{1}{\vmag}
+  \left(\matr{\delta} - \frac{\vect{v}\vect{v}}{\vmag^2} \right)\cdot
+  \nabla_{\vect{v}} f\right] ,
+  \label{eq:BGK}
+\end{equation}
+\begin{eqnarray}
+  \vn\cdot\nabla f 
+  &=& - \frac{\qe}{\me\vmag}\left(\E + \frac{\vmag}{c}\vn\times\B\right)\cdot
+  \left[ \pdv{f}{r}\vn 
+  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi
+  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
+  \nonumber \\
+  &+& \frac{\left(\fM - f\right)}{\lambda^e} 
+  + \frac{1}{2 \lambda^{ei}} 
+  \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
+  + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) 
+  \nonumber \\
+  &=& - \frac{\qe}{\me\vmag}\Big(
+  \left[\left(\E\cdot\vn\right)\vn 
+  + \left(\E\cdot\vect{e}_\phi\right)\vect{e}_\phi
+  + \left(\E\cdot\vect{e}_\theta\right)\vect{e}_\theta \right] 
+  \nonumber \\
+  &+& \frac{\vmag}{c}\vn\times
+  \left[\left(\B\cdot\vn\right)\vn 
+  + \left(\B\cdot\vect{e}_\phi\right)\vect{e}_\phi
+  + \left(\B\cdot\vect{e}_\theta\right)\vect{e}_\theta \right] \Big)\cdot 
+  \nonumber \\
+  && \left[ \pdv{f}{r}\vn 
+  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi
+  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
+  \nonumber \\
+  &+& \frac{\left(\fM - f\right)}{\lambda^e} 
+  + \frac{1}{2 \lambda^{ei}} 
+  \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
+  + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) 
+  \nonumber \\ 
+  &=& - \frac{\qe}{\me\vmag}\Big(
+  \left[E(\vmag)\vn 
+  + E(\phi)\vect{e}_\phi
+  + E(\theta)\vect{e}_\theta \right] 
+  + \frac{\vmag}{c}
+  \left[B(\phi)\vect{e}_\theta 
+  - B(\theta)\vect{e}_\phi \right] \Big)\cdot 
+  \nonumber \\
+  && \left[ \pdv{f}{r}\vn 
+  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi
+  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
+  \nonumber \\
+  &+& \frac{\left(\fM - f\right)}{\lambda^e} 
+  + \frac{1}{2 \lambda^{ei}} 
+  \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
+  + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right)
+  \nonumber \\
+  &=& - \frac{\qe}{\me\vmag}\Bigg(
+  \left[ E(\vmag)\pdv{f}{r} + \frac{E(\phi)}{r}\pdv{f}{\phi}
+  + \frac{E(\theta)}{r\sin(\phi)}\pdv{f}{\theta} \right]
+  \nonumber \\ 
+  &+& \frac{\vmag}{c}
+  \left[\frac{B(\phi)}{r\sin(\phi)}\pdv{f}{\theta}
+  - \frac{B(\theta)}{r}\pdv{f}{\phi} \right] \Bigg)
+  \nonumber \\
+  &+& \frac{\left(\fM - f\right)}{\lambda^e} 
+  + \frac{1}{2 \lambda^{ei}} 
+  \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
+  + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right)
+  \label{eq:BGK_spherical_definition}
+\end{eqnarray}
+
+\begin{multline}
+  \vn\cdot\nabla f + \frac{1}{\vmag} \left[ \tE\cdot\vn \pdv{f}{r} 
+  + \frac{\tE\cdot\vect{e}_\phi - \vmag\tB\cdot\vect{e}_\theta}{r}\pdv{f}{\phi}
+  + \frac{\tE\cdot\vect{e}_\theta + \vmag\tB\cdot\vect{e}_\phi}
+  {r\sin(\phi)}\pdv{f}{\theta} \right] 
+  =\\
+  \frac{\left(\fM - f\right)}{\lambda^e} 
+  + \frac{1}{2 \lambda^{ei}} 
+  \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
+  + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) ,
+  \label{eq:BGK_spherical}
+\end{multline}
+where $\mu = \cos(\phi)$.
 \subsubsection{AWBS collision operator}
+\begin{multline}
+  \vn\cdot\nabla f + \frac{1}{\vmag} \left[ \tE\cdot\vn \pdv{f}{r} 
+  + \frac{\tE\cdot\vect{e}_\phi - \vmag\tB\cdot\vect{e}_\theta}{r}\pdv{f}{\phi}
+  + \frac{\tE\cdot\vect{e}_\theta + \vmag\tB\cdot\vect{e}_\phi}
+  {r\sin(\phi)}\pdv{f}{\theta} \right] 
+  =\\
+  \frac{\vmag}{\lambda^e}\pdv{}{\vmag}\left(f - f_M\right) 
+  + \frac{1}{2 \lambda^{ei}} 
+  \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
+  + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) ,
+  \label{eq:AWBS_spherical}
+\end{multline}
+where $\mu = \cos(\phi)$.
 
 \section{M1 model}\label{sec:m1_model}
 \subsection{AWBS Boltzmann transport equation}
@@ -1380,11 +1485,6 @@ in temperature. What is worth mentioning is the~effect of E field
 \end{eqnarray}
 \end{comment}
 \subsection{Variational principle}
-First, the~electro-magnetic scaling
-\begin{equation}
-  \tE = \frac{\qe}{\me}\E,~\tB = \frac{\qe}{\me c} \B,
-\end{equation}
-is defined in order to make the~algebraic operations easier to follow.
 The~general variational formulation of \eqref{eq:M1f0} and \eqref{eq:M1f1} 
 constructed above the~scalar (zero moment) functional space
 represented by test functions $\phi$ and the~vector
