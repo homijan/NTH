@@ -1225,7 +1225,7 @@ $\mfpe = \Zbar \mfpei$.
 %  f = f^0 + f^1 \mfp\fM\cos(\phi) + f^2 \mfp\fM\sin(\phi)\sin(\theta),
 %  \label{eq:f_approximation}
 %\end{equation}
-
+\begin{comment} % fM approximation
 We can try to find an~approximate solution while using the~first term of
 expansion in $\mfpe$, $mu$, and $\fM$ as
 \begin{equation}
@@ -1295,6 +1295,75 @@ which lead to the~definitions
   \frac{1}{T}\pdv{T}{z} ,
   \label{eq:BGK_f1}
 \end{eqnarray}
+\end{comment} % fM approximation
+We can try to find an~approximate solution while using the~first term of
+expansion in $\mfpe$ and $mu$as
+\begin{equation}
+  \tilde{f}(z, \vmag, \mu) = f^0(z, \vmag) + f^1(z, \vmag) \mfpei\mu .
+  \label{eq:f_approximation}
+\end{equation}
+Clearly, $\pdv{\tilde{f}}{\theta} = 0$, and if $\tB = \tilde{B}_z\vect{e}_z$, 
+there is no effect of magnetic field. We also assume, that 
+$\nabla f = \pdv{f}{z}\vect{e}_z$ and appropriately 
+$\tE = \tilde{E}_z\vect{e}_z$.
+From the~orientation of the~Cartesian basis vectors and spherical 
+basis vectors, one can find $\tE\cdot\vn = \tilde{E}_z \cos(\phi) = \mu$ and
+$\tE\cdot\vect{e}_\phi = -\tilde{E}_z\sin(\phi)$. As a~result, the~analyzed
+BGK equation reads
+\begin{multline}
+  \mu\pdv{}{z}\left( f^0 + f^1 \mfpei\mu \right) 
+  + \frac{1}{\vmag} \left[ \tilde{E}_z\mu \pdv{}{\vmag} 
+  \left( f^0 + f^1 \mfpei\mu \right) 
+  - \frac{\tilde{E}_z\sin(\phi)}{\vmag}\pdv{}{\phi} 
+  \left( f^0 + f^1 \mfpei\mu \right)
+  \right] 
+  =\\
+  \frac{\left(\fM - \left( f^0 + f^1 \mfpei\mu \right) \right)}{\mfpe} 
+  + \frac{1}{2 \mfpei}\pdv{}{\mu}\left((1 - \mu^2)
+  \pdv{}{\mu}\left( f^0 + f^1 \mfpei\mu \right) \right) ,
+  \label{eq:BGK_spherical}
+\end{multline}
+
+\begin{multline}
+  \mu\pdv{f^0}{z} + \mu^2 \pdv{}{z}\left(f^1 \mfpei \right)
+  + \frac{\tilde{E}_z}{\vmag} \left[ \mu \pdv{f^0}{\vmag} 
+  + \mu^2 \pdv{}{\vmag} \left( f^1 \mfpei \right) 
+  + \frac{1 - \mu^2}{\vmag}f^1 \mfpei
+  \right] 
+  =\\
+  \frac{\fM - f^0}{\Zbar\mfpei} - \mu \frac{1}{\Zbar}f^1
+  - \mu f^1 ,
+  \label{eq:BGK_spherical}
+\end{multline}
+consequently, we have the~following anisotropy expansion 
+$\mu^0, \mu^1, \mu^2, ...$ equations
+\begin{eqnarray}
+  \frac{\fM - f^0}{\Zbar\mfpei} &=& \frac{1}{\vmag}f^1 \mfpei , 
+  \nonumber \\
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag} &=& 
+  - \frac{1}{\Zbar}f^1 - f^1 , 
+  \nonumber \\ 
+  \pdv{}{z}\left(f^1 \mfpei \right) 
+  + \frac{\tilde{E}_z}{\vmag} \left[\pdv{}{\vmag} \left( f^1 \mfpei \right)
+  - \frac{1}{\vmag}f^1 \mfpei \right] &=& 0 , \nonumber
+\end{eqnarray}
+which lead to the~definitions
+\begin{eqnarray}
+  f^0 &=& \fM + \frac{1}{\vmag}f^1 \Zbar\mfpei^2 ,
+  \label{eq:BGK_f0} \\
+  f^1 &=& - \frac{\Zbar}{\Zbar+1}
+  \left[ \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag} \right] 
+  \nonumber \\
+  &=& - \frac{\Zbar}{\Zbar+1}
+  \left[\frac{1}{\rho}\pdv{\rho}{z} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right)
+  \frac{1}{T}\pdv{T}{z} - \frac{\tilde{E}_z}{\vth^2} \right]\fM 
+  \nonumber \\
+  &=& - \frac{\Zbar}{\Zbar+1}
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2} - \alpha\right)
+  \frac{1}{T}\pdv{T}{z}\fM ,
+  \label{eq:BGK_f1}
+\end{eqnarray}
 Finally, one can find the~approximate solution
 \begin{equation}
   \tilde{f} = \fM - \mfpei\frac{\Zbar}{\Zbar+1}
@@ -1321,6 +1390,79 @@ The~AWBS electron transport equation in 6D reads
 \end{multline}
 where $\mu = \cos(\phi)$, $\mfpe$ is the~electron-electron mean free path, and
 $\mfpei$ is the~electron-ion mean free path.
+
+We can try to find an~approximate solution while using the~first term of
+expansion in $\mfpe$ and $mu$as
+\begin{equation}
+  \tilde{f}(z, \vmag, \mu) = f^0(z, \vmag) + f^1(z, \vmag) \mfpei\mu .
+  \label{eq:f_approximation}
+\end{equation}
+Clearly, $\pdv{\tilde{f}}{\theta} = 0$, and if $\tB = \tilde{B}_z\vect{e}_z$, 
+there is no effect of magnetic field. We also assume, that 
+$\nabla f = \pdv{f}{z}\vect{e}_z$ and appropriately 
+$\tE = \tilde{E}_z\vect{e}_z$.
+From the~orientation of the~Cartesian basis vectors and spherical 
+basis vectors, one can find $\tE\cdot\vn = \tilde{E}_z \cos(\phi) = \mu$ and
+$\tE\cdot\vect{e}_\phi = -\tilde{E}_z\sin(\phi)$. As a~result, the~analyzed
+AWBS equation reads
+\begin{multline}
+  \mu\pdv{}{z}\left( f^0 + f^1 \mfpei\mu \right) 
+  + \frac{1}{\vmag} \left[ \tilde{E}_z\mu \pdv{}{\vmag} 
+  \left( f^0 + f^1 \mfpei\mu \right) 
+  - \frac{\tilde{E}_z\sin(\phi)}{\vmag}\pdv{}{\phi} 
+  \left( f^0 + f^1 \mfpei\mu \right)
+  \right] 
+  =\\
+  \frac{\vmag}{\mfpe}\pdv{}{\vmag}
+  \left(\left( f^0 + f^1 \mfpei\mu \right) -\fM\right)
+  + \frac{1}{2 \mfpei}\pdv{}{\mu}\left((1 - \mu^2)
+  \pdv{}{\mu}\left( f^0 + f^1 \mfpei\mu \right) \right) ,
+  \label{eq:AWBS_spherical}
+\end{multline}
+
+\begin{multline}
+  \mu\pdv{f^0}{z} + \mu^2 \pdv{}{z}\left(f^1 \mfpei \right)
+  + \frac{\tilde{E}_z}{\vmag} \left[ \mu \pdv{f^0}{\vmag} 
+  + \mu^2 \pdv{}{\vmag} \left( f^1 \mfpei \right) 
+  + \frac{1 - \mu^2}{\vmag}f^1 \mfpei
+  \right] 
+  =\\
+  \frac{\vmag}{\Zbar\mfpei}\pdv{}{\vmag}
+  \left( f^0 -\fM\right)
+  + \mu\frac{\vmag}{\Zbar\mfpei}\pdv{\left(f^1 \mfpei\right)}{\vmag} 
+  - \mu f^1 ,
+  \label{eq:AWBS_spherical}
+\end{multline}
+consequently, we have the~following anisotropy expansion 
+$\mu^0, \mu^1, \mu^2, ...$ equations
+\begin{eqnarray}
+  \frac{\vmag}{\Zbar\mfpei}\pdv{}{\vmag}
+  \left( f^0 -\fM\right) &=& \frac{1}{\vmag}f^1 \mfpei , 
+  \nonumber \\
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag} &=& 
+  \frac{\vmag}{\Zbar\mfpei}\pdv{\left(f^1 \mfpei\right)}{\vmag}  - f^1 , 
+  \nonumber \\ 
+  \pdv{}{z}\left(f^1 \mfpei \right) 
+  + \frac{\tilde{E}_z}{\vmag} \left[\pdv{}{\vmag} \left( f^1 \mfpei \right)
+  - \frac{1}{\vmag}f^1 \mfpei \right] &=& 0 , \nonumber
+\end{eqnarray}
+which lead to the~definitions
+\begin{eqnarray}
+  \pdv{}{\vmag}\left( f^0 -\fM\right) &=& \frac{1}{\vmag^2}f^1 \Zbar\mfpei^2 ,
+  \label{eq:AWBS_f0} \\
+  \frac{\vmag}{\Zbar\mfpei}\pdv{\left(f^1 \mfpei\right)}{\vmag}  - f^1 &=&
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag}
+  \nonumber \\  
+  \frac{\vmag}{\Zbar}\pdv{f^1}{\vmag} + \frac{4}{\Zbar}f^1 - f^1 &=&
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag}
+  \nonumber \\
+  \pdv{f^1}{\vmag} + \frac{1}{\vmag}(4-\Zbar)f^1
+  &=&
+  \frac{\Zbar}{\vmag}\left(\frac{1}{\rho}\pdv{\rho}{z} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right)
+  \frac{1}{T}\pdv{T}{z} - \frac{\tilde{E}_z}{\vth^2}\right)\fM .
+  \label{eq:AWBS_f1}
+\end{eqnarray}
 
 \section{M1 model}\label{sec:m1_model}
 \subsection{AWBS Boltzmann transport equation}
