@@ -37,6 +37,9 @@
 %\newcommand{\ddv}[2]{\frac{\Delta #1}{\Delta #2}}
 \newcommand{\mfp}{\lambda}
 \newcommand{\tmfp}{\tilde{\lambda}}
+\newcommand{\mfpe}{\lambda_e}
+\newcommand{\mfpei}{\lambda_{ei}}
+\newcommand{\Zbar}{\bar{Z}}
 \newcommand{\nue}{\nu_{e}}
 \newcommand{\nutot}{\nu_{t}}
 \newcommand{\vmag}{v}
@@ -1004,12 +1007,36 @@ based on \eqref{eq:general_curlvec} reads
 \end{equation}
 
 \section{Diffusive regime}
-First, the~electro-magnetic scaling
+The~equilibrium (maximized entropy) distribution
 \begin{equation}
-  \tE = \frac{\qe}{\me}\E,~\tB = \frac{\qe}{\me c} \B,
+  \fM = \frac{\rho}{\vth^3 \left( 2 \pi \right)^{3/2}} 
+  \exp\left(- \frac{\vmag^2}{2 \vth^2} \right) ,
+  \label{eq:MBdistribution}
 \end{equation}
-is defined in order to make the~algebraic operations easier to follow.
+where $\vth = \sqrt{\kB T/\me}$.
+\begin{eqnarray}
+  \pdv{\fM}{\vmag} &=& -\frac{\vmag}{\vth^2}\fM ,
+  \nonumber \\
+  \pdv{\fM}{\rho} &=& \frac{1}{\rho}\fM ,
+  \nonumber \\
+  \pdv{\fM}{T} &=& \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right)
+  \frac{1}{T}\fM. 
+  \nonumber
+\end{eqnarray}
+
 \subsection{Lorentz approximation}
+\begin{equation}
+  \vect{v}\cdot\nabla_{\vect{x}} f 
+  + \frac{\qe}{\me}\left(\E + \frac{1}{c}\vect{v}\times\B\right)\cdot
+  \nabla_{\vect{v}}f = 
+  C_e(f)
+  + \frac{\rho\sigma_{ei}}{2}\nabla_{\vect{v}}\cdot
+  \left[\frac{1}{\vmag}
+  \left(\matr{\delta} - \frac{\vect{v}\vect{v}}{\vmag^2} \right)\cdot
+  \nabla_{\vect{v}} f\right] ,
+  \label{eq:Lorentz}
+\end{equation}
+
 \begin{equation}
   C_{ei}(f, f_i) = 
   \frac{\rho\sigma}{2}\nabla_{\vect{v}}\cdot
@@ -1088,86 +1115,99 @@ is defined in order to make the~algebraic operations easier to follow.
   + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right)
 \end{equation}
 where $\mu = \cos(\phi)$
-\subsubsection{BGK collision operator}
+
+First, the~electro-magnetic scaling
 \begin{equation}
-  \vect{v}\cdot\nabla_{\vect{x}} f 
-  + \frac{\qe}{\me}\left(\E + \frac{1}{c}\vect{v}\times\B\right)\cdot
-  \nabla_{\vect{v}}f = 
-  \nue \left(\fM - f\right) 
-  + \frac{\rho\sigma_{ei}}{2}\nabla_{\vect{v}}\cdot
-  \left[\frac{1}{\vmag}
-  \left(\matr{\delta} - \frac{\vect{v}\vect{v}}{\vmag^2} \right)\cdot
-  \nabla_{\vect{v}} f\right] ,
-  \label{eq:BGK}
+  \tE = \frac{\qe}{\me}\E,~\tB = \frac{\qe}{\me c} \B,
 \end{equation}
+is defined in order to make the~algebraic operations easier to follow.
+
 \begin{eqnarray}
-  \vn\cdot\nabla f 
-  &=& - \frac{\qe}{\me\vmag}\left(\E + \frac{\vmag}{c}\vn\times\B\right)\cdot
-  \left[ \pdv{f}{r}\vn 
-  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi
-  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
+  \vmag\vn\cdot\nabla f 
+  &=& - \left(\tE + \vmag\vn\times\tB\right)\cdot
+  \left[ \pdv{f}{\vmag}\vn 
+  + \frac{1}{\vmag}\pdv{f}{\phi}\vect{e}_\phi
+  + \frac{1}{\vmag\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
   \nonumber \\
-  &+& \frac{\left(\fM - f\right)}{\lambda^e} 
-  + \frac{1}{2 \lambda^{ei}} 
+  &+& C_e(f) 
+  + \frac{\nu_{ei}}{2} 
   \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
   + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) 
   \nonumber \\
-  &=& - \frac{\qe}{\me\vmag}\Big(
-  \left[\left(\E\cdot\vn\right)\vn 
-  + \left(\E\cdot\vect{e}_\phi\right)\vect{e}_\phi
-  + \left(\E\cdot\vect{e}_\theta\right)\vect{e}_\theta \right] 
+  &=& - \Big(
+  \left[\left(\tE\cdot\vn\right)\vn 
+  + \left(\tE\cdot\vect{e}_\phi\right)\vect{e}_\phi
+  + \left(\tE\cdot\vect{e}_\theta\right)\vect{e}_\theta \right] 
   \nonumber \\
-  &+& \frac{\vmag}{c}\vn\times
-  \left[\left(\B\cdot\vn\right)\vn 
-  + \left(\B\cdot\vect{e}_\phi\right)\vect{e}_\phi
-  + \left(\B\cdot\vect{e}_\theta\right)\vect{e}_\theta \right] \Big)\cdot 
+  &+& \vmag\vn\times
+  \left[\left(\tB\cdot\vn\right)\vn 
+  + \left(\tB\cdot\vect{e}_\phi\right)\vect{e}_\phi
+  + \left(\tB\cdot\vect{e}_\theta\right)\vect{e}_\theta \right] \Big)\cdot 
   \nonumber \\
-  && \left[ \pdv{f}{r}\vn 
-  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi
-  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
+  && \left[ \pdv{f}{\vmag}\vn 
+  + \frac{1}{\vmag}\pdv{f}{\phi}\vect{e}_\phi
+  + \frac{1}{\vmag\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
   \nonumber \\
-  &+& \frac{\left(\fM - f\right)}{\lambda^e} 
-  + \frac{1}{2 \lambda^{ei}} 
+  &+& C_e(f)
+  + \frac{\nu_{ei}}{2} 
   \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
   + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) 
   \nonumber \\ 
-  &=& - \frac{\qe}{\me\vmag}\Big(
-  \left[E(\vmag)\vn 
-  + E(\phi)\vect{e}_\phi
-  + E(\theta)\vect{e}_\theta \right] 
-  + \frac{\vmag}{c}
-  \left[B(\phi)\vect{e}_\theta 
-  - B(\theta)\vect{e}_\phi \right] \Big)\cdot 
+  &=& - \Big(
+  \left[\tilde{E}(\vmag)\vn 
+  + \tilde{E}(\phi)\vect{e}_\phi
+  + \tilde{E}(\theta)\vect{e}_\theta \right] 
+  + \vmag
+  \left[\tilde{B}(\phi)\vect{e}_\theta 
+  - \tilde{B}(\theta)\vect{e}_\phi \right] \Big)\cdot 
   \nonumber \\
-  && \left[ \pdv{f}{r}\vn 
-  + \frac{1}{r}\pdv{f}{\phi}\vect{e}_\phi
-  + \frac{1}{r\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
+  && \left[ \pdv{f}{\vmag}\vn 
+  + \frac{1}{\vmag}\pdv{f}{\phi}\vect{e}_\phi
+  + \frac{1}{\vmag\sin(\phi)}\pdv{f}{\theta}\vect{e}_{\theta} \right] 
   \nonumber \\
-  &+& \frac{\left(\fM - f\right)}{\lambda^e} 
-  + \frac{1}{2 \lambda^{ei}} 
+  &+& C_e(f)
+  + \frac{\nu_{ei}}{2} 
   \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
   + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right)
   \nonumber \\
-  &=& - \frac{\qe}{\me\vmag}\Bigg(
-  \left[ E(\vmag)\pdv{f}{r} + \frac{E(\phi)}{r}\pdv{f}{\phi}
-  + \frac{E(\theta)}{r\sin(\phi)}\pdv{f}{\theta} \right]
+  &=& - \Bigg(
+  \left[ \tilde{E}(\vmag)\pdv{f}{\vmag} 
+  + \frac{\tilde{E}(\phi)}{\vmag}\pdv{f}{\phi}
+  + \frac{\tilde{E}(\theta)}{\vmag\sin(\phi)}\pdv{f}{\theta} \right]
   \nonumber \\ 
-  &+& \frac{\vmag}{c}
-  \left[\frac{B(\phi)}{r\sin(\phi)}\pdv{f}{\theta}
-  - \frac{B(\theta)}{r}\pdv{f}{\phi} \right] \Bigg)
+  &+& \vmag
+  \left[\frac{\tilde{B}(\phi)}{\vmag\sin(\phi)}\pdv{f}{\theta}
+  - \frac{\tilde{B}(\theta)}{\vmag}\pdv{f}{\phi} \right] \Bigg)
   \nonumber \\
-  &+& \frac{\left(\fM - f\right)}{\lambda^e} 
-  + \frac{1}{2 \lambda^{ei}} 
+  &+& C_e(f) 
+  + \frac{\nu_{ei}}{2} 
   \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
   + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right)
   \label{eq:BGK_spherical_definition}
 \end{eqnarray}
 
 \begin{multline}
-  \vn\cdot\nabla f + \frac{1}{\vmag} \left[ \tE\cdot\vn \pdv{f}{r} 
-  + \frac{\tE\cdot\vect{e}_\phi - \vmag\tB\cdot\vect{e}_\theta}{r}\pdv{f}{\phi}
+  \vect{v}\cdot\nabla f + \tE\cdot\vn \pdv{f}{\vmag} 
+  + \frac{\tE\cdot\vect{e}_\phi 
+  - \vmag\tB\cdot\vect{e}_\theta}{\vmag}\pdv{f}{\phi}
   + \frac{\tE\cdot\vect{e}_\theta + \vmag\tB\cdot\vect{e}_\phi}
-  {r\sin(\phi)}\pdv{f}{\theta} \right] 
+  {\vmag\sin(\phi)}\pdv{f}{\theta} 
+  =\\
+  C_e(f) 
+  + \frac{\nu_{ei}}{2} 
+  \left(\pdv{}{\mu}\left((1 - \mu^2)\pdv{f}{\mu}\right)
+  + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) ,
+  \label{eq:Lorentz_spherical}
+\end{multline}
+
+\subsubsection{BGK collision operator}
+The~BGK electron transport equation in 6D reads
+\begin{multline}
+  \vn\cdot\nabla f + \frac{1}{\vmag} \left[ \tE\cdot\vn \pdv{f}{\vmag} 
+  + \frac{\tE\cdot\vect{e}_\phi 
+  - \vmag\tB\cdot\vect{e}_\theta}{\vmag}\pdv{f}{\phi}
+  + \frac{\tE\cdot\vect{e}_\theta + \vmag\tB\cdot\vect{e}_\phi}
+  {\vmag\sin(\phi)}\pdv{f}{\theta} \right] 
   =\\
   \frac{\left(\fM - f\right)}{\lambda^e} 
   + \frac{1}{2 \lambda^{ei}} 
@@ -1175,13 +1215,172 @@ where $\mu = \cos(\phi)$
   + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) ,
   \label{eq:BGK_spherical}
 \end{multline}
-where $\mu = \cos(\phi)$.
-\subsubsection{AWBS collision operator}
+where $\mu = \cos(\phi)$, $\mfpe$ is the~electron-electron mean free path, and
+$\mfpei$ is the~electron-ion mean free path. We also approximate
+$\mfpe = \Zbar \mfpei$.
+
+%We can try to find an~approximate solution while using the~first term of
+%expansion in $\mfp$, $\cos(\phi)$, $\sin(\phi)$, $\sin(\theta)$, and $\fM$ as
+%\begin{equation}
+%  f = f^0 + f^1 \mfp\fM\cos(\phi) + f^2 \mfp\fM\sin(\phi)\sin(\theta),
+%  \label{eq:f_approximation}
+%\end{equation}
+\begin{comment} % fM approximation
+We can try to find an~approximate solution while using the~first term of
+expansion in $\mfpe$, $mu$, and $\fM$ as
+\begin{equation}
+  \tilde{f}(z, \vmag, \mu) = f^0(z, \vmag) + f^1(\vmag) \mfpei\fM(z, \vmag)\mu .
+  \label{eq:f_approximation}
+\end{equation}
+Clearly, $\pdv{\tilde{f}}{\theta} = 0$, and if $\tB = \tilde{B}_z\vect{e}_z$, 
+there is no effect of magnetic field. We also assume, that 
+$\nabla f = \pdv{f}{z}\vect{e}_z$ and appropriately 
+$\tE = \tilde{E}_z\vect{e}_z$.
+From the~orientation of the~Cartesian basis vectors and spherical 
+basis vectors, one can find $\tE\cdot\vn = \tilde{E}_z \cos(\phi) = \mu$ and
+$\tE\cdot\vect{e}_\phi = -\tilde{E}_z\sin(\phi)$. As a~result, the~analyzed
+BGK equation reads
 \begin{multline}
-  \vn\cdot\nabla f + \frac{1}{\vmag} \left[ \tE\cdot\vn \pdv{f}{r} 
-  + \frac{\tE\cdot\vect{e}_\phi - \vmag\tB\cdot\vect{e}_\theta}{r}\pdv{f}{\phi}
+  \mu\pdv{}{z}\left( f^0 + f^1 \mfpei\fM\mu \right) 
+  + \frac{1}{\vmag} \left[ \tilde{E}_z\mu \pdv{}{\vmag} 
+  \left( f^0 + f^1 \mfpei\fM\mu \right) 
+  - \frac{\tilde{E}_z\sin(\phi)}{\vmag}\pdv{}{\phi} 
+  \left( f^0 + f^1 \mfpei\fM\mu \right)
+  \right] 
+  =\\
+  \frac{\left(\fM - \left( f^0 + f^1 \mfpei\fM\mu \right) \right)}{\mfpe} 
+  + \frac{1}{2 \mfpei}\pdv{}{\mu}\left((1 - \mu^2)
+  \pdv{}{\mu}\left( f^0 + f^1 \mfpei\fM\mu \right) \right) ,
+  \label{eq:BGK_spherical}
+\end{multline}
+
+\begin{multline}
+  \mu\pdv{f^0}{z} + \mu^2 \pdv{}{z}\left(f^1 \mfpei\fM \right)
+  + \frac{\tilde{E}_z}{\vmag} \left[ \mu \pdv{f^0}{\vmag} 
+  + \mu^2 \pdv{}{\vmag} \left( f^1 \mfpei\fM \right) 
+  + \frac{1 - \mu^2}{\vmag}f^1 \mfpei\fM
+  \right] 
+  =\\
+  \frac{\fM - f^0}{\Zbar\mfpei} - \mu \frac{1}{\Zbar}f^1 \fM
+  - \mu
+  f^1 \fM ,
+  \label{eq:BGK_spherical}
+\end{multline}
+consequently, we have the~following anisotropy expansion 
+$\mu^0, \mu^1, \mu^2, ...$ equations
+\begin{eqnarray}
+  \frac{\fM - f^0}{\mfpe} &=& \frac{1}{\vmag}f^1 \mfpei\fM , 
+  \nonumber \\
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag} &=& 
+  - \frac{1}{\Zbar}f^1 \fM - f^1 \fM , 
+  \nonumber \\ 
+  \pdv{}{z}\left(f^1 \mfpei\fM \right) 
+  + \frac{\tilde{E}_z}{\vmag} \left[\pdv{}{\vmag} \left( f^1 \mfpei\fM \right)
+  - \frac{1}{\vmag}f^1 \mfpei\fM \right] &=& 0 , \nonumber
+\end{eqnarray}
+which lead to the~definitions
+\begin{eqnarray}
+  f^0 &=& \fM + \frac{1}{\vmag}f^1 \mfpei^2\fM ,
+  \label{eq:BGK_f0} \\
+  f^1 &=& - \frac{1}{\fM}\frac{\Zbar}{\Zbar+1}
+  \left[ \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag} \right] 
+  \nonumber \\
+  &=& - \frac{\Zbar}{\Zbar+1}
+  \left[\frac{1}{\rho}\pdv{\rho}{z} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right)
+  \frac{1}{T}\pdv{T}{z} - \frac{\tilde{E}_z}{\vth^2} \right] 
+  \nonumber \\
+  &=& - \frac{\Zbar}{\Zbar+1}
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2} - \alpha\right)
+  \frac{1}{T}\pdv{T}{z} ,
+  \label{eq:BGK_f1}
+\end{eqnarray}
+\end{comment} % fM approximation
+We can try to find an~approximate solution while using the~first term of
+expansion in $\mfpe$ and $mu$as
+\begin{equation}
+  \tilde{f}(z, \vmag, \mu) = f^0(z, \vmag) + f^1(z, \vmag) \mfpei\mu .
+  \label{eq:f_approximation}
+\end{equation}
+Clearly, $\pdv{\tilde{f}}{\theta} = 0$, and if $\tB = \tilde{B}_z\vect{e}_z$, 
+there is no effect of magnetic field. We also assume, that 
+$\nabla f = \pdv{f}{z}\vect{e}_z$ and appropriately 
+$\tE = \tilde{E}_z\vect{e}_z$.
+From the~orientation of the~Cartesian basis vectors and spherical 
+basis vectors, one can find $\tE\cdot\vn = \tilde{E}_z \cos(\phi) = \mu$ and
+$\tE\cdot\vect{e}_\phi = -\tilde{E}_z\sin(\phi)$. As a~result, the~analyzed
+BGK equation reads
+\begin{multline}
+  \mu\pdv{}{z}\left( f^0 + f^1 \mfpei\mu \right) 
+  + \frac{1}{\vmag} \left[ \tilde{E}_z\mu \pdv{}{\vmag} 
+  \left( f^0 + f^1 \mfpei\mu \right) 
+  - \frac{\tilde{E}_z\sin(\phi)}{\vmag}\pdv{}{\phi} 
+  \left( f^0 + f^1 \mfpei\mu \right)
+  \right] 
+  =\\
+  \frac{\left(\fM - \left( f^0 + f^1 \mfpei\mu \right) \right)}{\mfpe} 
+  + \frac{1}{2 \mfpei}\pdv{}{\mu}\left((1 - \mu^2)
+  \pdv{}{\mu}\left( f^0 + f^1 \mfpei\mu \right) \right) ,
+  \label{eq:BGK_spherical}
+\end{multline}
+
+\begin{multline}
+  \mu\pdv{f^0}{z} + \mu^2 \pdv{}{z}\left(f^1 \mfpei \right)
+  + \frac{\tilde{E}_z}{\vmag} \left[ \mu \pdv{f^0}{\vmag} 
+  + \mu^2 \pdv{}{\vmag} \left( f^1 \mfpei \right) 
+  + \frac{1 - \mu^2}{\vmag}f^1 \mfpei
+  \right] 
+  =\\
+  \frac{\fM - f^0}{\Zbar\mfpei} - \mu \frac{1}{\Zbar}f^1
+  - \mu f^1 ,
+  \label{eq:BGK_spherical}
+\end{multline}
+consequently, we have the~following anisotropy expansion 
+$\mu^0, \mu^1, \mu^2, ...$ equations
+\begin{eqnarray}
+  \frac{\fM - f^0}{\Zbar\mfpei} &=& \frac{1}{\vmag}f^1 \mfpei , 
+  \nonumber \\
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag} &=& 
+  - \frac{1}{\Zbar}f^1 - f^1 , 
+  \nonumber \\ 
+  \pdv{}{z}\left(f^1 \mfpei \right) 
+  + \frac{\tilde{E}_z}{\vmag} \left[\pdv{}{\vmag} \left( f^1 \mfpei \right)
+  - \frac{1}{\vmag}f^1 \mfpei \right] &=& 0 , \nonumber
+\end{eqnarray}
+which lead to the~definitions
+\begin{eqnarray}
+  f^0 &=& \fM + \frac{1}{\vmag}f^1 \Zbar\mfpei^2 ,
+  \label{eq:BGK_f0} \\
+  f^1 &=& - \frac{\Zbar}{\Zbar+1}
+  \left[ \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag} \right] 
+  \nonumber \\
+  &=& - \frac{\Zbar}{\Zbar+1}
+  \left[\frac{1}{\rho}\pdv{\rho}{z} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right)
+  \frac{1}{T}\pdv{T}{z} - \frac{\tilde{E}_z}{\vth^2} \right]\fM 
+  \nonumber \\
+  &=& - \frac{\Zbar}{\Zbar+1}
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2} - \alpha\right)
+  \frac{1}{T}\pdv{T}{z}\fM ,
+  \label{eq:BGK_f1}
+\end{eqnarray}
+Finally, one can find the~approximate solution
+\begin{equation}
+  \tilde{f} = \fM - \mfpei\frac{\Zbar}{\Zbar+1}
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2} - \alpha\right)
+  \frac{\vn\cdot\nabla T}{T}\fM .
+  \label{eq:BGK_approximate_solution}
+\end{equation}
+
+
+\subsubsection{AWBS collision operator}
+The~AWBS electron transport equation in 6D reads
+\begin{multline}
+  \vn\cdot\nabla f + \frac{1}{\vmag} \left[ \tE\cdot\vn \pdv{f}{\vmag} 
+  + \frac{\tE\cdot\vect{e}_\phi 
+  - \vmag\tB\cdot\vect{e}_\theta}{\vmag}\pdv{f}{\phi}
   + \frac{\tE\cdot\vect{e}_\theta + \vmag\tB\cdot\vect{e}_\phi}
-  {r\sin(\phi)}\pdv{f}{\theta} \right] 
+  {\vmag\sin(\phi)}\pdv{f}{\theta} \right] 
   =\\
   \frac{\vmag}{\lambda^e}\pdv{}{\vmag}\left(f - f_M\right) 
   + \frac{1}{2 \lambda^{ei}} 
@@ -1189,7 +1388,81 @@ where $\mu = \cos(\phi)$.
   + \frac{1}{\sin^2(\phi)}\frac{\partial^2f}{\partial\theta^2} \right) ,
   \label{eq:AWBS_spherical}
 \end{multline}
-where $\mu = \cos(\phi)$.
+where $\mu = \cos(\phi)$, $\mfpe$ is the~electron-electron mean free path, and
+$\mfpei$ is the~electron-ion mean free path.
+
+We can try to find an~approximate solution while using the~first term of
+expansion in $\mfpe$ and $mu$as
+\begin{equation}
+  \tilde{f}(z, \vmag, \mu) = f^0(z, \vmag) + f^1(z, \vmag) \mfpei\mu .
+  \label{eq:f_approximation}
+\end{equation}
+Clearly, $\pdv{\tilde{f}}{\theta} = 0$, and if $\tB = \tilde{B}_z\vect{e}_z$, 
+there is no effect of magnetic field. We also assume, that 
+$\nabla f = \pdv{f}{z}\vect{e}_z$ and appropriately 
+$\tE = \tilde{E}_z\vect{e}_z$.
+From the~orientation of the~Cartesian basis vectors and spherical 
+basis vectors, one can find $\tE\cdot\vn = \tilde{E}_z \cos(\phi) = \mu$ and
+$\tE\cdot\vect{e}_\phi = -\tilde{E}_z\sin(\phi)$. As a~result, the~analyzed
+AWBS equation reads
+\begin{multline}
+  \mu\pdv{}{z}\left( f^0 + f^1 \mfpei\mu \right) 
+  + \frac{1}{\vmag} \left[ \tilde{E}_z\mu \pdv{}{\vmag} 
+  \left( f^0 + f^1 \mfpei\mu \right) 
+  - \frac{\tilde{E}_z\sin(\phi)}{\vmag}\pdv{}{\phi} 
+  \left( f^0 + f^1 \mfpei\mu \right)
+  \right] 
+  =\\
+  \frac{\vmag}{\mfpe}\pdv{}{\vmag}
+  \left(\left( f^0 + f^1 \mfpei\mu \right) -\fM\right)
+  + \frac{1}{2 \mfpei}\pdv{}{\mu}\left((1 - \mu^2)
+  \pdv{}{\mu}\left( f^0 + f^1 \mfpei\mu \right) \right) ,
+  \label{eq:AWBS_spherical}
+\end{multline}
+
+\begin{multline}
+  \mu\pdv{f^0}{z} + \mu^2 \pdv{}{z}\left(f^1 \mfpei \right)
+  + \frac{\tilde{E}_z}{\vmag} \left[ \mu \pdv{f^0}{\vmag} 
+  + \mu^2 \pdv{}{\vmag} \left( f^1 \mfpei \right) 
+  + \frac{1 - \mu^2}{\vmag}f^1 \mfpei
+  \right] 
+  =\\
+  \frac{\vmag}{\Zbar\mfpei}\pdv{}{\vmag}
+  \left( f^0 -\fM\right)
+  + \mu\frac{\vmag}{\Zbar\mfpei}\pdv{\left(f^1 \mfpei\right)}{\vmag} 
+  - \mu f^1 ,
+  \label{eq:AWBS_spherical}
+\end{multline}
+consequently, we have the~following anisotropy expansion 
+$\mu^0, \mu^1, \mu^2, ...$ equations
+\begin{eqnarray}
+  \frac{\vmag}{\Zbar\mfpei}\pdv{}{\vmag}
+  \left( f^0 -\fM\right) &=& \frac{1}{\vmag}f^1 \mfpei , 
+  \nonumber \\
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag} &=& 
+  \frac{\vmag}{\Zbar\mfpei}\pdv{\left(f^1 \mfpei\right)}{\vmag}  - f^1 , 
+  \nonumber \\ 
+  \pdv{}{z}\left(f^1 \mfpei \right) 
+  + \frac{\tilde{E}_z}{\vmag} \left[\pdv{}{\vmag} \left( f^1 \mfpei \right)
+  - \frac{1}{\vmag}f^1 \mfpei \right] &=& 0 , \nonumber
+\end{eqnarray}
+which lead to the~definitions
+\begin{eqnarray}
+  \pdv{}{\vmag}\left( f^0 -\fM\right) &=& \frac{1}{\vmag^2}f^1 \Zbar\mfpei^2 ,
+  \label{eq:AWBS_f0} \\
+  \frac{\vmag}{\Zbar\mfpei}\pdv{\left(f^1 \mfpei\right)}{\vmag}  - f^1 &=&
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag}
+  \nonumber \\  
+  \frac{\vmag}{\Zbar}\pdv{f^1}{\vmag} + \frac{4}{\Zbar}f^1 - f^1 &=&
+  \pdv{f^0}{z} + \frac{\tilde{E}_z}{\vmag}\pdv{f^0}{\vmag}
+  \nonumber \\
+  \pdv{f^1}{\vmag} + \frac{1}{\vmag}(4-\Zbar)f^1
+  &=&
+  \frac{\Zbar}{\vmag}\left(\frac{1}{\rho}\pdv{\rho}{z} + 
+  \left( \frac{\vmag^2}{2 \vth^2} - \frac{3}{2}\right)
+  \frac{1}{T}\pdv{T}{z} - \frac{\tilde{E}_z}{\vth^2}\right)\fM .
+  \label{eq:AWBS_f1}
+\end{eqnarray}
 
 \section{M1 model}\label{sec:m1_model}
 \subsection{AWBS Boltzmann transport equation}
