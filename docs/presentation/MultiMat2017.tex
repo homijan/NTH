@@ -15,6 +15,7 @@
   \setbeamercovered{transparent}
 }
 
+% make the navigation bar to disappear
 \setbeamertemplate{headline}{}
 
 %\usepackage{ucs}
@@ -165,13 +166,13 @@
 \title[Nonlocal Transport Hydrodynamic Model on Curvilinear Meshes]{\textit{Serious Numerics for Serious Physics}:
   Nonlocal Transport Hydrodynamic Model on Curvilinear Meshes}
 \author[Milan~Holec]{{\large Milan~Holec}}
-\institute[US JAK]{
-         {\large CELIA, University of Bordeaux,\\ 
-		 33405 Talence, France
-		 \\ 
-		 ({\tt milan.holec@u-bordeaux.fr})
-		 }
-         }
+%\institute[US JAK]{
+%         {\large CELIA, University of Bordeaux,\\ 
+%		 33405 Talence, France
+%		 \\ 
+%		 ({\tt milan.holec@u-bordeaux.fr})
+%		 }
+%         }
 \begin{comment} % institutes
 \institute[US JAK]{
 	  $^1${
@@ -224,9 +225,9 @@
 	\end{center}
 	\end{figure}
 	\begin{tabular}{c}	
-	MULTIMAT\\
-    SANTA FE, NM, USA\\
-	SEPTEMBER 18-22, 2017 
+	CASC, LLNL\\
+    Livermore, CA, USA\\
+	January 16, 2018 
 	\end{tabular}
 }
 %\date{COST Working Group Meeting\\
@@ -511,7 +512,8 @@ solution [Manheimer, Colombant, and Goncharov, PoP 15, 083103 (2008)])
  \nonumber\\
  \rho \left(\frac{\partial \varepsilon_e}{\partial T_e}\frac{\dI T_e}{\dI t}
  +\frac{\partial \varepsilon_e}{\partial \rho}\frac{\dI \rho}{\dI t}\right)
-  + \frac{\dI \epsilon_R}{\dI t} &=& 
+  %+ \frac{\dI \epsilon_R}{\dI t} 
+  &=& 
  - p_e \nabla\cdot\vect{u} - \nabla\cdot\left(\vect{q}_e+\vect{q}_R \right) + 
  G(T_i - T_e) + Q_{\text{IB}}(\vect{E}_L)\, , 
  \nonumber
@@ -524,8 +526,8 @@ $\frac{\partial \varepsilon}{\partial T} =
 $p = \rho^2 \frac{\partial f}{\partial \rho}$, 
 $G = \rho\frac{\partial \varepsilon_e}{\partial T_e} \nu_{ei}$ 
 provides our HerEOS equation of state.
-\footnote{M. Zeman, M. Holec, P. Vachal, \textit{Int. J.
-Numer. Meth. F.}, submitted (2017).}
+\footnote{M. Zeman, M. Holec, P. Vachal, "HerEOS: a Framework for Consistent Treatment of the Equation of State in ALE Hydrodynamics",\\ 
+\textit{Comp. Math. Appl.}, submitted (2017).}
 %and depend on ion and electron free energies $f_i(\rho, T_i)$, 
 %$f_e(\rho, T_e)$ locally. 
 
@@ -536,7 +538,8 @@ Numer. Meth. F.}, submitted (2017).}
 Nonlocal transport of photon intensity 
 $I^p=\int_\nu f^p\, \frac{h^4\nu^3}{c^2}\, \dI\nu$
 \begin{equation}
-  \frac{1}{c}\frac{\partial I^p}{\partial t} + \vect{n}\cdot\nabla I^p = 
+  %\frac{1}{c}\frac{\partial I^p}{\partial t} + 
+  \vect{n}\cdot\nabla I^p = 
   \frac{a T_e^4 - I^{\, p}}{\lambda^p}\,  \label{photon_transport_equation} 
   \nonumber
 \end{equation}
@@ -544,23 +547,25 @@ $I^p=\int_\nu f^p\, \frac{h^4\nu^3}{c^2}\, \dI\nu$
 %and radiation energy density flux for hydro
 Radiation closure relations
 \begin{eqnarray}
-  \epsilon_R &=& \frac{1}{c}\int_{4\pi} I^{\, p}\, \dI\vect{n}\, \nonumber \\ 
+  %\epsilon_R &=& \frac{1}{c}\int_{4\pi} I^{\, p}\, \dI\vect{n}\, \nonumber \\ 
   \vect{q}_R &=& \int_{4\pi}\vect{n}\, I^{\, p}\, \dI\vect{n}\,  \nonumber\label{rad_momentum} 
   %\matr{P} &=& \frac{1}{c}\int_{\nu}\int_{4\pi}\vect{n}\vect{n}\, \cInun\, \dI\vect{n}\, \dI\nu\, , \label{rad_stress} 
 \end{eqnarray}
 \end{pcolumn}
 &
 \begin{pcolumn}{0.5}
-Nonlocal transport of electron intensity $I^e=\int_\nu f^e\, 
+Nonlocal transport of electron intensity 
+$I^e=\int_\nu f^e\, 
 \frac{m_e\, |\vect{v}|^5}{2}\, \dI|\vect{v}|$
 \begin{equation}
   %\frac{1}{\bar{|\vect{v}|}}\frac{\partial I^e}{\partial t} + 
   \vect{n}\cdot\nabla I^{e} = 
   k_B\Bigg(n_i \frac{\dI \bar{Z}}{\dI t} \frac{3}{8\pi} + 
-  \frac{n_e\sqrt{2}}{8 \lambda^e \pi^{\frac{3}{2}}} v_{T_e}\Bigg)T_e
+  \frac{n_e\sqrt{2}}{\alpha(\bar{Z}) \lambda^{ei} \pi^{\frac{3}{2}}} v_{T_e}\Bigg)
+  T_e
   %\sqrt{\frac{2 k_B T_e}{m_e}}\right) T_e\\ 
   %\sigma\left(\frac{\dI \bar{Z}}{\dI t}, \rho, T_e\right) T_e
-  \, -\, \frac{1 - 20 \vect{n}\cdot\vect{Kn}^e}{8 \lambda^e}\, I^{e} 
+  \, -\, \frac{I^e}{\alpha(\bar{Z}) \lambda^{ei}} 
   \label{photon_transport_equation} \nonumber
 \end{equation}
 %Photon transport equation using Bhatnagar-Gross-Krook collision operator and related closure via radiation energy density
@@ -570,34 +575,22 @@ Electron closure relations
   %\varepsilon^e &=& \frac{1}{\bar{|\vect{v}|}}\int_{4\pi} I^e\, \dI\vect{n}\, 
   %\nonumber \\ 
   \vect{q}_e &=& \int_{4\pi}\vect{n}\, I^e\, \dI\vect{n}\, 
-  \xrightarrow{diffusive} - \kappa\, T_e^{\frac{5}{2}}\, \nabla T_e 
+  \xrightarrow{diffusive} - \kappa_{SH}\, T_e^{\frac{5}{2}}\, \nabla T_e 
   \nonumber\label{ele_momentum} 
-  \\
-  \vect{Kn}^e &=& \frac{\lambda^e \nabla T_e}{T_e}
-  \nonumber 
+  %\\
+  %\vect{Kn}^e &=& \frac{\lambda^e \nabla T_e}{T_e}
+  %\nonumber 
   %\\
   %\vect{E} &=& \frac{k_B T_e}{q_e}\frac{5}{2}\frac{\nabla T_e}{T_e}
   %\nonumber
   %\matr{P} &=& \frac{1}{c}\int_{\nu}\int_{4\pi}\vect{n}\vect{n}\, \cInun\, \dI\vect{n}\, \dI\nu\, , \label{rad_stress} 
 \end{eqnarray}
 \end{pcolumn}
-\\ \hline
+%\\ \hline
 \end{tabular} 
-\begin{equation}
-  \frac{1}{c}\frac{\partial \vect{B}}{\partial t} = 
-  - \nabla\times\frac{1}{e n_e c}\vect{j}\times\vect{B}
-  - \nabla\times\frac{c}{e n_e \sigma 4\pi}\nabla\times\vect{B}
-  - \nabla\times \left(
-  \frac{\sum_g \int_{\Delta v^g} v\nabla\cdot\ftwo \dI v}
-  {\sum_g \int_{\Delta v^g} \frac{e}{m_e v}\left(\frac{1}{v}\pv 
-  \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right) \dI v} 
-  - \frac{\tilde{\vect{j}}}{e n_e \sigma}\right)
-  \nonumber
-\end{equation}
 
 \end{center}
 \end{frame}
-
 
 \section{High-order discontinuous Galerkin BGK transport scheme for hydrodynamics (DG-BGK$\&$T)}
 \subsection{DG-BGK$\&$T finite element transport scheme}
@@ -865,7 +858,7 @@ Numer. Meth. F.}, 83, 779 (2017).}
 \begin{equation}
    %\frac{1}{\bar{v}}\frac{\partial \ff}{\partial t} + 
    \cos(\Phi)\frac{\partial \ff}{\partial z} = 
-   S_T T_e - (k + \cos(\Phi) E_z) \ff + \sigma I_0\, ,
+   S_T T_e - (k + \sigma + \cos(\Phi) E_z) \ff + \sigma I_0\, ,
    \quad I_0 = \frac{1}{2}\int_{\OPhi} I \sin(\Phi)\, \dI \Phi
    \nonumber %\forall \psi_I\in H\, , \nonumber\label{continuous_DG}
 \end{equation}
