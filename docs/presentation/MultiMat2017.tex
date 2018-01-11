@@ -1,4 +1,4 @@
-\documentclass[8pt]{beamer}
+\documentclass[8pt, compress]{beamer}
 
 %%% default
 %\geometry{paperwidth=128mm,paperheight=96mm}
@@ -14,6 +14,8 @@
  % \usetheme{Boadilla}  
   \setbeamercovered{transparent}
 }
+
+\setbeamertemplate{headline}{}
 
 %\usepackage{ucs}
 %\usepackage[czech]{babel}
@@ -160,7 +162,8 @@
 \useinnertheme{rectangles}
 %\useoutertheme{infolines} 
 
-\title[{Nonlocal Transport in Curvilinear Hydrodynamics \it "SERIOUS NUMERICS FOR SERIOUS PHYSICS"}]{High-order Curvilinear Finite Element Scheme for Nonlocal Transport in Lagrangian Hydrodynamics}
+\title[Nonlocal Transport Hydrodynamic Model on Curvilinear Meshes]{\textit{Serious Numerics for Serious Physics}:
+  Nonlocal Transport Hydrodynamic Model on Curvilinear Meshes}
 \author[Milan~Holec]{{\large Milan~Holec}}
 \institute[US JAK]{
          {\large CELIA, University of Bordeaux,\\ 
@@ -285,17 +288,23 @@
  \titlepage
 \end{frame}
 
-%\begin{frame}
-%\tableofcontents
-%\end{frame}
+\begin{frame}
+  \tableofcontents
+\end{frame}
 
-%\section{Introduction to nonlocal transport in laser-heated plasma 
-%hydrodynamics}
+\section{Introduction to Nonlocal Transport Hydrodynamic model (NTH)}
 
-%\subsection{Nonlocal transport models review}
+\subsection{Thermal radiative transport}
 
 \newcommand{\edf}{\colorimportant{f}}
 \begin{frame}
+\begin{center}
+{\large Radiation diffusion model}
+\end{center}
+\end{frame}
+\begin{frame}
+
+\subsection{Nonlocal electron transport}
 \begin{center}
 {\large Hydrodynamic model of plasma}
 \begin{block}{Boltzmann transport equation}
@@ -305,8 +314,14 @@
   +\frac{\vect{v}}{c}\times\vect{B}\right)\cdot
   \nabla_{\vect{v}} \edf 
   = 
-  C(\edf, \edf)
+  \sigma \nabla_{\vect{v}}\cdot\int 
+  \frac{|\vect{v}-\vect{v}'|^2\matr{I} - (\vect{v}-\vect{v}')\otimes 
+  \vect{v}-\vect{v}')}{|\vect{v}-\vect{v}'|^3}
+  \big(\nabla_{\vect{v}} f(\vect{v}) f(\vect{v}') - 
+  f(\vect{v}) \nabla_{\vect{v}} f(\vect{v}')\big) \dI \vect{v}'
   \nonumber
+  %C(\edf, \edf)
+  %\nonumber
 \end{equation}
 \end{block}
 \begin{block}{Fluid equations}
@@ -468,8 +483,124 @@ solution [Manheimer, Colombant, and Goncharov, PoP 15, 083103 (2008)])
 \end{center}
 \end{frame}
 
-%\section{High-order discontinuous Galerkin finite element numerical method}
-%\subsection{DG-BGK$\&$Ts scheme for nonlocal radiation and electron transport}
+\subsection{NTH summary}
+\newcommand{\fzero}{f_0}
+\newcommand{\fone}{\boldsymbol{f}_1}
+\newcommand{\ftwo}{\boldsymbol{f}_2}
+\newcommand{\pv}{\frac{\partial}{\partial v}}
+\newcommand{\fM}{f_M}
+%\begin{comment} % Extensive NTH model
+\begin{frame}
+\begin{center}
+{\large Nonlocal Transport Magneto-Hydrodynamics}
+%\myheading{Radiative Fluid Model of Laser Plasma}
+%Conservation of mass $\rho$, momentum $\rho \vect{u}$, 
+%and energy $\varepsilon_e+\varepsilon_i+\epsilon_R$ of radiation field 
+%and plasma fluid, 
+%where the inverse-bremsstrahlung deposition of laser electric
+%field $\vect{E}_L$ heats the target, read 
+\begin{eqnarray}
+ \frac{\dI \rho}{\dI t} &=& - \rho\nabla\cdot\vect{u}\, , 
+ \nonumber\\ 
+ \rho\, \frac{\dI \vect{u}}{\dI t} &=& - \nabla (p_i + p_e) \, , 
+ \nonumber\\   
+ \rho \left(\frac{\partial \varepsilon_i}{\partial T_i}\frac{\dI T_i}{\dI t} 
+ +\frac{\partial \varepsilon_i}{\partial \rho}\frac{\dI \rho}{\dI t}\right)
+ &=& 
+ - p_i\nabla\cdot\vect{u} - G(T_i - T_e)\, , 
+ \nonumber\\
+ \rho \left(\frac{\partial \varepsilon_e}{\partial T_e}\frac{\dI T_e}{\dI t}
+ +\frac{\partial \varepsilon_e}{\partial \rho}\frac{\dI \rho}{\dI t}\right)
+  + \frac{\dI \epsilon_R}{\dI t} &=& 
+ - p_e \nabla\cdot\vect{u} - \nabla\cdot\left(\vect{q}_e+\vect{q}_R \right) + 
+ G(T_i - T_e) + Q_{\text{IB}}(\vect{E}_L)\, , 
+ \nonumber
+\end{eqnarray}
+the quantities $\frac{\partial \varepsilon}{\partial \rho} =
+\frac{\partial f}{\partial \rho}
+- T \frac{\partial^2 f}{\partial \rho \partial T}$, 
+$\frac{\partial \varepsilon}{\partial T} = 
+-T \frac{\partial^2 f}{\partial T^2}$, 
+$p = \rho^2 \frac{\partial f}{\partial \rho}$, 
+$G = \rho\frac{\partial \varepsilon_e}{\partial T_e} \nu_{ei}$ 
+provides our HerEOS equation of state.
+\footnote{M. Zeman, M. Holec, P. Vachal, \textit{Int. J.
+Numer. Meth. F.}, submitted (2017).}
+%and depend on ion and electron free energies $f_i(\rho, T_i)$, 
+%$f_e(\rho, T_e)$ locally. 
+
+\begin{tabular}{c|c}
+\hline \\
+
+\begin{pcolumn}{0.4}
+Nonlocal transport of photon intensity 
+$I^p=\int_\nu f^p\, \frac{h^4\nu^3}{c^2}\, \dI\nu$
+\begin{equation}
+  \frac{1}{c}\frac{\partial I^p}{\partial t} + \vect{n}\cdot\nabla I^p = 
+  \frac{a T_e^4 - I^{\, p}}{\lambda^p}\,  \label{photon_transport_equation} 
+  \nonumber
+\end{equation}
+%Photon transport equation using Bhatnagar-Gross-Krook collision operator and related closure via radiation energy density
+%and radiation energy density flux for hydro
+Radiation closure relations
+\begin{eqnarray}
+  \epsilon_R &=& \frac{1}{c}\int_{4\pi} I^{\, p}\, \dI\vect{n}\, \nonumber \\ 
+  \vect{q}_R &=& \int_{4\pi}\vect{n}\, I^{\, p}\, \dI\vect{n}\,  \nonumber\label{rad_momentum} 
+  %\matr{P} &=& \frac{1}{c}\int_{\nu}\int_{4\pi}\vect{n}\vect{n}\, \cInun\, \dI\vect{n}\, \dI\nu\, , \label{rad_stress} 
+\end{eqnarray}
+\end{pcolumn}
+&
+\begin{pcolumn}{0.5}
+Nonlocal transport of electron intensity $I^e=\int_\nu f^e\, 
+\frac{m_e\, |\vect{v}|^5}{2}\, \dI|\vect{v}|$
+\begin{equation}
+  %\frac{1}{\bar{|\vect{v}|}}\frac{\partial I^e}{\partial t} + 
+  \vect{n}\cdot\nabla I^{e} = 
+  k_B\Bigg(n_i \frac{\dI \bar{Z}}{\dI t} \frac{3}{8\pi} + 
+  \frac{n_e\sqrt{2}}{8 \lambda^e \pi^{\frac{3}{2}}} v_{T_e}\Bigg)T_e
+  %\sqrt{\frac{2 k_B T_e}{m_e}}\right) T_e\\ 
+  %\sigma\left(\frac{\dI \bar{Z}}{\dI t}, \rho, T_e\right) T_e
+  \, -\, \frac{1 - 20 \vect{n}\cdot\vect{Kn}^e}{8 \lambda^e}\, I^{e} 
+  \label{photon_transport_equation} \nonumber
+\end{equation}
+%Photon transport equation using Bhatnagar-Gross-Krook collision operator and related closure via radiation energy density
+%and radiation energy density flux for hydro
+Electron closure relations
+\begin{eqnarray}
+  %\varepsilon^e &=& \frac{1}{\bar{|\vect{v}|}}\int_{4\pi} I^e\, \dI\vect{n}\, 
+  %\nonumber \\ 
+  \vect{q}_e &=& \int_{4\pi}\vect{n}\, I^e\, \dI\vect{n}\, 
+  \xrightarrow{diffusive} - \kappa\, T_e^{\frac{5}{2}}\, \nabla T_e 
+  \nonumber\label{ele_momentum} 
+  \\
+  \vect{Kn}^e &=& \frac{\lambda^e \nabla T_e}{T_e}
+  \nonumber 
+  %\\
+  %\vect{E} &=& \frac{k_B T_e}{q_e}\frac{5}{2}\frac{\nabla T_e}{T_e}
+  %\nonumber
+  %\matr{P} &=& \frac{1}{c}\int_{\nu}\int_{4\pi}\vect{n}\vect{n}\, \cInun\, \dI\vect{n}\, \dI\nu\, , \label{rad_stress} 
+\end{eqnarray}
+\end{pcolumn}
+\\ \hline
+\end{tabular} 
+\begin{equation}
+  \frac{1}{c}\frac{\partial \vect{B}}{\partial t} = 
+  - \nabla\times\frac{1}{e n_e c}\vect{j}\times\vect{B}
+  - \nabla\times\frac{c}{e n_e \sigma 4\pi}\nabla\times\vect{B}
+  - \nabla\times \left(
+  \frac{\sum_g \int_{\Delta v^g} v\nabla\cdot\ftwo \dI v}
+  {\sum_g \int_{\Delta v^g} \frac{e}{m_e v}\left(\frac{1}{v}\pv 
+  \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right) \dI v} 
+  - \frac{\tilde{\vect{j}}}{e n_e \sigma}\right)
+  \nonumber
+\end{equation}
+
+\end{center}
+\end{frame}
+
+
+\section{High-order discontinuous Galerkin BGK transport scheme for hydrodynamics (DG-BGK$\&$T)}
+\subsection{DG-BGK$\&$T finite element transport scheme}
 
 \begin{frame}
 \begin{center}
@@ -559,6 +690,8 @@ $\quad\colorf{\vect{\ff}^{n+1} = \matr{A}\cdot\colorTe{\vect{T}^{n+1}_e} +
 \end{block}
 
 \end{center}
+\footnote{M. Holec, J. Limpouch, R. Liska and S. Weber, \textit{Int. J.
+Numer. Meth. F.}, 83, 779 (2017).}
 \end{frame}
 
 \begin{frame}
@@ -631,6 +764,8 @@ I[Q3] & 80 & 8.9e-15 & 4.1 & 2.4e-11 & 4.1 & 3.3e-10 & 4.1 \\
 It is worth mentioning that the method works well also in diffusive 
 limit $k=10^4$ ($Kn \approx 10^{-4}$).
 \end{center}
+\footnotetext{M. Holec, J. Limpouch, R. Liska and S. Weber, \textit{Int. J.
+Numer. Meth. F.}, 83, 779 (2017).}
 \end{frame}
 
 \begin{frame}
@@ -709,6 +844,8 @@ $\colorimportant{\nabla\cdot\vect{q}}$
 }
 \end{pcolumn}
 \end{center}
+\footnotetext{M. Holec, J. Limpouch, R. Liska and S. Weber, \textit{Int. J.
+Numer. Meth. F.}, 83, 779 (2017).}
 \end{frame}
 
 \begin{frame}
@@ -803,6 +940,8 @@ $\quad\colorf{\vect{\ff}^{n+1} = \matr{A}\cdot\colorTe{\vect{T}^{n+1}_e} +
 \end{block}
 
 \end{center}
+\footnotetext{M. Holec, J. Limpouch, R. Liska and S. Weber, \textit{Int. J.
+Numer. Meth. F.}, 83, 779 (2017).}
 \end{frame}
 
 \begin{frame}
@@ -898,18 +1037,11 @@ a \matr{M}\cdot
 \nonumber \label{DGBGKT}
 \end{equation}
 \end{block}
-\footnote{[Holec et al, IJNMF 83, 779 (2017)]}
+\footnotetext{M. Holec, J. Limpouch, R. Liska and S. Weber, \textit{Int. J.
+Numer. Meth. F.}, 83, 779 (2017).}
 \end{pcolumn}
-
-%\begin{tabular}{l}
-%\hline
-%Entire algebraic construction of DG-BGK$\&$Ts is based on 
-%\colorimportant{mfem.org}
-%\end{tabular}
-
 \end{frame}
 
-%\subsection{Approximate multi-group diffusion test}
 \begin{frame}
 \begin{center}
 \myheading{Approximate multi-group diffusion test}
@@ -1000,252 +1132,11 @@ T[Q6Q6]& 1.7e-04 [4]& --& --& --& --\\
 \end{pcolumn}
 
 \end{center}
+\footnotetext{M. Holec, J. Limpouch, R. Liska and S. Weber, \textit{Int. J.
+Numer. Meth. F.}, 83, 779 (2017).}
 \end{frame}
 
-\renewcommand{\vect}[1]{\boldsymbol{#1}}
-\renewcommand{\matr}[1]{\mathbf{#1}}
-\renewcommand{\dI}{\text{d}}
-\newcommand{\pdv}[2]{\frac{\partial{#1}}{\partial{#2}}}
-\newcommand{\odv}[2]{\frac{\dI #1}{\dI #2}}
-\newcommand{\ddv}[2]{\odv{#1}{#2}}
-%\renewcommand{\ddv}[2]{\frac{\Delta #1}{\Delta #2}}
-\newcommand{\nue}{\nu_{e}}
-\newcommand{\nutot}{\nu_{t}}
-\newcommand{\vmag}{v}
-\newcommand{\vn}{\vect{n}}
-\newcommand{\E}{\vect{E}}
-\newcommand{\B}{\vect{B}}
-\newcommand{\tE}{\vect{\tilde{E}}}
-\newcommand{\tB}{\vect{\tilde{B}}}
-\newcommand{\qe}{q_e}
-\newcommand{\me}{m_e}
-\newcommand{\fM}{f_M}
-\newcommand{\fzero}{f_0}
-\newcommand{\vfzero}{\vect{f}_0}
-\newcommand{\fone}{\vect{f}_1}
-\newcommand{\SM}{\vect{S}_M}
-\newcommand{\MI}{\matr{I}}
-\newcommand{\MA}{\matr{A}}
-\newcommand{\intO}{\int_{\Omega}}
-\newcommand{\IM}{\boldsymbol{\mathcal{M}}}
-\newcommand{\ID}{\boldsymbol{\mathcal{D}}}
-\newcommand{\IV}{\boldsymbol{\mathcal{V}}}
-\newcommand{\IB}{\boldsymbol{\mathcal{B}}}
-\newcommand{\acl}{\vect{M}_{\left(\fone/\fzero\right)}}
-
-\begin{frame}
-\begin{center}
-\myheading{AWBS Boltzmann transport equation}
-\begin{equation}
-  \vmag\vn\cdot\nabla f + \frac{\qe}{\me}\left( \E + 
-  \frac{\vmag}{c}\vn\times\B\right)\cdot\nabla_{\vect{v}} f = \nue \vmag 
-  \pdv{}{\vmag}\left( f - \fM\right) .
-  \nonumber\label{eq:AWBS}
-\end{equation}
-\myheading{M1-AWBS transport model 
-"$f = \fzero \frac{\left|\acl\right|}{4\pi\sinh\left(\acl\right)}\exp\left(\vn\cdot\acl\right)$"}
-\begin{eqnarray}
-  \nue\vmag\pdv{}{\vmag}\left(\fzero - \fM \right) &=&
-  \vmag\nabla\cdot\fone + \frac{\qe}{\me\vmag^2}\E\cdot\pdv{}{\vmag}
-  \left( \vmag^2 \fone\right) , 
-  \nonumber\label{eq:M1f0}\\
-  \nue\vmag\pdv{}{\vmag}\fone - \nutot\fone &=& 
-  \vmag\nabla\cdot\left(\MA\fzero\right) + 
-  \frac{\qe}{\me\vmag^2}\E\cdot\pdv{}{\vmag}
-  \left( \vmag^2 \MA\fzero\right)
-  + \frac{\qe}{\me\vmag}\E\cdot\left( \MA - \MI \right)\fzero +
-  \frac{\qe}{\me c}\B\times\fone .
-  \nonumber\label{eq:M1f1}
-\end{eqnarray}
-\myheading{High-order finite element bilienar form integrators}
-\begin{equation}
-  \IM^0_{(g)} = \intO\vect{\phi}\, \otimes\, \vect{\phi}^T g\, \dI \Omega,\quad
-  \IM^1_{(g)} = \intO\matr{w} \cdot \matr{w}^T g\, \dI\Omega,\quad
-  \ID_{(\matr{G})} = \intO \matr{G} : \nabla\matr{w}
-  \, \otimes\, \vect{\phi}^T\, \dI \Omega ,
-  \nonumber
-\end{equation}
-\begin{equation}  
-  \IV_{(\vect{g})} = \intO\matr{w} \cdot
-  \vect{g}\, \otimes\, \vect{\phi}^T\, \dI \Omega,\quad
-  \IB_{(\vect{g})} = \intO\matr{w} \cdot
-  \vect{g} \times \matr{w}^T\, \dI \Omega ,
-  \nonumber
-\end{equation}
-\begin{equation}
-  \vect{\phi} = \begin{bmatrix}
-    \phi_{1} \\
-	\vdots   \\
-	\phi_{N_0}
-  \end{bmatrix},~
-  \matr{w} = \begin{bmatrix}
-    w_{1, 1} & \hdots & w_{1, d} \\
-	\vdots   & \ddots & \vdots \\
-	w_{N_1, 1} & \hdots & w_{N_1, d}
-  \end{bmatrix},~
-  \vect{g} = \begin{bmatrix}
-    g_{1} \\
-	\vdots   \\
-	g_{d}
-  \end{bmatrix},~
-  \matr{G} = \begin{bmatrix}
-    G_{1, 1} & \hdots & G_{1, d} \\
-	\vdots   & \ddots & \vdots \\
-	G_{d, 1} & \hdots & G_{d, d}
-  \end{bmatrix}.
-  \nonumber
-\end{equation}
-\end{center}
-\end{frame}
-
-\begin{frame}
-\begin{equation}
-  \left( \matr{M}^c_0 
-  - \IM^0_{\left(\frac{\rho}{\vmag\nue\vfzero^n}\tE^T\cdot\fone^n\right)}
-  \right) \cdot {\ddv{\vfzero}{\vmag}}^* 
-  = 
-  \ID^T_{\left(\frac{\rho}{\nue}\MI\right)} \cdot \fone^n 
-  + \frac{2}{\vmag^2}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot \fone^n
-  + \matr{M}^c_0 \cdot \pdv{\vect{\fM}}{\vmag} ,  
-  \nonumber\label{eq:explM1hosf0}
-\end{equation}
-\begin{equation}
-  \matr{M}^c_1 \cdot \ddv{\fone}{\vmag} 
-  = 
-  - \left(\ID_{\left(\frac{\rho}{\nue}\MA\right)}  
-  + \IV_{\left( \MA \cdot \nabla\left(\frac{\rho}{\nue}\right) \right)} \right) 
-  \cdot \vfzero^n  
-  + \frac{1}{\vmag}\IV_{\left(\frac{\rho}{\nue}\MA \cdot \tE\right)} \cdot
-  {\ddv{\vfzero}{\vmag}}^* 
-  + \frac{1}{\vmag^2}\IV_{\left(\frac{\rho}{\nue} 
-  \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero^n
-  + \frac{1}{\vmag}\IB_{\left( \frac{\rho}{\nue}\tB \right)} \cdot \fone^n
-  + \frac{1}{\vmag}\IM^1_{\left( \frac{\rho \nutot}{\nue} \right)} 
-  \cdot \fone^n .
-  \nonumber\label{eq:explM1hosf1}
-\end{equation}
-\begin{figure}[tbh]
-  \begin{center}
-    %\begin{tabular}{c}
-      \includegraphics[width=0.8\textwidth]{../../M1Sedov1D2D3D.png}
-    %\end{tabular}
-  \caption{
-  Sedov blast. Left: density, center: heat flux, right: temperature.
-  Explicit scheme number of e-groups: 1D - 8858, 2D - 4348, 3D - 10030.
-  %Sedov blast in 1D/2D/3D from $\delta$ function hot spot. 
-  %Shock propagates from left to right. Top raw corresponds to 1D 
-  %(8858 energy groups) - 
-  %left: density profile, right: temperature 
-  %(decreasing from the~original hot spot with low temperature in compressed 
-  %plasma), center: heat flux with its maximum on the~start of increase 
-  %in density decreasing while approaching the~shock 
-  %(NOTICE non-zero flux ahead of the~shock). 
-  %Middle raw corresponds to 2D (4348 energy groups) - 
-  %left: density, center: heat flux, right: temperature.
-  %Bottom raw corresponds to 3D (10030 energy groups) - 
-  %left: density, center: heat flux, right: temperature.
-  %temperature 
-  }
-  \end{center}
-  \label{fig:expl1D2D3D}
-\end{figure}
-\end{frame}
-
-\begin{frame}
-\begin{center}
-\myheading{Implicit M1-AWBS scheme for CHIC}
-\begin{eqnarray}
-  \IM^0_{(\rho)} \cdot \pdv{\vfzero}{\vmag} 
-  - \IM^0_{(\rho)} \cdot \pdv{\vect{\fM}}{\vmag}
-  &=& 
-  \ID^T_{\left(\frac{\rho}{\nue}\MI\right)} \cdot \fone
-  + \frac{1}{\vmag}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot 
-  \pdv{\fone}{\vmag} 
-  + \frac{2}{\vmag^2}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot \fone ,  
-  \nonumber\label{eq:semiM1hosf0}\\
-  \IM^1_{(\rho)} \cdot \pdv{\fone}{\vmag} 
-  - \frac{1}{\vmag}\IM^1_{\left( \frac{\rho \nutot}{\nue} \right)} 
-  \cdot \fone 
-  &=& 
-  - \left(\ID_{\left(\frac{\rho}{\nue}\MA\right)}  
-  + \IV_{\left( \MA \cdot \nabla\left(\frac{\rho}{\nue}\right) \right)}\right) 
-  \cdot \vfzero  
-  + \frac{1}{\vmag}\IV_{\left(\frac{\rho}{\nue}\MA \cdot \tE\right)} \cdot
-  \pdv{\vfzero}{\vmag}
-  + \frac{1}{\vmag^2}\IV_{\left(\frac{\rho}{\nue} 
-  \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero
-  + \frac{1}{\vmag}\IB_{\left( \frac{\rho}{\nue}\tB \right)} \cdot \fone ,
-  \nonumber\label{eq:semiM1hosf1}
-\end{eqnarray}
-
-\begin{eqnarray}
-  \matr{M}^c_0 \cdot \pdv{\vfzero}{\vmag}  
-  &=& 
-  \matr{D}_0 \cdot \fone
-  + \matr{E}_0^1 \cdot \pdv{\fone}{\vmag} + \matr{E}_0^2 \cdot \fone
-  + \matr{M}^c_0 \cdot \pdv{\vect{\fM}}{\vmag} ,  
-  \nonumber\\
-  \matr{M}^c_1 \cdot \pdv{\fone}{\vmag}  
-  &=& 
-  - \matr{D}_1 \cdot \vfzero 
-  + \matr{E}_1^1 \cdot \pdv{\vfzero}{\vmag}
-  + \matr{E}_1^2 \cdot \vfzero
-  + \matr{B} \cdot \fone
-  + \matr{M}_1 \cdot \fone ,
-  \nonumber
-\end{eqnarray}
-
-\begin{eqnarray}
-  \ddv{\vfzero}{\vmag}  
-  &=& 
-  {\matr{M}^c_0}^{-1} \cdot \left(\matr{D}_0 + \matr{E}_0^2 \right) 
-  \cdot \left(\fone^n + \Delta \vmag \ddv{\fone}{\vmag} \right)
-  + {\matr{M}^c_0}^{-1} \cdot \matr{E}_0^1 \cdot \ddv{\fone}{\vmag}
-  + \pdv{\vect{\fM}}{\vmag} ,  
-  \nonumber\\
-  \matr{M}^c_1 \cdot \ddv{\fone}{\vmag}  
-  &=& 
-  \left( \matr{E}_1^2 - \matr{D}_1 \right) 
-  \cdot \left(\vfzero^n + \Delta\vmag \ddv{\vfzero}{\vmag} \right) 
-  + \matr{E}_1^1 \cdot \ddv{\vfzero}{\vmag}
-  + \left( \matr{B} + \matr{M}_1 \right)  
-  \cdot \left(\fone^n + \Delta \vmag \ddv{\fone}{\vmag} \right) ,
-  \nonumber
-\end{eqnarray}
-
-\begin{block}{Implicit Runge-Kuta scheme (high-order, parallel, efficient, ..., but stable?)}
-\begin{equation}
-  \ddv{\vfzero}{\vmag}  
-  = 
-  \matr{\tilde{A}}_0 \cdot \ddv{\fone}{\vmag}
-  + \vect{b}_0\left(\fone^n, \pdv{\vect{\fM}}{\vmag}\right) ,  
-  \quad
-  \left( \matr{M}^c_1 
-  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) \right) 
-  \cdot \ddv{\fone}{\vmag}  
-  = 
-  \matr{\tilde{A}}_1 \cdot \ddv{\vfzero}{\vmag}  
-  + \vect{b}_1 \left( \fone^n, \vfzero^n \right) , 
-  \nonumber\label{eq:df1dvdf0dv}
-\end{equation}
-
-\begin{equation}
-  \left( \matr{M}^c_1 
-  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) 
-  - \matr{\tilde{A}}_1 \cdot \matr{\tilde{A}}_0 \right) 
-  \cdot \ddv{\fone}{\vmag}  
-  = 
-  \matr{\tilde{A}}_1 
-  \cdot \vect{b}_0 + \vect{b}_1 , 
-  %\matr{\tilde{A}}_1 
-  %\cdot \vect{b}_0\left(\fone^n, \pdv{\vect{\fM}}{\vmag}\right)
-  %+ \vect{b}_1 \left( \fone^n, \vfzero^n \right)~, 
-  \label{eq:df1dv}
-\end{equation}
-\end{block}
-\end{center}
-\end{frame}
-
+\subsection{Nonlocal transport on curvilinear meshes}
 %\begin{comment} % RT pics
 \newcommand{\RThscale}{0.9}
 \begin{frame}
@@ -1503,6 +1394,8 @@ T[Q6Q6]& 1.7e-04 [4]& --& --& --& --\\
 \end{center}
 \end{frame}
 
+\subsection{DG-BGK$\&$T + LAGHOS}
+
 \begin{frame}
 \begin{center}
 \begin{tabular}{cc}
@@ -1600,6 +1493,83 @@ T[Q6Q6]& 1.7e-04 [4]& --& --& --& --\\
 
 \begin{frame}
 \begin{center}
+{\large DG-BGK$\&$T implemented with Laghos}
+\begin{figure}
+\includegraphics[width=0.7\textwidth]{../figs_NTH/nth_sedov.png} 
+\end{figure}
+\end{center}
+\end{frame}
+
+\section{Application of NTH in high-power laser physics}
+
+\subsection{Nonlocal transport hydrodynamic model for laser-heated plasmas}
+
+\begin{frame}
+\begin{center}
+{\large Hotspot relaxation}
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.65\textwidth]{../figs_NTH/nth_hotspot.png} 
+\caption{Green - NTH, red - Fokker-Planck, yellow - SH, blue - flux limited SH.}
+\label{RH_fig}
+\end{center}
+\end{figure}
+\footnote{M. Holec, J. Nikl, and S. Weber, "Nonlocal Transport Hydrodynamic Model for Laser Heated Plasmas", \textit{Phys. Plasmas}, 
+submitted (2017).}
+%\begin{itemize}
+%  \item show NTH
+%  \item point out heat flux limiter
+%\end{itemize}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+{\large Short-Epperlein test}
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{../figs_NTH/VFP_Epperlein.png} 
+%\caption{.}
+\label{RH_fig}
+\end{center}
+\end{figure}
+\footnotetext{M. Holec, J. Nikl, and S. Weber, "Nonlocal Transport Hydrodynamic Model for Laser Heated Plasmas", \textit{Phys. Plasmas}, 
+submitted (2017).}
+%\begin{itemize}
+%  \item show NTH
+%  \item point out heat flux limiter
+%\end{itemize}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+{\large Planar plastic target irradiated by NIF}
+\begin{figure}
+\begin{center}
+\begin{tabular}{ccc}
+  \includegraphics[width=0.33\textwidth]{../figs_NTH/nth_ne10ns.png} &
+  \includegraphics[width=0.33\textwidth]{../figs_NTH/nth_fluxes.png} &
+  \includegraphics[width=0.33\textwidth]{../figs_NTH/nth_Kns.png}
+\end{tabular}
+%\caption{.}
+\label{RH_fig}
+\end{center}
+\end{figure}
+\footnotetext{M. Holec, J. Nikl, and S. Weber, "Nonlocal Transport Hydrodynamic Model for Laser Heated Plasmas", \textit{Phys. Plasmas}, 
+submitted (2017).}
+%\begin{itemize}
+%  \item show NTH
+%  \item point out heat flux limiter
+%\end{itemize}
+\end{center}
+\end{frame}
+
+
+\subsection{Measurement of preheat due to nonlocal electron transport in warm
+   dense matter}
+\begin{frame}
+\begin{center}
 {\large Preheat observed in a shocked CH foam at Omega}
 \begin{figure}
 \begin{center}
@@ -1619,6 +1589,8 @@ T[Q6Q6]& 1.7e-04 [4]& --& --& --& --\\
 flat 2 ns laser pulse, 8$\times$10$^{14}$ Wcm2, 
 300 $\mu$m thick foam ($\rho=0.13$ g/cm$^3$) 
 \end{center}
+\footnote{K. Falk, M. Holec, C. J. Fontes et al, "Measurement of preheat due to nonlocal electron transport in warm dense
+matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
 
 \begin{frame}
@@ -1636,6 +1608,8 @@ flat 2 ns laser pulse, 8$\times$10$^{14}$ Wcm2,
 \end{figure}
 a) recent experiment with new phase-plates, b) previous experiment
 \end{center}
+\footnotetext{K. Falk, M. Holec, C. J. Fontes et al, "Measurement of preheat due to nonlocal electron transport in warm dense
+matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
 
 \begin{frame}
@@ -1687,6 +1661,8 @@ $\colorimportant{{q_e}_1 - {q_e}_0 \approx -2(p_1 u_1 - p_0 u_0)\approx
 
 which is comparable to the~hydrodynamics flux contribution.
 \end{center}
+\footnotetext{K. Falk, M. Holec, C. J. Fontes et al, "Measurement of preheat due to nonlocal electron transport in warm dense
+matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
 
 \begin{frame}
@@ -1710,6 +1686,8 @@ which is comparable to the~hydrodynamics flux contribution.
 Effective mean free path was 4.1$\times v_T$, according to LANL code ATOMIC 
 the mean free path in WDM foam increases $\approx$ 30$\%$.
 \end{center}
+\footnotetext{K. Falk, M. Holec, C. J. Fontes et al, "Measurement of preheat due to nonlocal electron transport in warm dense
+matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
 
 %\begin{comment} % LANL
@@ -1731,94 +1709,209 @@ Significant part of x-rays $<$ 2keV (penetration depth is small) $\rightarrow$
 energy absrobed in the surface of the foam is $\approx$ 670 J/cm3. 
 Absorbed energy density by nonlocal electrons $\approx$ 2.7e6 J/cm3.
 \end{center}
+\footnotetext{K. Falk, M. Holec, C. J. Fontes et al, "Measurement of preheat due to nonlocal electron transport in warm dense
+matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
 %\end{comment} % LANL
 
+\subsection{The effect of pre-plasma formation under nonlocal transport conditions for ultra-relativistic laser-plasma interaction}
 \begin{frame}
-%\myheading{\colorimportant{P}lasma \colorimportant{E}uler and 
-%\colorimportant{T}ransport \colorimportant{E}quations
-%nonlocal hydro code}
-\myheading{Conclusions}
-\begin{block}{Plasma Euler and Transport Equations
-hydro code \colorimportant{PETE}}
-\begin{tabular}{c|c}
-\begin{pcolumn}{0.5}
-\begin{eqnarray}
-  \frac{\partial \rho}{\partial t} &=& -\nabla\cdot(\rho\vect{u})\, , 
-  \nonumber
-  \\
-  \frac{\partial \rho \vect{u}}{\partial t} &=& -\nabla\cdot(\rho\vect{u}
-  \otimes\vect{u} + p\, \matr{I})\, ,
-  \nonumber
-  \\ 
-  \frac{\partial E}{\partial t} &=& -\nabla\cdot(E \vect{u} + p\vect{u} +
-  \vect{q}_L + \colorimportant{\vect{q}_e + \vect{q}_R})\, ,
-  \nonumber
-\end{eqnarray} 
-density $\rho$, fluid velocity $\vect{u}$, total energy 
-$E(T)$, pressure $p(\rho, T)$, 
-laser energy flux $\vect{q}_L$, 
-electron heat flux $\vect{q}_e$, radiation flux $\vect{q}_R$.
-\end{pcolumn} &
-\begin{pcolumn}{0.4}
-\begin{eqnarray}
-  %\frac{1}{c}\frac{\partial I^{\, p}}{\partial t} + 
-  \vect{n}\cdot\nabla I^{\, p} &=& 
-  \frac{\sigma^{p} T_e - I^{\, p}}{\lambda^{p}}\, , 
-  \nonumber
-  \\
-  \vect{q}_R &=& \int_{4\pi}\vect{n}\, I^{\, p}\, \dI\vect{n}\,  ,
-  \nonumber
-  \\
-  \hline\nonumber\\
-  %\frac{1}{\bar{v}}\frac{\partial I^e}{\partial t} +
-  \vect{n}\cdot\nabla I^e 
-  &=& 
-  \frac{\sigma^e T_e - I^e}{\lambda^e}\, , 
-  \nonumber
-  \\
-  \vect{q}_e &=& \int_{4\pi}\vect{n}\, I^e\, \dI\vect{n}\,  ,
-  \nonumber
-\end{eqnarray}
-
-\end{pcolumn}
-\end{tabular}
-\end{block}
-
-\begin{itemize}
-\item Lagrangian frame, 2T single fluid, IB laser deposition, SESAME
-%\item SESAME/QEOS/FEOS/BADGER equation of state
-%\item Inverse-bremsstrahlung laser deposition (Stationary Maxwell Equation),
-%intensities between 10$^{11}$ -- 10$^{15}$ W/cm$^2$
-\item Nonlocal radiation and electron transport
-\item Inherent coupling of nonlocal transport and energy equations via 
-$I = a(\vect{x}, \vect{n})\, T_e + b(\vect{x}, \vect{n})$, 
-which leads to a temperature dependence of energy fluxes 
-$\colorimportant{\vect{q}_e + \vect{q}_R = \matr{A}\, T_e + \vect{b}}$
-\item Extension of PETE to 2D Cartesian/axisymmetric based on HONTS and Laghos 
-soon 
-\end{itemize}
+\begin{center}
+%{\large Nonlocal vs. diffusive transport model}
 \begin{figure}
 \begin{center}
-\begin{tabular}{ccc} 
-  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/material_77.png}
-  &
-  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/nonlocalI1z_77.png}
-  &
-  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/nonlocalI1x_77.png}
+\begin{tabular}{cc}
+\includegraphics[width=0.315\textwidth]{../figs_NTH/Prepulse/CH_1e22_nencs_Tes.png} 
+&
+\includegraphics[width=0.35\textwidth]{../figs_NTH/Prepulse/PIC_t_7000.png}
 \end{tabular}
+%\caption{.}
+\label{L4_fig}
 \end{center}
 \end{figure}
-%Based on \colorimportant{MFEM}, a free, lightweight, scalable C++ library for 
-%finite element methods developed at Lawrence Livermore National Laboratory, CA.
-%\colorimportant{"My finite element library is higher order than yours..."}
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{c}
+\includegraphics[width=0.45\textwidth]{../figs_NTH/Prepulse/PIC_2D.png}
+\footnote{M. Holec,J. Nikl, and M. Vranic, "The effect of pre-plasma formation under nonlocal transport conditions for ultra-relativistic laser-plasma interaction",\\ \textit{Plasma Phys. Control. Fusion}, submitted (2017)}
+\end{tabular}
+%\caption{.}
+\label{L4_PIC_fig}
+\end{center}
+\end{figure}
+\end{center}
 \end{frame}
 
-%\end{comment} % Extensive NTH model
+
+\section{Extras...}
+%\subsection{M1 moment approach for 6D nonlocal electron transport}
+\renewcommand{\vect}[1]{\boldsymbol{#1}}
+\renewcommand{\matr}[1]{\mathbf{#1}}
+\renewcommand{\dI}{\text{d}}
+\newcommand{\pdv}[2]{\frac{\partial{#1}}{\partial{#2}}}
+\newcommand{\odv}[2]{\frac{\dI #1}{\dI #2}}
+\newcommand{\ddv}[2]{\odv{#1}{#2}}
+%\renewcommand{\ddv}[2]{\frac{\Delta #1}{\Delta #2}}
+\newcommand{\nue}{\nu_{e}}
+\newcommand{\nutot}{\nu_{t}}
+\newcommand{\vmag}{v}
+\newcommand{\vn}{\vect{n}}
+\newcommand{\E}{\vect{E}}
+\newcommand{\B}{\vect{B}}
+\newcommand{\tE}{\vect{\tilde{E}}}
+\newcommand{\tB}{\vect{\tilde{B}}}
+\newcommand{\qe}{q_e}
+\newcommand{\me}{m_e}
+\renewcommand{\fM}{f_M}
+\renewcommand{\fzero}{f_0}
+\newcommand{\vfzero}{\vect{f}_0}
+\renewcommand{\fone}{\vect{f}_1}
+\newcommand{\SM}{\vect{S}_M}
+\newcommand{\MI}{\matr{I}}
+\newcommand{\MA}{\matr{A}}
+\newcommand{\intO}{\int_{\Omega}}
+\newcommand{\IM}{\boldsymbol{\mathcal{M}}}
+\newcommand{\ID}{\boldsymbol{\mathcal{D}}}
+\newcommand{\IV}{\boldsymbol{\mathcal{V}}}
+\newcommand{\IB}{\boldsymbol{\mathcal{B}}}
+\newcommand{\acl}{\vect{M}_{\left(\fone/\fzero\right)}}
+
+\begin{frame}
+\begin{center}
+\myheading{AWBS Boltzmann transport equation}
+\begin{equation}
+  \vmag\vn\cdot\nabla f + \frac{\qe}{\me}\left( \E + 
+  \frac{\vmag}{c}\vn\times\B\right)\cdot\nabla_{\vect{v}} f = \nue \vmag 
+  \pdv{}{\vmag}\left( f - \fM\right) .
+  \nonumber\label{eq:AWBS}
+\end{equation}
+\myheading{M1-AWBS transport model 
+"$f = \fzero \frac{\left|\acl\right|}{4\pi\sinh\left(\acl\right)}\exp\left(\vn\cdot\acl\right)$"}
+\begin{eqnarray}
+  \nue\vmag\pdv{}{\vmag}\left(\fzero - \fM \right) &=&
+  \vmag\nabla\cdot\fone + \frac{\qe}{\me\vmag^2}\E\cdot\pdv{}{\vmag}
+  \left( \vmag^2 \fone\right) , 
+  \nonumber\label{eq:M1f0}\\
+  \nue\vmag\pdv{}{\vmag}\fone - \nutot\fone &=& 
+  \vmag\nabla\cdot\left(\MA\fzero\right) + 
+  \frac{\qe}{\me\vmag^2}\E\cdot\pdv{}{\vmag}
+  \left( \vmag^2 \MA\fzero\right)
+  + \frac{\qe}{\me\vmag}\E\cdot\left( \MA - \MI \right)\fzero +
+  \frac{\qe}{\me c}\B\times\fone .
+  \nonumber\label{eq:M1f1}
+\end{eqnarray}
+\myheading{High-order finite element bilienar form integrators}
+\begin{equation}
+  \IM^0_{(g)} = \intO\vect{\phi}\, \otimes\, \vect{\phi}^T g\, \dI \Omega,\quad
+  \IM^1_{(g)} = \intO\matr{w} \cdot \matr{w}^T g\, \dI\Omega,\quad
+  \ID_{(\matr{G})} = \intO \matr{G} : \nabla\matr{w}
+  \, \otimes\, \vect{\phi}^T\, \dI \Omega ,
+  \nonumber
+\end{equation}
+\begin{equation}  
+  \IV_{(\vect{g})} = \intO\matr{w} \cdot
+  \vect{g}\, \otimes\, \vect{\phi}^T\, \dI \Omega,\quad
+  \IB_{(\vect{g})} = \intO\matr{w} \cdot
+  \vect{g} \times \matr{w}^T\, \dI \Omega ,
+  \nonumber
+\end{equation}
+%\begin{equation}
+%  \vect{\phi} = \begin{bmatrix}
+%    \phi_{1} \\
+%	\vdots   \\
+%	\phi_{N_0}
+%  \end{bmatrix},~
+%  \matr{w} = \begin{bmatrix}
+%    w_{1, 1} & \hdots & w_{1, d} \\
+%	\vdots   & \ddots & \vdots \\
+%	w_{N_1, 1} & \hdots & w_{N_1, d}
+%  \end{bmatrix},~
+%  \vect{g} = \begin{bmatrix}
+%    g_{1} \\
+%	\vdots   \\
+%	g_{d}
+%  \end{bmatrix},~
+%  \matr{G} = \begin{bmatrix}
+%    G_{1, 1} & \hdots & G_{1, d} \\
+%	\vdots   & \ddots & \vdots \\
+%	G_{d, 1} & \hdots & G_{d, d}
+%  \end{bmatrix}.
+%  \nonumber
+%\end{equation}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\begin{eqnarray}
+  \left( \IM^0_{\left( \nue \right)} 
+  - \IM^0_{\left(\frac{1}{\vmag \vfzero^n}\tE^T\cdot\fone^n\right)}
+  \right) \cdot {\ddv{\vfzero}{\vmag}}^* 
+  &=& 
+  \ID^T_{\left(\MI\right)} \cdot \fone^n 
+  + \IV^T_{\left(2\tE/\vmag^2\right)} \cdot \fone^n
+  + \IM^0_{\left( \nue \right)} \cdot \pdv{\vect{\fM}}{\vmag} 
+  \label{eq:explM1hosf0} \nonumber \\
+%\end{equation}
+%\begin{equation}
+  \IM^1_{\left( \nue \right)} \cdot \ddv{\fone}{\vmag} 
+  &=& 
+  - \ID_{\left(\MA\right)}\cdot \vfzero^n  
+  + \IV_{\left(\MA \cdot \tE / \vmag\right)} \cdot
+  {\ddv{\vfzero}{\vmag}}^* 
+  + \IV_{\left( 
+  \left( 3\MA - \MI \right) \cdot \tE / \vmag^2 \right)} \cdot \vfzero^n
+  + \IB_{\left( \tB / \vmag \right)} \cdot \fone^n
+  + \IM^1_{\left( \nutot / \vmag\right)} 
+  \cdot \fone^n 
+  \label{eq:explM1hosf1} \nonumber
+\end{eqnarray}
+\newcommand{\fsz}{0.31}
+\begin{figure}[tbh]
+  \begin{center}
+    %%\begin{tabular}{c}
+    %  \includegraphics[width=0.8\textwidth]{../../m1sedov1d2d3d.png}
+    %%\end{tabular}
+    \begin{tabular}{ccc}
+      %\includegraphics[width=\fsz\textwidth]{../../figs/density_p71D.png} & 
+      %\includegraphics[width=\fsz\textwidth]{../../figs/density_p72D.png} &
+      %\includegraphics[width=\fsz\textwidth]{../../figs/density_p73D.png} \\
+      \includegraphics[width=\fsz\textwidth]{../../figs/temperature_p71D.png} & 
+      \includegraphics[width=\fsz\textwidth]{../../figs/temperature_p72D.png} &
+      \includegraphics[width=\fsz\textwidth]{../../figs/temperature_p73D.png} \\
+      \includegraphics[width=\fsz\textwidth]{../../figs/hflux_p71D1e8.png} & 
+      \includegraphics[width=\fsz\textwidth]{../../figs/hflux_p72D1e8.png} &
+      \includegraphics[width=\fsz\textwidth]{../../figs/hflux_p73D1e8.png} 
+    \end{tabular}  
+  \caption{
+  Sedov blast. Left: density, center: heat flux, right: temperature.
+  Explicit scheme number of e-groups: 1D - 8858, 2D - 4348, 3D - 10030.
+  %Sedov blast in 1D/2D/3D from $\delta$ function hot spot. 
+  %Shock propagates from left to right. Top raw corresponds to 1D 
+  %(8858 energy groups) - 
+  %left: density profile, right: temperature 
+  %(decreasing from the~original hot spot with low temperature in compressed 
+  %plasma), center: heat flux with its maximum on the~start of increase 
+  %in density decreasing while approaching the~shock 
+  %(NOTICE non-zero flux ahead of the~shock). 
+  %Middle raw corresponds to 2D (4348 energy groups) - 
+  %left: density, center: heat flux, right: temperature.
+  %Bottom raw corresponds to 3D (10030 energy groups) - 
+  %left: density, center: heat flux, right: temperature.
+  %temperature 
+  }
+  \end{center}
+  \label{fig:expl1D2D3D}
+\end{figure}
+\end{center}
+\end{frame}
+
+%\subsection{Nonlocal transport in MHD}
 \renewcommand{\fzero}{f_0}
 \renewcommand{\fone}{\boldsymbol{f}_1}
-\newcommand{\ftwo}{\boldsymbol{f}_2}
-\newcommand{\pv}{\frac{\partial}{\partial v}}
+\renewcommand{\ftwo}{\boldsymbol{f}_2}
+\renewcommand{\pv}{\frac{\partial}{\partial v}}
 \newcommand{\nuee}{\nu_{ee}}
 \newcommand{\nut}{\nu_{tot}}
 \renewcommand{\fM}{f_M}
@@ -1882,8 +1975,8 @@ nonlocal magnetic field source}
   - \nabla\times \left(
   \frac{\sum_g \int_{\Delta v^g} v\nabla\cdot\ftwo \dI v}
   {\sum_g \int_{\Delta v^g} \frac{e}{m_e v}\left(\frac{1}{v}\pv 
-  \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right) \dI v} + 
-  - \frac{\tilde{\vect{j}}}{e n_e \sigma}\right)
+  \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right) \dI v}  
+  + \frac{\tilde{\vect{j}}}{e n_e \sigma}\right)
   \nonumber
 \end{equation}
 \end{block}
@@ -1891,194 +1984,7 @@ nonlocal magnetic field source}
 \end{center}
 \end{frame}
 
-
-
-\begin{frame}
-\begin{center}
-{\large Vlasov-Fokker-Planck simulations}
-\begin{figure}
-\begin{center}
-\includegraphics[width=0.7\textwidth]{../figs_NTH/VFP_Epperlein.png} 
-%\caption{.}
-\label{RH_fig}
-\end{center}
-\end{figure}
-\footnote{Kinetic simulations provided by Jan Nikl (ELI Beamlines).}
-%\begin{itemize}
-%  \item show NTH
-%  \item point out heat flux limiter
-%\end{itemize}
-\end{center}
-\end{frame}
-
-\begin{comment} % Efield
-\begin{frame}
-\begin{center}
-{\large Electric Field}
-
-The M1 model reads
-\begin{eqnarray}
-   v\nabla\cdot\fone - \frac{e}{m_e v}\frac{1}{v}\pv \left( v^2 \fone\right)
-   \cdot\vect{E} &=& \nuee v \pv(\fzero - \fM)\nonumber\\
-   v\nabla\cdot\ftwo - \frac{e}{m_e v}\left(\frac{1}{v}\pv 
-   \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right)
-   \cdot\vect{E}  &=& \nuee v \pv \fone - \nut \fone\nonumber
-\end{eqnarray}
-From nonlocal momentum equation, we can evaluate the electric field
-\begin{equation}
-   \sum_g \int_{\Delta v^g} - \frac{e}{m_e v}\left(\frac{1}{v}\pv 
-   \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right) \dI v
-   \cdot\vect{E} = 
-   \sum_g \int_{\Delta v^g} - v\nabla\cdot\ftwo 
-   + \nuee \pv \left( v \fone \right) 
-   - (\nuee + \nut) \fone \dI v
-   \nonumber
-\end{equation}
- 
-\begin{block}{Quasi-neutrality}
-\begin{equation}
-   \sum_g \int_{\Delta v^g} - \frac{e}{m_e v (\nuee + \nut)}\left(\frac{1}{v}\pv 
-   \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right) \dI v
-   \cdot\vect{E} = 
-   \sum_g \int_{\Delta v^g} - \frac{v}{(\nuee + \nut)}\nabla\cdot\ftwo \dI v
-   \nonumber
-\end{equation}
-\end{block}
-which is a M1 nonlocal definition of the electric field similar to
-\footnote{Shkarofsky PRL 1979, Kingham and Bell PRL 2002}
-\begin{equation}
-  \vect{E} = \frac{m_e}{e 6 n_e}\frac{\nabla n_e <v^5>}{<v^3>}
-  \nonumber
-\end{equation}
-\end{center}
-\end{frame}
-\end{comment} % Efield
-
-\begin{frame}
-\begin{center}
-%{\large Nonlocal vs. diffusive transport model}
-\begin{figure}
-\begin{center}
-\begin{tabular}{cc}
-\includegraphics[width=0.315\textwidth]{../figs_NTH/Prepulse/CH_1e22_nencs_Tes.png} 
-&
-\includegraphics[width=0.35\textwidth]{../figs_NTH/Prepulse/PIC_t_7000.png}
-\end{tabular}
-%\caption{.}
-\label{L4_fig}
-\end{center}
-\end{figure}
-
-\begin{figure}
-\begin{center}
-\begin{tabular}{c}
-\includegraphics[width=0.45\textwidth]{../figs_NTH/Prepulse/PIC_2D.png}
-\footnote{OSIRIS PIC simulations by Marija Vranic 2017.}
-\end{tabular}
-%\caption{.}
-\label{L4_PIC_fig}
-\end{center}
-\end{figure}
-\end{center}
-\end{frame}
-
-\begin{comment} % M1comment
-\begin{frame}
-\begin{center}
-{\large Hyperbolic M1 Model}
-\begin{eqnarray}
-   v\nabla\cdot\fone - \frac{e}{m_e v}\frac{1}{v}\pv \left( v^2 \fone\right)
-   \cdot\vect{E} &=& \nuee v \pv(\fzero - \fM)\nonumber\\
-   v\nabla\cdot\ftwo - \frac{e}{m_e v}\left(\frac{1}{v}\pv 
-   \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right)
-   \cdot\vect{E}  &=& \nuee v \pv \fone - \nut \fone\nonumber
-\end{eqnarray}
-where the system of unknowns in Cartesian coordinates
-\begin{equation}
-\fzero\, ,\quad \fone = [f_{1 x}, f_{1_y}]\, ,\quad \ftwo = 
-  \begin{bmatrix}
-    {\ftwo}_{xx} & {\ftwo}_{xy} \\
-	{\ftwo}_{yx} & {\ftwo}_{yy} 
-  \end{bmatrix}
-  = \matr{X}\, \fzero
-  \nonumber
-\end{equation}
-can be represented as a vector field hyperbolic problem
-\begin{equation}
-  - \nuee \pv \vect{u} + \nabla\cdot\matr{F} = \frac{e}{m_e v}\frac{1}{v}
-  \pv\matr{F}\cdot\vect{E} - \vect{S}
-  \nonumber
-\end{equation} 
-\begin{equation}
-   \vect{u} =
-   \begin{bmatrix}
-    \fzero \\
-	{\fone}_x \\
-	{\fone}_y 
-  \end{bmatrix}
-  \, ,\quad 
-  \matr{F} = 
-  \begin{bmatrix}
-    {\fone}_x & {\fone}_y \\
-	{\ftwo}_{xx} & {\ftwo}_{xy} \\
-	{\ftwo}_{yx} & {\ftwo}_{yy} 
-  \end{bmatrix}
-  \, ,\quad
-  \vect{S} =
-  \begin{bmatrix}
-    \nuee v \pv\fM \\
-	\nut{\fone}_x + [{\ftwo}_{xx} - \fzero, {\ftwo}_{xy}]\cdot\vect{E} \\
-	\nut{\fone}_y + [{\ftwo}_{yx}, {\ftwo}_{yy} - \fzero]\cdot\vect{E}
-  \end{bmatrix} 
-  \nonumber
-\end{equation}
-\end{center}
-\end{frame}
-
-\begin{frame}
-\begin{center}
-{\large Numerical Scheme}
-
-Transport equation
-\begin{equation}
-  - \nuee \pv \vect{u} + \nabla\cdot\matr{F} = \frac{e}{m_e v}\frac{1}{v}
-  \pv\matr{F}\cdot\vect{E} - \vect{S}
-  \nonumber
-\end{equation} 
-is discretized in space and velocity using discrete divergence analog 
-$\matr{D}$ and forward Euler finite differences in velocity as 
-\begin{equation}
-  \nuee \frac{\vect{u}^{g+1} - \vect{u}^{g}}{\Delta v} = 
-  \matr{D}\cdot\matr{F}^{g+1} - \frac{e}{m_e v}\frac{1}{v}
-  \frac{\matr{F}^{g+1} - \matr{F}^{g}}{\Delta v}\cdot\vect{E} + \vect{S}^{g}
-  + \Gamma(\vect{u}^{g+1}, \matr{F}^{g+1})
-  \nonumber
-\end{equation} 
-Such a scheme can be easily inverted (element-wise) to obtain $\fzero$ and
-$\fone$
-\begin{block}{Discrete version of M1}
-\begin{equation}
-\matr{A}\cdot\vect{u}^{g} = \nuee \vect{u}^{g+1} - \matr{D}\cdot\matr{F}^{g+1} 
-  + \frac{e}{m_e v}\frac{1}{v}\matr{F}^{g+1}\cdot\vect{E} 
-  + \Delta v \Gamma(\vect{u}^{g+1}, \matr{F}^{g+1})
-  - \vect{S}(n_e^{g}, T^{g})  
-  \nonumber
-\end{equation}
-where the coupling to hydrodynamics goes via $n_e$ and $T$ in the source $S$.
-\end{block}
-
-\begin{equation}
-  \matr{F}_{LF} = 
-  0.5\left(\matr{F}^{+} + \matr{F}^{-}\right)\cdot\vect{n}_{\Gamma} + 
-  0.5\lambda\left(\vect{u}^{+} - \vect{u}^{-} \right)
-  \, ,\quad
-  \Delta v \le \frac{S_t}{h^{-1}}
-  \nonumber
-\end{equation}
-
-\end{center}
-\end{frame}
-
+\begin{comment} % M1MHD
 \begin{frame}
 \begin{center}
 {\large Electric Field}
@@ -2220,14 +2126,15 @@ nonlocal magnetic field source}
 \end{block}
 \end{center}
 \end{frame}
+\end{comment} % M1MHD
 
-\newcommand{\fzero}{f_0}
-\newcommand{\fone}{\boldsymbol{f}_1}
-\newcommand{\ftwo}{\boldsymbol{f}_2}
-\newcommand{\pv}{\frac{\partial}{\partial v}}
-\newcommand{\nuee}{\nu_{ee}}
-\newcommand{\nut}{\nu_{tot}}
-\newcommand{\fM}{f_M}
+\renewcommand{\fzero}{f_0}
+\renewcommand{\fone}{\boldsymbol{f}_1}
+\renewcommand{\ftwo}{\boldsymbol{f}_2}
+\renewcommand{\pv}{\frac{\partial}{\partial v}}
+\renewcommand{\nuee}{\nu_{ee}}
+\renewcommand{\nut}{\nu_{tot}}
+\renewcommand{\fM}{f_M}
 %\begin{comment} % Extensive NTH model
 \begin{frame}
 \begin{center}
@@ -2334,6 +2241,331 @@ Electron closure relations
 
 \end{center}
 \end{frame}
+
+
+\section{Conclusions}
+\begin{frame}
+%\myheading{\colorimportant{P}lasma \colorimportant{E}uler and 
+%\colorimportant{T}ransport \colorimportant{E}quations
+%nonlocal hydro code}
+\myheading{Conclusions}
+\begin{block}{Plasma Euler and Transport Equations
+hydro code \colorimportant{PETE}}
+\begin{tabular}{c|c}
+\begin{pcolumn}{0.5}
+\begin{eqnarray}
+  \frac{\partial \rho}{\partial t} &=& -\nabla\cdot(\rho\vect{u})\, , 
+  \nonumber
+  \\
+  \frac{\partial \rho \vect{u}}{\partial t} &=& -\nabla\cdot(\rho\vect{u}
+  \otimes\vect{u} + p\, \matr{I})\, ,
+  \nonumber
+  \\ 
+  \frac{\partial E}{\partial t} &=& -\nabla\cdot(E \vect{u} + p\vect{u} +
+  \vect{q}_L + \colorimportant{\vect{q}_e + \vect{q}_R})\, ,
+  \nonumber
+\end{eqnarray} 
+density $\rho$, fluid velocity $\vect{u}$, total energy 
+$E(T)$, pressure $p(\rho, T)$, 
+laser energy flux $\vect{q}_L$, 
+electron heat flux $\vect{q}_e$, radiation flux $\vect{q}_R$.
+\end{pcolumn} &
+\begin{pcolumn}{0.4}
+\begin{eqnarray}
+  %\frac{1}{c}\frac{\partial I^{\, p}}{\partial t} + 
+  \vect{n}\cdot\nabla I^{\, p} &=& 
+  \frac{\sigma^{p} T_e - I^{\, p}}{\lambda^{p}}\, , 
+  \nonumber
+  \\
+  \vect{q}_R &=& \int_{4\pi}\vect{n}\, I^{\, p}\, \dI\vect{n}\,  ,
+  \nonumber
+  \\
+  \hline\nonumber\\
+  %\frac{1}{\bar{v}}\frac{\partial I^e}{\partial t} +
+  \vect{n}\cdot\nabla I^e 
+  &=& 
+  \frac{\sigma^e T_e - I^e}{\lambda^e}\, , 
+  \nonumber
+  \\
+  \vect{q}_e &=& \int_{4\pi}\vect{n}\, I^e\, \dI\vect{n}\,  ,
+  \nonumber
+\end{eqnarray}
+
+\end{pcolumn}
+\end{tabular}
+\end{block}
+
+\begin{itemize}
+\item Lagrangian frame, 2T single fluid, IB laser deposition, SESAME
+%\item SESAME/QEOS/FEOS/BADGER equation of state
+%\item Inverse-bremsstrahlung laser deposition (Stationary Maxwell Equation),
+%intensities between 10$^{11}$ -- 10$^{15}$ W/cm$^2$
+\item Nonlocal radiation and electron transport
+\item Inherent coupling of nonlocal transport and energy equations via 
+$I = a(\vect{x}, \vect{n})\, T_e + b(\vect{x}, \vect{n})$, 
+which leads to a temperature dependence of energy fluxes 
+$\colorimportant{\vect{q}_e + \vect{q}_R = \matr{A}\, T_e + \vect{b}}$
+\item Extension of PETE to 2D Cartesian/axisymmetric based on HONTS and Laghos 
+soon 
+\end{itemize}
+\begin{figure}
+\begin{center}
+\begin{tabular}{ccc} 
+  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/material_77.png}
+  &
+  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/nonlocalI1z_77.png}
+  &
+  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/nonlocalI1x_77.png}
+\end{tabular}
+\end{center}
+\end{figure}
+%Based on \colorimportant{MFEM}, a free, lightweight, scalable C++ library for 
+%finite element methods developed at Lawrence Livermore National Laboratory, CA.
+%\colorimportant{"My finite element library is higher order than yours..."}
+\end{frame}
+
+%\subsection{Ideas?}
+\begin{comment} % ImplicitM1
+\begin{frame}
+\begin{center}
+\myheading{Implicit M1-AWBS scheme for CHIC}
+\begin{eqnarray}
+  \IM^0_{(\rho)} \cdot \pdv{\vfzero}{\vmag} 
+  - \IM^0_{(\rho)} \cdot \pdv{\vect{\fM}}{\vmag}
+  &=& 
+  \ID^T_{\left(\frac{\rho}{\nue}\MI\right)} \cdot \fone
+  + \frac{1}{\vmag}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot 
+  \pdv{\fone}{\vmag} 
+  + \frac{2}{\vmag^2}\IV^T_{\left(\frac{\rho}{\nue}\tE\right)} \cdot \fone ,  
+  \nonumber\label{eq:semiM1hosf0}\\
+  \IM^1_{(\rho)} \cdot \pdv{\fone}{\vmag} 
+  - \frac{1}{\vmag}\IM^1_{\left( \frac{\rho \nutot}{\nue} \right)} 
+  \cdot \fone 
+  &=& 
+  - \left(\ID_{\left(\frac{\rho}{\nue}\MA\right)}  
+  + \IV_{\left( \MA \cdot \nabla\left(\frac{\rho}{\nue}\right) \right)}\right) 
+  \cdot \vfzero  
+  + \frac{1}{\vmag}\IV_{\left(\frac{\rho}{\nue}\MA \cdot \tE\right)} \cdot
+  \pdv{\vfzero}{\vmag}
+  + \frac{1}{\vmag^2}\IV_{\left(\frac{\rho}{\nue} 
+  \left( 3\MA - \MI \right) \cdot \tE \right)} \cdot \vfzero
+  + \frac{1}{\vmag}\IB_{\left( \frac{\rho}{\nue}\tB \right)} \cdot \fone ,
+  \nonumber\label{eq:semiM1hosf1}
+\end{eqnarray}
+
+\begin{eqnarray}
+  \matr{M}^c_0 \cdot \pdv{\vfzero}{\vmag}  
+  &=& 
+  \matr{D}_0 \cdot \fone
+  + \matr{E}_0^1 \cdot \pdv{\fone}{\vmag} + \matr{E}_0^2 \cdot \fone
+  + \matr{M}^c_0 \cdot \pdv{\vect{\fM}}{\vmag} ,  
+  \nonumber\\
+  \matr{M}^c_1 \cdot \pdv{\fone}{\vmag}  
+  &=& 
+  - \matr{D}_1 \cdot \vfzero 
+  + \matr{E}_1^1 \cdot \pdv{\vfzero}{\vmag}
+  + \matr{E}_1^2 \cdot \vfzero
+  + \matr{B} \cdot \fone
+  + \matr{M}_1 \cdot \fone ,
+  \nonumber
+\end{eqnarray}
+
+\begin{eqnarray}
+  \ddv{\vfzero}{\vmag}  
+  &=& 
+  {\matr{M}^c_0}^{-1} \cdot \left(\matr{D}_0 + \matr{E}_0^2 \right) 
+  \cdot \left(\fone^n + \Delta \vmag \ddv{\fone}{\vmag} \right)
+  + {\matr{M}^c_0}^{-1} \cdot \matr{E}_0^1 \cdot \ddv{\fone}{\vmag}
+  + \pdv{\vect{\fM}}{\vmag} ,  
+  \nonumber\\
+  \matr{M}^c_1 \cdot \ddv{\fone}{\vmag}  
+  &=& 
+  \left( \matr{E}_1^2 - \matr{D}_1 \right) 
+  \cdot \left(\vfzero^n + \Delta\vmag \ddv{\vfzero}{\vmag} \right) 
+  + \matr{E}_1^1 \cdot \ddv{\vfzero}{\vmag}
+  + \left( \matr{B} + \matr{M}_1 \right)  
+  \cdot \left(\fone^n + \Delta \vmag \ddv{\fone}{\vmag} \right) ,
+  \nonumber
+\end{eqnarray}
+
+\begin{block}{Implicit Runge-Kuta scheme (high-order, parallel, efficient, ..., but stable?)}
+\begin{equation}
+  \ddv{\vfzero}{\vmag}  
+  = 
+  \matr{\tilde{A}}_0 \cdot \ddv{\fone}{\vmag}
+  + \vect{b}_0\left(\fone^n, \pdv{\vect{\fM}}{\vmag}\right) ,  
+  \quad
+  \left( \matr{M}^c_1 
+  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) \right) 
+  \cdot \ddv{\fone}{\vmag}  
+  = 
+  \matr{\tilde{A}}_1 \cdot \ddv{\vfzero}{\vmag}  
+  + \vect{b}_1 \left( \fone^n, \vfzero^n \right) , 
+  \nonumber\label{eq:df1dvdf0dv}
+\end{equation}
+
+\begin{equation}
+  \left( \matr{M}^c_1 
+  - \Delta \vmag \left( \matr{B} + \matr{M}_1 \right) 
+  - \matr{\tilde{A}}_1 \cdot \matr{\tilde{A}}_0 \right) 
+  \cdot \ddv{\fone}{\vmag}  
+  = 
+  \matr{\tilde{A}}_1 
+  \cdot \vect{b}_0 + \vect{b}_1 , 
+  %\matr{\tilde{A}}_1 
+  %\cdot \vect{b}_0\left(\fone^n, \pdv{\vect{\fM}}{\vmag}\right)
+  %+ \vect{b}_1 \left( \fone^n, \vfzero^n \right)~, 
+  \nonumber
+  \label{eq:df1dv}
+\end{equation}
+\end{block}
+\end{center}
+\end{frame}
+\end{comment} % ImplicitM1
+
+\begin{comment} % Efield
+\begin{frame}
+\begin{center}
+{\large Electric Field}
+
+The M1 model reads
+\begin{eqnarray}
+   v\nabla\cdot\fone - \frac{e}{m_e v}\frac{1}{v}\pv \left( v^2 \fone\right)
+   \cdot\vect{E} &=& \nuee v \pv(\fzero - \fM)\nonumber\\
+   v\nabla\cdot\ftwo - \frac{e}{m_e v}\left(\frac{1}{v}\pv 
+   \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right)
+   \cdot\vect{E}  &=& \nuee v \pv \fone - \nut \fone\nonumber
+\end{eqnarray}
+From nonlocal momentum equation, we can evaluate the electric field
+\begin{equation}
+   \sum_g \int_{\Delta v^g} - \frac{e}{m_e v}\left(\frac{1}{v}\pv 
+   \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right) \dI v
+   \cdot\vect{E} = 
+   \sum_g \int_{\Delta v^g} - v\nabla\cdot\ftwo 
+   + \nuee \pv \left( v \fone \right) 
+   - (\nuee + \nut) \fone \dI v
+   \nonumber
+\end{equation}
+ 
+\begin{block}{Quasi-neutrality}
+\begin{equation}
+   \sum_g \int_{\Delta v^g} - \frac{e}{m_e v (\nuee + \nut)}\left(\frac{1}{v}\pv 
+   \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right) \dI v
+   \cdot\vect{E} = 
+   \sum_g \int_{\Delta v^g} - \frac{v}{(\nuee + \nut)}\nabla\cdot\ftwo \dI v
+   \nonumber
+\end{equation}
+\end{block}
+which is a M1 nonlocal definition of the electric field similar to
+\footnote{Shkarofsky PRL 1979, Kingham and Bell PRL 2002}
+\begin{equation}
+  \vect{E} = \frac{m_e}{e 6 n_e}\frac{\nabla n_e <v^5>}{<v^3>}
+  \nonumber
+\end{equation}
+\end{center}
+\end{frame}
+\end{comment} % Efield
+
+
+
+\begin{comment} % M1comment
+\begin{frame}
+\begin{center}
+{\large Hyperbolic M1 Model}
+\begin{eqnarray}
+   v\nabla\cdot\fone - \frac{e}{m_e v}\frac{1}{v}\pv \left( v^2 \fone\right)
+   \cdot\vect{E} &=& \nuee v \pv(\fzero - \fM)\nonumber\\
+   v\nabla\cdot\ftwo - \frac{e}{m_e v}\left(\frac{1}{v}\pv 
+   \left( v^2 \ftwo\right) + \left(\ftwo - \fzero\matr{I}\right)\right)
+   \cdot\vect{E}  &=& \nuee v \pv \fone - \nut \fone\nonumber
+\end{eqnarray}
+where the system of unknowns in Cartesian coordinates
+\begin{equation}
+\fzero\, ,\quad \fone = [f_{1 x}, f_{1_y}]\, ,\quad \ftwo = 
+  \begin{bmatrix}
+    {\ftwo}_{xx} & {\ftwo}_{xy} \\
+	{\ftwo}_{yx} & {\ftwo}_{yy} 
+  \end{bmatrix}
+  = \matr{X}\, \fzero
+  \nonumber
+\end{equation}
+can be represented as a vector field hyperbolic problem
+\begin{equation}
+  - \nuee \pv \vect{u} + \nabla\cdot\matr{F} = \frac{e}{m_e v}\frac{1}{v}
+  \pv\matr{F}\cdot\vect{E} - \vect{S}
+  \nonumber
+\end{equation} 
+\begin{equation}
+   \vect{u} =
+   \begin{bmatrix}
+    \fzero \\
+	{\fone}_x \\
+	{\fone}_y 
+  \end{bmatrix}
+  \, ,\quad 
+  \matr{F} = 
+  \begin{bmatrix}
+    {\fone}_x & {\fone}_y \\
+	{\ftwo}_{xx} & {\ftwo}_{xy} \\
+	{\ftwo}_{yx} & {\ftwo}_{yy} 
+  \end{bmatrix}
+  \, ,\quad
+  \vect{S} =
+  \begin{bmatrix}
+    \nuee v \pv\fM \\
+	\nut{\fone}_x + [{\ftwo}_{xx} - \fzero, {\ftwo}_{xy}]\cdot\vect{E} \\
+	\nut{\fone}_y + [{\ftwo}_{yx}, {\ftwo}_{yy} - \fzero]\cdot\vect{E}
+  \end{bmatrix} 
+  \nonumber
+\end{equation}
+\end{center}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+{\large Numerical Scheme}
+
+Transport equation
+\begin{equation}
+  - \nuee \pv \vect{u} + \nabla\cdot\matr{F} = \frac{e}{m_e v}\frac{1}{v}
+  \pv\matr{F}\cdot\vect{E} - \vect{S}
+  \nonumber
+\end{equation} 
+is discretized in space and velocity using discrete divergence analog 
+$\matr{D}$ and forward Euler finite differences in velocity as 
+\begin{equation}
+  \nuee \frac{\vect{u}^{g+1} - \vect{u}^{g}}{\Delta v} = 
+  \matr{D}\cdot\matr{F}^{g+1} - \frac{e}{m_e v}\frac{1}{v}
+  \frac{\matr{F}^{g+1} - \matr{F}^{g}}{\Delta v}\cdot\vect{E} + \vect{S}^{g}
+  + \Gamma(\vect{u}^{g+1}, \matr{F}^{g+1})
+  \nonumber
+\end{equation} 
+Such a scheme can be easily inverted (element-wise) to obtain $\fzero$ and
+$\fone$
+\begin{block}{Discrete version of M1}
+\begin{equation}
+\matr{A}\cdot\vect{u}^{g} = \nuee \vect{u}^{g+1} - \matr{D}\cdot\matr{F}^{g+1} 
+  + \frac{e}{m_e v}\frac{1}{v}\matr{F}^{g+1}\cdot\vect{E} 
+  + \Delta v \Gamma(\vect{u}^{g+1}, \matr{F}^{g+1})
+  - \vect{S}(n_e^{g}, T^{g})  
+  \nonumber
+\end{equation}
+where the coupling to hydrodynamics goes via $n_e$ and $T$ in the source $S$.
+\end{block}
+
+\begin{equation}
+  \matr{F}_{LF} = 
+  0.5\left(\matr{F}^{+} + \matr{F}^{-}\right)\cdot\vect{n}_{\Gamma} + 
+  0.5\lambda\left(\vect{u}^{+} - \vect{u}^{-} \right)
+  \, ,\quad
+  \Delta v \le \frac{S_t}{h^{-1}}
+  \nonumber
+\end{equation}
+
+\end{center}
+\end{frame}
+
+
 
 \end{comment} % M1comment
 
