@@ -225,7 +225,8 @@
 	\end{center}
 	\end{figure}
 	\begin{tabular}{c}	
-	CASC, LLNL\\
+	Center for Applied Scientific Computing,\\
+	Lawrence Livermore National Laboratory, \\
     Livermore, CA, USA\\
 	January 16, 2018 
 	\end{tabular}
@@ -1944,6 +1945,8 @@ matter", \textit{Phys. Rev. Lett.}, 120, 025002 (2018).}
   \frac{\qe}{\me c}\B\times\fone .
   \nonumber\label{eq:M1f1}
 \end{eqnarray}
+The~second moment closure uses the~M1 form $\matr{A}(\fzero, \fone)$, i.e. is
+nonlinear and degenerates to $\matr{I}\frac{1}{3}$ with decreasing anisotropy.
 \end{block}
 
 {\large High-order finite element bilienar form integrators}
@@ -2308,28 +2311,33 @@ electron heat flux $\vect{q}_e$, radiation flux $\vect{q}_R$.
 \end{block}
 
 \begin{itemize}
-\item Lagrangian frame, 2T single fluid, IB laser deposition, SESAME
+\item PETE simulations: Lagrangian frame, 2T single fluid, IB laser deposition, SESAME
 %\item SESAME/QEOS/FEOS/BADGER equation of state
 %\item Inverse-bremsstrahlung laser deposition (Stationary Maxwell Equation),
 %intensities between 10$^{11}$ -- 10$^{15}$ W/cm$^2$
-\item Nonlocal radiation and electron transport
+\item High-order finite element scheme for 6D nonlocal radiation and electron transport
 \item Inherent coupling of nonlocal transport and energy equations via 
 $I = a(\vect{x}, \vect{n})\, T_e + b(\vect{x}, \vect{n})$, 
 which leads to a temperature dependence of energy fluxes 
 $\colorimportant{\vect{q}_e + \vect{q}_R = \matr{A}\, T_e + \vect{b}}$
+\item What about a~Multi-Grid approach for an~efficient solution of DG-BGK$\&$T?
+\item What about an~implementation of the~spherical harmonics basis in MFEM?
  
 \end{itemize}
 \begin{figure}
-\begin{center}
-\begin{tabular}{ccc} 
-  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/material_77.png}
-  &
-  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/nonlocalI1z_77.png}
-  &
-  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/nonlocalI1x_77.png}
-\end{tabular}
-\end{center}
+\includegraphics[width=0.5\textwidth]{../figs_NTH/nth_sedov.png}
 \end{figure}
+%\begin{figure}
+%\begin{center}
+%\begin{tabular}{ccc} 
+%  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/material_77.png}
+%  &
+%  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/nonlocalI1z_77.png}
+%  &
+%  \includegraphics[width=0.25\textwidth]{../figs_NTH/results/OmegaLaser/nonlocalI1x_77.png}
+%\end{tabular}
+%\end{center}
+%\end{figure}
 %Based on \colorimportant{MFEM}, a free, lightweight, scalable C++ library for 
 %finite element methods developed at Lawrence Livermore National Laboratory, CA.
 %\colorimportant{"My finite element library is higher order than yours..."}
