@@ -300,14 +300,16 @@
 \newcommand{\edf}{\colorimportant{f}}
 \begin{frame}
 \begin{center}
-{\large Radiation diffusion model}
+{\large Thermal Radiative Transfer}
 \end{center}
+\footnote{D. Mihalas and B. Mihalas, Foundations of Radiation Hydrodynamics 
+(Oxford University Press, New York, 1985).}
 \end{frame}
-\begin{frame}
 
 \subsection{Nonlocal electron transport}
+\begin{frame}
 \begin{center}
-{\large Hydrodynamic model of plasma}
+{\large Radiation-Hydrodynamic model of plasma}
 \begin{block}{Boltzmann transport equation}
 \begin{equation}
   \frac{\partial \edf}{\partial t} + 
@@ -318,8 +320,8 @@
   \sigma \nabla_{\vect{v}}\cdot\int 
   \frac{|\vect{v}-\vect{v}'|^2\matr{I} - (\vect{v}-\vect{v}')\otimes 
   \vect{v}-\vect{v}')}{|\vect{v}-\vect{v}'|^3}
-  \big(\nabla_{\vect{v}} f(\vect{v}) f(\vect{v}') - 
-  f(\vect{v}) \nabla_{\vect{v}} f(\vect{v}')\big) \dI \vect{v}'
+  \big(\nabla_{\vect{v}} \edf(\vect{v}) f(\vect{v}') - 
+  \edf(\vect{v}) \nabla_{\vect{v}} f(\vect{v}')\big) \dI \vect{v}'
   \nonumber
   %C(\edf, \edf)
   %\nonumber
@@ -334,7 +336,7 @@
 	\label{lagrange_ei_momentum_equation} \nonumber\\
 	\rho\frac{\dI \varepsilon}{\dI t} &=& 
 	\matr{\sigma}:\nablax\vect{U}
-	- \nablax\cdot\vect{q}%\, ,
+	- \nablax\cdot\left(\vect{q}_e + \vect{q}_R \right)%\, ,
 	\label{lagrange_i_energy_equation} \nonumber
 \end{eqnarray}
 \end{block}
@@ -345,19 +347,66 @@
 	(\vect{v}-\vect{U})\, \edf\, \dI \vect{v}^3 \approx -\matr{I} p 
 	+ \tilde{\matr{\sigma}}(\nabla \vect{U})
 	\label{stress_tensor}\nonumber\\
-	\vect{q} &=& \frac{\rho}{2} 
+	\vect{q}_e &=& \frac{\rho}{2} 
 	\int |\vect{v} - \vect{U}|^2
 	(\vect{v}-\vect{U})\, \edf\, \dI \vect{v}^3 \approx 
-	2\pi\rho 
+	\frac{\rho}{2} 
 	\int_{4\pi}\vect{n}\int_0^\infty 
 	|\vect{v}|^5 \edf\, \dI |\vect{v}|\, \dI \vect{n}
-	\approx -\kappa(T^{2.5})\nabla T
-	\label{heat_flux_vector} \nonumber
+	\approx -\kappa(T^{2.5})\nabla T 
+	\label{heat_flux_vector} \nonumber \\
+	\vect{q}_R &=& \int_{4\pi} \vect{n} \int_\nu I^{~p}_\nu\, \dI \nu\, 
+	\dI \vect{n}
+	\label{radiation_flux_vector} \nonumber
 \end{eqnarray}
 \end{block}
 \end{center}
 \end{frame}
 
+\begin{frame}
+\begin{center}
+Spitzer-Harm electron diffusion
+\begin{equation}
+  \frac{1}{|\vect{v}|}\frac{\partial f^e}{\partial t} + 
+  \vect{n}\cdot\nabla_x f^e + \frac{q_e}{m_e |\vect{v}|}\vect{E}\cdot
+  \nabla_{\vect{v}} f^e 
+  = 
+  \frac{f_{MB}(|\vect{v}|, T_e) - f^e}{\lambda}\, , 
+  \nonumber
+\end{equation}
+%\begin{eqnarray}
+%  \frac{1}{\bar{v}}\frac{\partial I^e}{\partial t} + \vect{n}\cdot\nabla I^e 
+%  &=& 
+%  \frac{\sigma^e T_e - I^e}{\lambda^e}\, , 
+%  \nonumber
+%  \\
+%  \vect{q}_e &=& \int_{4\pi}\vect{n}\, I^e\, \dI\vect{n}\,  ,
+%  \nonumber
+%\end{eqnarray}
+\begin{block}{Chapman-Enskog approximation in small parameter $\lambda$}
+\begin{equation}
+ f^e = f_0 + \lambda f_1 + O({\lambda}^2) \approx 
+ f_{MB}(|\vect{v}|, T_e)
+ - f_{MB}(|\vect{v}|, T_e) g(\bar{Z})
+   \left(\frac{|\vect{v}|^2}{2 v_{T_e}^2} - 4\right)
+    \vect{n}\cdot\frac{\lambda\nabla T_e}{T_e}\nonumber
+\end{equation}
+%$I \approx \sigma T_e - \lambda \vect{n}\cdot
+%  \nabla \left(\sigma T_e\right) + O(\lambda^2)$ 
+%$\rightarrow \vect{q} \approx - \lambda \sigma \nabla T_e$ 
+\end{block}
+\begin{equation}
+	\frac{\lambda f_1}{f_0} = 0.25
+	\left(\frac{|\vect{v}|^2}{2 v_{T_e}^2} - 4\right)
+	\vect{n}\cdot\frac{\lambda(|\vect{v}|)\nabla T_e}{T_e} < 0.1
+	\quad\longrightarrow\quad \text{Kn}^e = \frac{\lambda\nabla T_e}{T_e} 
+	< 7.5\times10^{-4}
+	\nonumber \label{SH_limit}
+\end{equation}
+\end{center}
+\end{frame}
+
+\begin{comment} % NL vs D
 \begin{frame}
 \begin{center}
 {\large Nonlocal vs. diffusive transport models}
@@ -417,6 +466,7 @@ pre-pulse 10$^{14}$ W/cm$^2$ (10$^{24}$ W/cm$^2$)
 
 \end{center}
 \end{frame}
+\end{comment} % NL vs D
 
 
 \begin{frame}
@@ -561,11 +611,11 @@ $I^e=\int_\nu f^e\,
   %\frac{1}{\bar{|\vect{v}|}}\frac{\partial I^e}{\partial t} + 
   \vect{n}\cdot\nabla I^{e} = 
   k_B\Bigg(n_i \frac{\dI \bar{Z}}{\dI t} \frac{3}{8\pi} + 
-  \frac{n_e\sqrt{2}}{\alpha(\bar{Z}) \lambda^{ei} \pi^{\frac{3}{2}}} v_{T_e}\Bigg)
+  \frac{n_e\sqrt{2}}{8.51 \lambda^{ei} \pi^{\frac{3}{2}}} v_{T_e}\Bigg)
   T_e
   %\sqrt{\frac{2 k_B T_e}{m_e}}\right) T_e\\ 
   %\sigma\left(\frac{\dI \bar{Z}}{\dI t}, \rho, T_e\right) T_e
-  \, -\, \frac{I^e}{\alpha(\bar{Z}) \lambda^{ei}} 
+  \, -\, \frac{I^e}{8.51 \lambda^{ei}} 
   \label{photon_transport_equation} \nonumber
 \end{equation}
 %Photon transport equation using Bhatnagar-Gross-Krook collision operator and related closure via radiation energy density
@@ -1563,7 +1613,7 @@ submitted (2017).}
    dense matter}
 \begin{frame}
 \begin{center}
-{\large Preheat observed in a shocked CH foam at Omega}
+{\large Preheat observed in a shocked CH foam at OMEGA facility}
 \begin{figure}
 \begin{center}
 \begin{tabular}{cc}
@@ -1605,6 +1655,7 @@ a) recent experiment with new phase-plates, b) previous experiment
 matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
 
+\begin{comment} % RH condition
 \begin{frame}
 \begin{center}
 {\large Rankine-Hugoniot jump condition analysis}
@@ -1657,6 +1708,30 @@ which is comparable to the~hydrodynamics flux contribution.
 \footnotetext{K. Falk, M. Holec, C. J. Fontes et al, "Measurement of preheat due to nonlocal electron transport in warm dense
 matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
+\end{comment} % RH condition
+
+\begin{frame}
+\begin{center}
+{\large VISAR oscillations}
+\begin{figure}
+\begin{center}
+\begin{tabular}{ccc}
+  \includegraphics[width=0.33\textwidth]{../figs_NTH/short_preheat.png} &
+  \includegraphics[width=0.33\textwidth]{../figs_NTH/medium_preheat.png} &
+  \includegraphics[width=0.33\textwidth]{../figs_NTH/long_preheat.png}
+\end{tabular}
+\begin{tabular}{cc}
+  \includegraphics[width=0.33\textwidth]{../figs_NTH/VISAR_KFalk_PoP2014.png} 
+  \footnote{K. Falk et al, \textit{Phys. Plas.}, 21, 056309 (2014).} &
+  \includegraphics[width=0.33\textwidth]{../figs_NTH/VISAR_SOP_McWilliams_Science2012.png}
+  \footnote{R. S. Williams et al, \textit{Science}, 338, 1330 (2012).}
+\end{tabular}
+%\caption{.}
+\label{RH_fig}
+\end{center}
+\end{figure}
+\end{center}
+\end{frame}
 
 \begin{frame}
 \begin{center}
@@ -1683,7 +1758,7 @@ the mean free path in WDM foam increases $\approx$ 30$\%$.
 matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
 
-%\begin{comment} % LANL
+\begin{comment} % Xray
 \begin{frame}
 \begin{center}
 {\large X-ray preheat analysis}
@@ -1705,7 +1780,7 @@ Absorbed energy density by nonlocal electrons $\approx$ 2.7e6 J/cm3.
 \footnotetext{K. Falk, M. Holec, C. J. Fontes et al, "Measurement of preheat due to nonlocal electron transport in warm dense
 matter", \textit{Phys. Rev. Lett.}, In press.}
 \end{frame}
-%\end{comment} % LANL
+\end{comment} % Xray
 
 \subsection{The effect of pre-plasma formation under nonlocal transport conditions for ultra-relativistic laser-plasma interaction}
 \begin{frame}
