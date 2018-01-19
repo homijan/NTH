@@ -64,7 +64,7 @@ ml_min = 0.0
 #ml_min = 0.5
 Te = 1000.0
 gradTe = -1.0
-Zbar = 100.0
+Zbar = 1.0
 #Efield = 0.0
 Efield = vTh(Te)**2.0*2.5*gradTe/Te
 
@@ -94,7 +94,8 @@ for i in range(Nimpl):
     vp = vimpl[i]
     mfp = vp**4.0
     dv = dvimpl
-    BGKf1[i] = - Zbar/(Zbar + 1.0)*((vp**2.0/2.0/vTh(Te)**2.0 - 1.5)*gradTe/Te - Efield/vTh(Te)**2.0)*fM(vp, Te)*vp*vp
+    #BGKf1[i] = - Zbar/(Zbar + 1.0)*((vp**2.0/2.0/vTh(Te)**2.0 - 1.5)*gradTe/Te - Efield/vTh(Te)**2.0)*fM(vp, Te)*vp*vp
+    BGKf1[i] = - (Zbar + 0.24)/(Zbar + 4.2)*((vp**2.0/2.0/vTh(Te)**2.0 - 1.5)*gradTe/Te - Efield/vTh(Te)**2.0)*fM(vp, Te)*vp*vp
     BGKj[i] = mfp*vp*BGKf1[i]
     BGKq[i] = mfp*me/2.0*vp*vp*vp*BGKf1[i]
     BGKJ = BGKJ + 4.0*pi/3.0*BGKj[i]*dv
@@ -132,15 +133,18 @@ print("M1Q_expl: ", M1Q_expl)
 #nM1j = M1j_impl/max(abs(M1j_impl))
 #nM1q = M1q_impl/max(abs(M1q_impl))
 
+vimpl = vimpl/vTh(Te)
+vexpl = vexpl/vTh(Te)
+
 import matplotlib.pyplot as plt
 plt.plot(vexpl, M1q_expl, 'b', label='M1q_expl')
 plt.plot(vimpl, M1q_impl, 'k--', label='M1q_impl')
-plt.plot(vimpl, BGKq, 'g--', label='BGKq')
+plt.plot(vimpl, BGKq, 'g--', label='SHq')
 #plt.plot(v, nM1q, 'b', label='nM1q')
 #plt.plot(v, nBGKq, 'g', label='nBGKq')
 #plt.plot(v, nM1j, 'b--', label='nM1j')
 #plt.plot(v, nBGKj, 'g--', label='nBGKj')
 plt.legend(loc='best')
-plt.xlabel('v')
+plt.xlabel('v/vT')
 plt.grid()
 plt.show()
