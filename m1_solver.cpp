@@ -424,8 +424,12 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
       timer.sw_force.Start();
       Divf1.Mult(I0, rhs);
 	  rhs.Neg();
-      // dI0 negative (dfMdv) in diffusive regime.
-	  AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
+      // dI0 negative (dfMdv) in diffusive regime. 
+	  //AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
+      // Watch out! dI0 has been multiplied by alphavT because of it is 
+	  // integrated along the normalized velocity dimension.
+	  AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled / alphavT);
+	  //AEfieldf1.AddMult(I0source, rhs, 1.0 / velocity_scaled);
 	  //AIEfieldf1.AddMult(I0, rhs, 1.0 / velocity_scaled / velocity_scaled);
 	  Bfieldf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
 	  Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
