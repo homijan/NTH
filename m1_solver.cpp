@@ -755,14 +755,22 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             }
 
             // Extensive scalar quadrature data.
-            quad_data.nuinvrho(z_id*nqp + q) = msp / rho; //nue/rho;
+            const double Zbar = 1.0;
+            //const double Zbar = 10.0;
+            //const double Zbar = 50.0;
+            //const double Zbar = 100.0;
+            // Introducing a AWBS correction factor in order to obtain 
+            // an appropriate SH diffusive limit!
+            const double corrAWBS = (688.9*Zbar + 114.4) / 
+                                    (Zbar*Zbar + 1038.0*Zbar + 474.1);
+            quad_data.nuinvrho(z_id*nqp + q) = corrAWBS * msp / rho; //nue/rho;
+            //quad_data.nuinvrho(z_id*nqp + q) = msp / rho; //nue/rho;
             quad_data.Ef1invvf0rho(z_id*nqp + q) = Efield * f1
                                                    / velocity_scaled / f0
                                                    / rho;
             //cout << "Ef1/v/f0/rho: " <<  quad_data.Ef1invvf0rho(z_id*nqp + q) 
             //     << endl << flush;
-            const double Zbar = 100.0;
-			quad_data.nutinvrho(z_id*nqp + q) = Zbar * msp / rho;
+            quad_data.nutinvrho(z_id*nqp + q) = Zbar * msp / rho;
          }
          ++z_id;
       }

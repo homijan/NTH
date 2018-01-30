@@ -62,9 +62,13 @@ ml_max = 10.0
 ml_min = 0.0
 #ml_max = 6.5
 #ml_min = 0.5
-Te = 1000.0
+Te = 10000.0
 gradTe = -1.0
-Zbar = 5.0
+Zbar = 1.0
+sigma = 1e15
+# The heat flux after integration takes the form
+# qH = me/Zbar/sigma*128/(2*pi)**0.5*(kB/me)**(7/2)*T**(5/2)*gradT,
+# where mfp_ei = v**4/sigma/Zbar, i.e. sigma corresponds to ee collisions.
 # Physical fix by a magic constant.
 # Z = 1
 #cmag = 1.882
@@ -132,7 +136,7 @@ M1J_impl = 0.0
 M1Q_impl = 0.0
 for i in range(Nimpl):
     vp = vimpl[i]
-    mfp = vp**4.0
+    mfp = vp**4.0/sigma/Zbar
     dv = dvimpl
     #BGKf1[i] = - Zbar/(Zbar + 1.0)*((vp**2.0/2.0/vTh(Te)**2.0 - 1.5)*gradTe/Te - Efield/vTh(Te)**2.0)*fM(vp, Te)*vp*vp
     BGKf1[i] = - (Zbar + 0.24)/(Zbar + 4.2)*((vp**2.0/2.0/vTh(Te)**2.0 - 1.5)*gradTe/Te - Efield/vTh(Te)**2.0)*fM(vp, Te)*vp*vp

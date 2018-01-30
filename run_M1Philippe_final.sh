@@ -1,6 +1,8 @@
 #! /bin/bash
 mkdir results
 # problem 8 proving the AWBS model diffusive limit.
+# This run corresponds to the Zbar = 1 run of "python M1_f1integrate.py".
+#mpirun -np 8 nth -p 8 -m data/segment01.mesh -rs 6 -tf 0.0 -ok 4 -ot 3 -vis -fa -print -Tmax 10001 -Tmin 10000 -Tgrad 1 -a0 1e15
 # 1) linearity in mean free path
 # 2) nonlinearity in temperature equal to 5/2.
 # 3) linearity in tmeperature gradient
