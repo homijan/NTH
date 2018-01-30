@@ -64,20 +64,60 @@ ml_min = 0.0
 #ml_min = 0.5
 Te = 1000.0
 gradTe = -1.0
-Zbar = 1.0
+Zbar = 5.0
+# Physical fix by a magic constant.
+# Z = 1
+#cmag = 1.882
+# Z = 5
+#cmag = 1.59575
+# Z = 10
+#cmag = 1.565
+# Z = 20
+#cmag = 1.56
+# Z = 50
+#cmag = 1.585
+# Z = 100
+#cmag = 1.65
+# Z = 200
+#cmag = 1.8
+#coeffs = np.array([0.5313496280552604, 0.6266645777847407, 0.6389776357827476, 0.641025641025641, 0.6309148264984227, 0.6060606060606061, 0.5555555555555556])
+#Zbars = [1.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0]
+#p1 = 688.9
+#p2 = 114.4
+#q1 = 1038
+#q2 = 474.1
+#icoeffs = np.array([(p1*Zbars[i] + p2)/(Zbars[i]**2.0 + q1*Zbars[i] + q2) for i in range(7)])
+#print icoeffs
+#Zbar = Zbars[0]
+#corr = coeffs[0]
+#Zbar = Zbars[1]
+#corr = coeffs[1]
+#Zbar = Zbars[2]
+#corr = coeffs[2]
+#Zbar = Zbars[3]
+#corr = coeffs[3]
+#Zbar = Zbars[4]
+#corr = coeffs[4]
+#Zbar = Zbars[5]
+#corr = coeffs[5]
+#Zbar = Zbars[6]
+#corr = coeffs[6]
+corr = (688.9*Zbar + 114.4)/(Zbar**2.0 + 1038*Zbar + 474.1)
+print("Zbar, corr:", Zbar, corr)
+cmag = 1./corr
 #Efield = 0.0
 Efield = vTh(Te)**2.0*2.5*gradTe/Te
 
-Nexpl = 1000
+Nexpl = 5000
 vexpl = np.linspace(ml_max*vTh(Te), ml_min*vTh(Te), Nexpl)
 dvexpl = (ml_max - ml_min)*vTh(Te)/(Nexpl-1)
 
-Nimpl = 1000
+Nimpl = 5000
 vimpl = np.linspace(ml_max*vTh(Te), ml_min*vTh(Te), Nimpl)
 dvimpl = (ml_max - ml_min)*vTh(Te)/(Nimpl-1)
 
 sol_expl = solve_fweuler(vexpl, 0.0, Te, gradTe, Zbar, Efield)
-sol_impl = solve_bweuler(vimpl, 0.0, Te, gradTe, Zbar, Efield)
+sol_impl = solve_bweuler(vimpl, 0.0, Te, gradTe, cmag*Zbar, Efield)
 
 # Post-process transport values
 BGKf1 = np.zeros(Nimpl)
@@ -121,8 +161,8 @@ for i in range(Nexpl):
     M1Q_expl = M1Q_expl + 4.0*pi/3.0*M1q_expl[i]*dv
 
 # Print integrated values
-print("BGKJ: ", BGKJ)
-print("BGKQ: ", BGKQ)
+print("SHJ: ", BGKJ)
+print("SHQ: ", BGKQ)
 print("M1J_impl: ", M1J_impl)
 print("M1Q_impl: ", M1Q_impl)
 print("M1J_expl: ", M1J_expl)
@@ -133,13 +173,12 @@ print("M1Q_expl: ", M1Q_expl)
 #nM1j = M1j_impl/max(abs(M1j_impl))
 #nM1q = M1q_impl/max(abs(M1q_impl))
 
-vimpl = vimpl/vTh(Te)
-vexpl = vexpl/vTh(Te)
-
 import matplotlib.pyplot as plt
-plt.plot(vexpl, M1q_expl, 'b', label='M1q_expl')
-plt.plot(vimpl, M1q_impl, 'k--', label='M1q_impl')
-plt.plot(vimpl, BGKq, 'g--', label='SHq')
+#plt.plot(Zbars, coeffs)
+#plt.plot(Zbars, icoeffs)
+#plt.plot(vexpl, M1q_expl, 'g--', label='M1q_expl')
+plt.plot(vimpl/vTh(Te), M1q_impl, 'r--', label='M1q_impl')
+plt.plot(vimpl/vTh(Te), BGKq, 'b', label='SHq')
 #plt.plot(v, nM1q, 'b', label='nM1q')
 #plt.plot(v, nBGKq, 'g', label='nBGKq')
 #plt.plot(v, nM1j, 'b--', label='nM1j')
