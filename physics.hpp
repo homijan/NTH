@@ -84,6 +84,7 @@ public:
       { }
    virtual double Eval(ElementTransformation &T,
       const IntegrationPoint &ip) = 0;
+   virtual void SetEOS(EOS *eos_) { eos = eos_; }
 
    virtual ~HydroCoefficient() {};
 };
@@ -117,6 +118,39 @@ public:
    double GetVelocityScale() { return alphavT; }
    double GetRho(ElementTransformation &T, const IntegrationPoint &ip)
       { return rho_gf.GetValue(T.ElementNo, ip); }
+};
+
+// Master of physics for nonlocal transport.
+class AWBSMasterOfPhysics
+{
+protected:
+public:
+   // members
+   NTHvHydroCoefficient *mspei_pcf, *mspee_pcf, *sourceI0_pcf;
+   VectorCoefficient *Efield_pcf, *Bfield_pcf;
+   // methods
+   AWBSMasterOfPhysics(NTHvHydroCoefficient *mspei_, 
+                       NTHvHydroCoefficient *mspee_,
+                       NTHvHydroCoefficient *source_, 
+                       VectorCoefficient *Efield_,
+                       VectorCoefficient *Bfield_)
+      : mspei_pcf(mspei_),  mspee_pcf(mspee_), sourceI0_pcf(source_),
+        Efield_pcf(Efield_), Bfield_pcf(Bfield_) { }
+
+   void SetThermalVelocityMultiple(double vTmultiple)
+   { 
+      mspei_pcf->SetThermalVelocityMultiple(vTmultiple);
+      mspee_pcf->SetThermalVelocityMultiple(vTmultiple);
+      sourceI0_pcf->SetThermalVelocityMultiple(vTmultiple);
+   }
+   void SetTmax(double glob_Tmax)
+   { 
+      mspei_pcf->SetTmax(glob_Tmax); 
+      mspee_pcf->SetTmax(glob_Tmax);
+      sourceI0_pcf->SetTmax(glob_Tmax);
+   }
+
+   ~AWBSMasterOfPhysics() { }
 };
 
 // Classical mean-stopping-power (electron-ion) coefficient.

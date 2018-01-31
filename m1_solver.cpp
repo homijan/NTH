@@ -81,11 +81,7 @@ M1Operator::M1Operator(int size,
                        Array<int> &essential_tdofs,
                        ParGridFunction &rho0, 
                        double cfl_, 
-                       NTHvHydroCoefficient *mspei_,
-                       NTHvHydroCoefficient *mspee_,  
-                       NTHvHydroCoefficient *sourceI0_,
-                       VectorCoefficient *Efield_,
-					   VectorCoefficient *Bfield_,
+                       AWBSMasterOfPhysics *AWBSPhysics_,
 					   ParGridFunction &x_gf_, 
                        ParGridFunction &T_gf_, 
                        double cgt, int cgiter)
@@ -110,9 +106,7 @@ M1Operator::M1Operator(int size,
      AIEfieldf1(&l2_fes, &h1_fes),
      ForcePA(&quad_data, h1_fes, l2_fes),
      VMassPA(&quad_data, H1compFESpace), locEMassPA(&quad_data, l2_fes),
-     locCG(), timer(), mspei_pcf(mspei_), mspee_pcf(mspee_), 
-     sourceI0_pcf(sourceI0_), Efield_pcf(Efield_), Bfield_pcf(Bfield_), 
-     x_gf(x_gf_)
+     locCG(), timer(), AWBSPhysics(AWBSPhysics_), x_gf(x_gf_)
 {
    GridFunctionCoefficient rho_coeff(&rho0);
 
@@ -241,12 +235,12 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    const double velocity = GetTime(); 
 
    UpdateQuadratureData(velocity, S);
-   const double alphavT = mspei_pcf->GetVelocityScale();
+   const double alphavT = AWBSPhysics->mspei_pcf->GetVelocityScale();
    const double velocity_scaled = velocity * alphavT;
 
-   sourceI0_pcf->SetVelocity(velocity);
+   AWBSPhysics->sourceI0_pcf->SetVelocity(velocity);
    ParGridFunction I0source(&L2FESpace);
-   I0source.ProjectCoefficient(*sourceI0_pcf);
+   I0source.ProjectCoefficient(*(AWBSPhysics->sourceI0_pcf));
 
    // The monolithic BlockVector stores the unknown fields as follows:
    // - isotropic I0 (energy density)
@@ -456,9 +450,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    if (quad_data_is_current) { return; }
    timer.sw_qdata.Start();
 
-   mspei_pcf->SetVelocity(velocity);
-   mspee_pcf->SetVelocity(velocity);
-   const double alphavT = mspei_pcf->GetVelocityScale();
+   AWBSPhysics->mspei_pcf->SetVelocity(velocity);
+   AWBSPhysics->mspee_pcf->SetVelocity(velocity);
+   const double alphavT = AWBSPhysics->mspei_pcf->GetVelocityScale();
    const double velocity_scaled = velocity * alphavT;
    const int nqp = integ_rule.GetNPoints();
 
@@ -513,12 +507,6 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
          {
             const IntegrationPoint &ip = integ_rule.IntPoint(q);
             T->SetIntPoint(&ip);
-            //Vector Efield;
-            //Efield_pcf->Eval(Efield, *T, ip);
-            //Efield_b[z].SetCol(q, Efield); 
-            //Vector Bfield;
-            //Bfield_pcf->Eval(Bfield, *T, ip);
-            //Bfield_b[z].SetCol(q, Bfield);            
             Jpr_b[z](q) = T->Jacobian(); 
 
             const double detJ = Jpr_b[z](q).Det();
@@ -527,8 +515,8 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             //rho_b[idx] = mspei_pcf->GetRho(*T, ip);
             rho_b[idx] = quad_data.rho0DetJ0w(z_id*nqp + q) / 
                          detJ / ip.weight;
-            mspei_b[idx] = mspei_pcf->Eval(*T, ip, rho_b[idx]);
-            mspee_b[idx] = mspee_pcf->Eval(*T, ip, rho_b[idx]);
+            mspei_b[idx] = AWBSPhysics->mspei_pcf->Eval(*T, ip, rho_b[idx]);
+            mspee_b[idx] = AWBSPhysics->mspee_pcf->Eval(*T, ip, rho_b[idx]);
 			// M1 closure.
             // Matric closure maximizing angular entropy
             // A = 1/3*I + M^2/2*(1 + M^2)*((f1xf1^T)/f1^2 - 1/3*I),
@@ -613,8 +601,8 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             // TODO Here the vector E and B evaluation.
             // And consequent evaluation of AE and AIE.
             //Efield_b[z].GetColumn(q, Efield);
-            Efield_pcf->Eval(Efield, *T, ip);
-			Bfield_pcf->Eval(Bfield, *T, ip);
+            AWBSPhysics->Efield_pcf->Eval(Efield, *T, ip);
+			AWBSPhysics->Bfield_pcf->Eval(Bfield, *T, ip);
 			//Efield = 0.0;
             //Bfield = 0.0; 
             AM1.Mult(Efield, AEfield);

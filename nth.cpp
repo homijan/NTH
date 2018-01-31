@@ -410,6 +410,9 @@ int main(int argc, char *argv[])
    VectorConstantCoefficient ZeroBfield_cf(vZero);
    VectorCoefficient *Bfield_pcf = &ZeroBfield_cf;
 
+   nth::AWBSMasterOfPhysics AWBSPhysics(mspei_pcf, mspee_pcf, sourceI0_pcf,
+                                        Efield_pcf, Bfield_pcf);
+
    // Static coefficient defined in m1_solver.hpp.
    double m1cfl = 0.25;
    vis_steps = 1000000000;
@@ -449,22 +452,17 @@ int main(int argc, char *argv[])
    }
 
    oper.ComputeDensity(rho_gf);
-   mspei_cf.SetThermalVelocityMultiple(vTmultiple);
-   mspee_cf.SetThermalVelocityMultiple(vTmultiple);
-   sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
+   AWBSPhysics.SetThermalVelocityMultiple(vTmultiple);
    mfp_cf.SetThermalVelocityMultiple(vTmultiple);
    double loc_Tmax = e_gf.Max(), glob_Tmax;
    MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                  pmesh->GetComm());
-   mspei_cf.SetTmax(glob_Tmax);
-   mspee_cf.SetTmax(glob_Tmax);
-   sourceI0_cf.SetTmax(glob_Tmax);
+   AWBSPhysics.SetTmax(glob_Tmax);
    mfp_cf.SetTmax(glob_Tmax);
 
    // Initialize the M1-AWBS operator
    nth::M1Operator m1oper(m1S.Size(), H1FESpace, L2FESpace, ess_tdofs, rho_gf, 
-                          m1cfl, mspei_pcf, mspee_pcf, sourceI0_pcf, Efield_pcf,                          Bfield_pcf, x_gf, e_gf,   
-						  cg_tol, cg_max_iter);
+                          m1cfl, &AWBSPhysics, x_gf, e_gf, cg_tol, cg_max_iter);
    // Prepare grid functions integrating the moments of I0 and I1.
    ParGridFunction intf0_gf(&L2FESpace), Kn_gf(&L2FESpace);
    ParGridFunction j_gf(&H1FESpace), hflux_gf(&H1FESpace);
@@ -670,17 +668,13 @@ int main(int argc, char *argv[])
 ///// M1 nonlocal solver //////////////////////////////////////
 ///////////////////////////////////////////////////////////////
          oper.ComputeDensity(rho_gf);
-         mspei_cf.SetThermalVelocityMultiple(vTmultiple);
-         mspee_cf.SetThermalVelocityMultiple(vTmultiple);
-		 sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
-         mfp_cf.SetThermalVelocityMultiple(vTmultiple);          
+         AWBSPhysics.SetThermalVelocityMultiple(vTmultiple);
+		 mfp_cf.SetThermalVelocityMultiple(vTmultiple);          
          double loc_Tmax = e_gf.Max(), glob_Tmax;
          MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                        pmesh->GetComm());
-         mspei_cf.SetTmax(glob_Tmax);
-         mspee_cf.SetTmax(glob_Tmax);
-		 sourceI0_cf.SetTmax(glob_Tmax);
-         mfp_cf.SetTmax(glob_Tmax);
+         AWBSPhysics.SetTmax(glob_Tmax);
+		 mfp_cf.SetTmax(glob_Tmax);
          alphavT = mspei_cf.GetVelocityScale();
          m1oper.ResetVelocityStepEstimate();
          m1oper.ResetQuadratureData();

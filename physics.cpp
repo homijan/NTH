@@ -108,15 +108,13 @@ void LorentzEfield::Eval(Vector &V, ElementTransformation &T,
    Vector grad_rho;
    rho_gf.GetGradient(T, grad_rho);
    // Return the Lorentz quasi-neutral (zero current) Efield.
-   //Te = 1e4;
-   //grad_Te = -1.0;
    V = grad_Te;
    V *= 2.5 / Te;
    //V *= rho;
    //V += grad_rho;
    //V *= 1.0 / rho;
    V *= pow(vTe, 2.0);
-   //V *= 1e-16 * vTe * vTe;
+   //V *= 1e-16 * pow(vTe, 2.0);
    //V *= 4.55e-3 * v_th * v_th; // Reference -p 5 (T in (1000, 100))
    //V *= 6.085e-3 * v_th * v_th; // Reference -p 8 (T=5e2)
    //V *= 2.02e-3 * v_th * v_th; // Reference -p 8 (T=5e3)
