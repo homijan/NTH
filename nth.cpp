@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
    double T_max = 1000.0, T_min = 100.0, rho_max = 10.0, rho_min = 1.0;
    double T_gradscale = 50.0, rho_gradscale = 50.0;
    double a0 = 1e20;
+   double Zbar = 10.0;
 
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh",
@@ -140,6 +141,8 @@ int main(int argc, char *argv[])
                   "Name of the visit dump files");
    args.AddOption(&a0, "-a0", "--a0",
                   "Mean-free-path scaling, i.e. lambda = v^4/rho/a0.");
+   args.AddOption(&Zbar, "-Z", "--Zbar",
+                  "Constant ionization used for nu_ee. Used along IGEOS only.");
    args.AddOption(&T_max, "-Tmax", "--Tmax",
                   "Maximum temperature in the step function tanh(x).");
    args.AddOption(&T_min, "-Tmin", "--Tmin",
@@ -384,9 +387,15 @@ int main(int argc, char *argv[])
    // source function depending on plasma temperature and density. 
    const double kB = 1.0, me = 1.0, pi = 3.14159265359;
    nth::IGEOS eos(me, kB);
-   nth::ClassicalMeanStoppingPower msp_cf(rho_gf, e_gf, v_gf, material_pcf,
-                                          &eos);
-   nth::NTHvHydroCoefficient *msp_pcf = &msp_cf;
+   // Use a constant ionization provided by IG eos. 
+   eos.SetZbar(Zbar);
+   // Prepare C6 physics.
+   nth::ClassicalMeanStoppingPower mspei_cf(rho_gf, e_gf, v_gf, material_pcf,
+                                            &eos);
+   nth::ClassicalAWBSMeanStoppingPower mspee_cf(rho_gf, e_gf, v_gf, 
+                                                material_pcf, &eos);
+   nth::NTHvHydroCoefficient *mspei_pcf = &mspei_cf;
+   nth::NTHvHydroCoefficient *mspee_pcf = &mspee_cf;
    nth::ClassicalMeanFreePath mfp_cf(rho_gf, e_gf, v_gf, material_pcf, &eos);
    nth::MeanFreePath *mfp_pcf = &mfp_cf;
    nth::AWBSI0Source sourceI0_cf(rho_gf, e_gf, v_gf, material_pcf, &eos);
@@ -409,7 +418,7 @@ int main(int argc, char *argv[])
    double vTmultiple = 7.0;
    // well, not really, since the lowest v = 0 is singular, so
    //double vmin = 0.01 * vmax;
-   double vmin = 0.01 * vmax;
+   double vmin = 0.02 * vmax;
    // and provide some maximum dv step.
    double dvmax = vmax*0.0005;
    bool nonlocal_test = false;
@@ -440,20 +449,22 @@ int main(int argc, char *argv[])
    }
 
    oper.ComputeDensity(rho_gf);
-   msp_cf.SetThermalVelocityMultiple(vTmultiple);
+   mspei_cf.SetThermalVelocityMultiple(vTmultiple);
+   mspee_cf.SetThermalVelocityMultiple(vTmultiple);
    sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
    mfp_cf.SetThermalVelocityMultiple(vTmultiple);
    double loc_Tmax = e_gf.Max(), glob_Tmax;
    MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                  pmesh->GetComm());
-   msp_cf.SetTmax(glob_Tmax);
+   mspei_cf.SetTmax(glob_Tmax);
+   mspee_cf.SetTmax(glob_Tmax);
    sourceI0_cf.SetTmax(glob_Tmax);
    mfp_cf.SetTmax(glob_Tmax);
 
    // Initialize the M1-AWBS operator
    nth::M1Operator m1oper(m1S.Size(), H1FESpace, L2FESpace, ess_tdofs, rho_gf, 
-                          m1cfl, msp_pcf, sourceI0_pcf, Efield_pcf, Bfield_pcf,
-                          x_gf, e_gf, p_assembly, cg_tol, cg_max_iter);
+                          m1cfl, mspei_pcf, mspee_pcf, sourceI0_pcf, Efield_pcf,                          Bfield_pcf, x_gf, e_gf, 
+                          p_assembly, cg_tol, cg_max_iter);
    // Prepare grid functions integrating the moments of I0 and I1.
    ParGridFunction intf0_gf(&L2FESpace), Kn_gf(&L2FESpace);
    ParGridFunction j_gf(&H1FESpace), hflux_gf(&H1FESpace);
@@ -465,7 +476,7 @@ int main(int argc, char *argv[])
    //m1ode_solver = new RK6Solver;
    m1ode_solver->Init(m1oper);
 
-   double alphavT = msp_cf.GetVelocityScale();
+   double alphavT = mspei_cf.GetVelocityScale();
    m1oper.ResetVelocityStepEstimate();
    m1oper.ResetQuadratureData();
    m1oper.SetTime(vmax);
@@ -659,16 +670,18 @@ int main(int argc, char *argv[])
 ///// M1 nonlocal solver //////////////////////////////////////
 ///////////////////////////////////////////////////////////////
          oper.ComputeDensity(rho_gf);
-         msp_cf.SetThermalVelocityMultiple(vTmultiple);
-         sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
+         mspei_cf.SetThermalVelocityMultiple(vTmultiple);
+         mspee_cf.SetThermalVelocityMultiple(vTmultiple);
+		 sourceI0_cf.SetThermalVelocityMultiple(vTmultiple);
          mfp_cf.SetThermalVelocityMultiple(vTmultiple);          
          double loc_Tmax = e_gf.Max(), glob_Tmax;
          MPI_Allreduce(&loc_Tmax, &glob_Tmax, 1, MPI_DOUBLE, MPI_MAX,
                        pmesh->GetComm());
-         msp_cf.SetTmax(glob_Tmax);
-         sourceI0_cf.SetTmax(glob_Tmax);
+         mspei_cf.SetTmax(glob_Tmax);
+         mspee_cf.SetTmax(glob_Tmax);
+		 sourceI0_cf.SetTmax(glob_Tmax);
          mfp_cf.SetTmax(glob_Tmax);
-         alphavT = msp_cf.GetVelocityScale();
+         alphavT = mspei_cf.GetVelocityScale();
          m1oper.ResetVelocityStepEstimate();
          m1oper.ResetQuadratureData();
          m1oper.SetTime(vmax);

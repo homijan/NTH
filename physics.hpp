@@ -53,6 +53,7 @@ public:
    // Thermal velocity.
    double GetvTe(double Te) { return sqrt(kB * Te / me); }
    // Get Thermodynamic values.
+   virtual double GetZbar(double index, double rho, double Te) = 0;
    virtual double GetPe(double index, double rho, double Te) = 0;
    virtual double GetPi(double index, double rho, double Te) = 0;
    virtual double GetEe(double index, double rho, double Te) = 0;
@@ -118,7 +119,7 @@ public:
       { return rho_gf.GetValue(T.ElementNo, ip); }
 };
 
-// Classical mean-stopping-power coefficient.
+// Classical mean-stopping-power (electron-ion) coefficient.
 class ClassicalMeanStoppingPower : public NTHvHydroCoefficient
 {
 protected:
@@ -128,6 +129,21 @@ public:
                               EOS *eos_)
       : NTHvHydroCoefficient(rho_, Te_, v_, material_, eos_) {}
    //virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip);
+   virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
+                       double rho);
+};
+
+// Classical electron-ion mean-stopping-power coefficient.
+class ClassicalAWBSMeanStoppingPower : public ClassicalMeanStoppingPower
+{
+protected:
+public:
+   ClassicalAWBSMeanStoppingPower(ParGridFunction &rho_, 
+                                  ParGridFunction &Te_,
+                                  ParGridFunction &v_, 
+                                  Coefficient *material_,
+                                  EOS *eos_)
+      : ClassicalMeanStoppingPower(rho_, Te_, v_, material_, eos_) {}
    virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip,
                        double rho);
 };

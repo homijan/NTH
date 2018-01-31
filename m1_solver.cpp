@@ -81,7 +81,8 @@ M1Operator::M1Operator(int size,
                        Array<int> &essential_tdofs,
                        ParGridFunction &rho0, 
                        double cfl_, 
-                       NTHvHydroCoefficient *msp_,
+                       NTHvHydroCoefficient *mspei_,
+                       NTHvHydroCoefficient *mspee_,  
                        NTHvHydroCoefficient *sourceI0_,
                        VectorCoefficient *Efield_,
 					   VectorCoefficient *Bfield_,
@@ -109,8 +110,9 @@ M1Operator::M1Operator(int size,
      AIEfieldf1(&l2_fes, &h1_fes),
      ForcePA(&quad_data, h1_fes, l2_fes),
      VMassPA(&quad_data, H1compFESpace), locEMassPA(&quad_data, l2_fes),
-     locCG(), timer(), msp_pcf(msp_), sourceI0_pcf(sourceI0_), 
-     Efield_pcf(Efield_), Bfield_pcf(Bfield_), x_gf(x_gf_)
+     locCG(), timer(), mspei_pcf(mspei_), mspee_pcf(mspee_), 
+     sourceI0_pcf(sourceI0_), Efield_pcf(Efield_), Bfield_pcf(Bfield_), 
+     x_gf(x_gf_)
 {
    GridFunctionCoefficient rho_coeff(&rho0);
 
@@ -250,7 +252,7 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    const double velocity = GetTime(); 
 
    UpdateQuadratureData(velocity, S);
-   const double alphavT = msp_pcf->GetVelocityScale();
+   const double alphavT = mspei_pcf->GetVelocityScale();
    const double velocity_scaled = velocity * alphavT;
 
    sourceI0_pcf->SetVelocity(velocity);
@@ -543,8 +545,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    if (quad_data_is_current) { return; }
    timer.sw_qdata.Start();
 
-   msp_pcf->SetVelocity(velocity);
-   const double alphavT = msp_pcf->GetVelocityScale();
+   mspei_pcf->SetVelocity(velocity);
+   mspee_pcf->SetVelocity(velocity);
+   const double alphavT = mspei_pcf->GetVelocityScale();
    const double velocity_scaled = velocity * alphavT;
    const int nqp = integ_rule.GetNPoints();
 
@@ -566,8 +569,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
    int nzones_batch = 3;
    const int nbatches =  nzones / nzones_batch + 1; // +1 for the remainder.
    int nqp_batch = nqp * nzones_batch;
-   double *msp_b = new double[nqp_batch],
-          *rho_b = new double[nqp_batch];
+   double *mspee_b = new double[nqp_batch],
+          *mspei_b = new double[nqp_batch],
+		  *rho_b = new double[nqp_batch];
    // Electric and Magnetic fields for all quadrature points in the batch.
    //DenseMatrix *Efield_b = new DenseMatrix[nqp_batch],
    //            *Bfield_b = new DenseMatrix[nqp_batch];
@@ -615,11 +619,12 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             const double detJ = Jpr_b[z](q).Det();
 
             const int idx = z * nqp + q;
-            //rho_b[idx] = msp_pcf->GetRho(*T, ip);
+            //rho_b[idx] = mspei_pcf->GetRho(*T, ip);
             rho_b[idx] = quad_data.rho0DetJ0w(z_id*nqp + q) / 
                          detJ / ip.weight;
-            msp_b[idx] = msp_pcf->Eval(*T, ip, rho_b[idx]);
-            // M1 closure.
+            mspei_b[idx] = mspei_pcf->Eval(*T, ip, rho_b[idx]);
+            mspee_b[idx] = mspee_pcf->Eval(*T, ip, rho_b[idx]);
+			// M1 closure.
             // Matric closure maximizing angular entropy
             // A = 1/3*I + M^2/2*(1 + M^2)*((f1xf1^T)/f1^2 - 1/3*I),
             // where M = |f1|/|f0| must be in (0, 1), "isotropic-freestreaming".
@@ -695,8 +700,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             const double detJ = Jpr.Det();
             const DenseMatrix &AM1 = AM1_b[z](q);
             DenseMatrix I; I.Diag(1.0, dim);
-            const double msp = msp_b[z*nqp + q];
-            double rho = rho_b[z*nqp + q];
+            const double mspei = mspei_b[z*nqp + q];
+            const double mspee = mspee_b[z*nqp + q];
+			double rho = rho_b[z*nqp + q];
 
             Vector Efield(dim), Bfield(dim), AEfield(dim), AIEfield(dim);
             // TODO Here the vector E and B evaluation.
@@ -718,7 +724,7 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
                Jpr.CalcSingularvalue(dim-1) / (double) H1FESpace.GetOrder(0);
 
             // The scaled cfl condition on velocity step.
-            double dv = h_min * msp / alphavT; // / rho;
+            double dv = h_min * min(mspee, mspei) / alphavT; // / rho;
             quad_data.dt_est = min(quad_data.dt_est, cfl * dv);
             I0stress = 0.0;
             I1stress = 0.0;
@@ -755,27 +761,19 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             }
 
             // Extensive scalar quadrature data.
-            const double Zbar = 1.0;
-            //const double Zbar = 10.0;
-            //const double Zbar = 50.0;
-            //const double Zbar = 100.0;
-            // Introducing a AWBS correction factor in order to obtain 
-            // an appropriate SH diffusive limit!
-            const double corrAWBS = (688.9*Zbar + 114.4) / 
-                                    (Zbar*Zbar + 1038.0*Zbar + 474.1);
-            quad_data.nuinvrho(z_id*nqp + q) = corrAWBS * msp / rho; //nue/rho;
-            //quad_data.nuinvrho(z_id*nqp + q) = msp / rho; //nue/rho;
+            quad_data.nuinvrho(z_id*nqp + q) = mspee / rho; //nue/rho;
             quad_data.Ef1invvf0rho(z_id*nqp + q) = Efield * f1
                                                    / velocity_scaled / f0
                                                    / rho;
             //cout << "Ef1/v/f0/rho: " <<  quad_data.Ef1invvf0rho(z_id*nqp + q) 
             //     << endl << flush;
-            quad_data.nutinvrho(z_id*nqp + q) = Zbar * msp / rho;
+            quad_data.nutinvrho(z_id*nqp + q) = mspei / rho;
          }
          ++z_id;
       }
    }
-   delete [] msp_b;
+   delete [] mspee_b;
+   delete [] mspei_b;
    delete [] rho_b;
    delete [] Jpr_b;
    delete [] AM1_b;

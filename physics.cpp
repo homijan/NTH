@@ -33,9 +33,31 @@ double ClassicalMeanStoppingPower::Eval(ElementTransformation &T,
 {
    double Te = Te_gf.GetValue(T.ElementNo, ip);
    double velocity_real = alphavT * velocity;
-   double nu = a0 * rho / pow(velocity_real, 3.0);
+   double index = material_pcf->Eval(T, ip);
+   double Zbar = eos->GetZbar(index, rho, Te);
+   // The ei collision frequency has standard 1/v^3 dependence, 
+   // sigma is cross section given by the model and Zbar increases the effect 
+   // of Coulomb potential in electron-ion collisions.
+   double nu = Zbar * a0 * rho / pow(velocity_real, 3.0);
 
    return nu;
+}
+
+double ClassicalAWBSMeanStoppingPower::Eval(ElementTransformation &T,
+                                            const IntegrationPoint &ip, 
+                                            double rho)
+{
+   double Te = Te_gf.GetValue(T.ElementNo, ip);
+   double index = material_pcf->Eval(T, ip);
+   double Zbar = eos->GetZbar(index, rho, Te);
+   double nu_ei = ClassicalMeanStoppingPower::Eval(T, ip, rho);
+   // In classical approach nu_ei = Zbar*nu_ee is assumed.
+   double nu_ee = nu_ei / Zbar;
+   // AWBS correction based on comparison of diffusive asymptotic of AWBS 
+   // and SH, and a resulting dependence on Zbar.
+   const double corrAWBS = (688.9*Zbar + 114.4) /
+                           (Zbar*Zbar + 1038.0*Zbar + 474.1);
+   return corrAWBS * nu_ee;
 }
 
 double ClassicalMeanFreePath::EvalThermalMFP(ElementTransformation &T,

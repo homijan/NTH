@@ -115,17 +115,18 @@ protected:
    // The grid function is necessary for velocity step estimation. 
    ParGridFunction &x_gf;
    // Velocity dependent coefficients providing physics.
-   NTHvHydroCoefficient *msp_pcf, *sourceI0_pcf;
+   NTHvHydroCoefficient *mspei_pcf, *mspee_pcf, *sourceI0_pcf;
    // General Vector coefficient for Efield and Bfield effects.
    VectorCoefficient *Efield_pcf, *Bfield_pcf;
 
 public:
    M1Operator(int size, ParFiniteElementSpace &h1_fes,
               ParFiniteElementSpace &l2_fes, Array<int> &essential_tdofs,
-              ParGridFunction &rho0, double cfl_, NTHvHydroCoefficient *msp_,
-              NTHvHydroCoefficient *sourceI0_, VectorCoefficient *Efield_,
-              VectorCoefficient *Bfield_, ParGridFunction &x_gf_, 
-              ParGridFunction &T_gf_, bool pa, double cgt, int cgiter);
+              ParGridFunction &rho0, double cfl_, NTHvHydroCoefficient *mspei_,
+              NTHvHydroCoefficient *mspee_, NTHvHydroCoefficient *sourceI0_, 
+              VectorCoefficient *Efield_, VectorCoefficient *Bfield_, 
+              ParGridFunction &x_gf_, ParGridFunction &T_gf_, 
+              bool pa, double cgt, int cgiter);
 
    // Solve for df0_dv  and df1_dv.
    virtual void Mult(const Vector &S, Vector &dS_dt) const;
