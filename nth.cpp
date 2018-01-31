@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
    double T_max = 1000.0, T_min = 100.0, rho_max = 10.0, rho_min = 1.0;
    double T_gradscale = 50.0, rho_gradscale = 50.0;
    double a0 = 1e20;
-   double Zbar = 10.0;
+   double Zbar = 47.0;
 
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh",
@@ -463,8 +463,8 @@ int main(int argc, char *argv[])
 
    // Initialize the M1-AWBS operator
    nth::M1Operator m1oper(m1S.Size(), H1FESpace, L2FESpace, ess_tdofs, rho_gf, 
-                          m1cfl, mspei_pcf, mspee_pcf, sourceI0_pcf, Efield_pcf,                          Bfield_pcf, x_gf, e_gf, 
-                          p_assembly, cg_tol, cg_max_iter);
+                          m1cfl, mspei_pcf, mspee_pcf, sourceI0_pcf, Efield_pcf,                          Bfield_pcf, x_gf, e_gf,   
+						  cg_tol, cg_max_iter);
    // Prepare grid functions integrating the moments of I0 and I1.
    ParGridFunction intf0_gf(&L2FESpace), Kn_gf(&L2FESpace);
    ParGridFunction j_gf(&H1FESpace), hflux_gf(&H1FESpace);

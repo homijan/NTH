@@ -88,7 +88,7 @@ M1Operator::M1Operator(int size,
 					   VectorCoefficient *Bfield_,
 					   ParGridFunction &x_gf_, 
                        ParGridFunction &T_gf_, 
-                       bool pa, double cgt, int cgiter)
+                       double cgt, int cgiter)
    : TimeDependentOperator(size),
      H1FESpace(h1_fes), L2FESpace(l2_fes),
      H1compFESpace(h1_fes.GetParMesh(), h1_fes.FEColl(), 1),
@@ -97,7 +97,7 @@ M1Operator::M1Operator(int size,
      nzones(h1_fes.GetMesh()->GetNE()),
      l2dofs_cnt(l2_fes.GetFE(0)->GetDof()),
      h1dofs_cnt(h1_fes.GetFE(0)->GetDof()),
-     cfl(cfl_), p_assembly(pa), cg_rel_tol(cgt), cg_max_iter(cgiter),
+     cfl(cfl_), cg_rel_tol(cgt), cg_max_iter(cgiter),
      Mf1(&h1_fes), Mscattf1(&h1_fes), Bfieldf1(&h1_fes),
      MSf0(l2dofs_cnt, l2dofs_cnt, nzones),
      Mf0_inv(l2dofs_cnt, l2dofs_cnt, nzones),
@@ -226,17 +226,6 @@ M1Operator::M1Operator(int size,
    AIEfieldf1.Assemble(0);
    AIEfieldf1.Finalize(0);
 
-   if (p_assembly)
-   {
-      if (tensors1D == NULL)
-      {
-	     tensors1D = new Tensors1D(H1FESpace.GetFE(0)->GetOrder(),
-                                   L2FESpace.GetFE(0)->GetOrder(),
-                                   int(floor(0.7 + pow(nqp, 1.0 / dim))));
-	  }
-      if (evaluator == NULL) { evaluator = new FastEvaluator(H1FESpace); }
-   }
-
    locCG.SetOperator(locEMassPA);
    locCG.iterative_mode = false;
    locCG.SetRelTol(1e-8);
@@ -275,186 +264,108 @@ void M1Operator::Mult(const Vector &S, Vector &dS_dt) const
    dI0.MakeRef(&L2FESpace, dS_dt, 0);
    dI1.MakeRef(&H1FESpace, dS_dt, VsizeL2);
 
-   if (!p_assembly)
+   // Standard local assembly and inversion for energy mass matrices.
+   DenseMatrix Mf0_(l2dofs_cnt);
+   DenseMatrix explMf0_(l2dofs_cnt);
+   DenseMatrixInverse inv(&explMf0_);
+   ExplMass0Integrator explmi(quad_data);
+   explmi.SetIntRule(&integ_rule);
+   Mass0NuIntegrator mnui(quad_data);
+   mnui.SetIntRule(&integ_rule);
+   for (int i = 0; i < nzones; i++)
    {
-      // Standard local assembly and inversion for energy mass matrices.
-      DenseMatrix Mf0_(l2dofs_cnt);
-      DenseMatrix explMf0_(l2dofs_cnt);
-      DenseMatrixInverse inv(&explMf0_);
-      ExplMass0Integrator explmi(quad_data);
-      explmi.SetIntRule(&integ_rule);
-      Mass0NuIntegrator mnui(quad_data);
-      mnui.SetIntRule(&integ_rule);
-      for (int i = 0; i < nzones; i++)
-      {
-         explmi.AssembleElementMatrix(*L2FESpace.GetFE(i),
-                                      *L2FESpace.GetElementTransformation(i),
-                                      explMf0_);
-         inv.Factor();
-         inv.GetInverseMatrix(Mf0_inv(i));
-         mnui.AssembleElementMatrix(*L2FESpace.GetFE(i),
-                                    *L2FESpace.GetElementTransformation(i),
-                                    Mf0_);
-         MSf0(i) = Mf0_;
-      }
-
-      Divf1 = 0.0;
-      Divf0 = 0.0;
-      AEfieldf1 = 0.0;
-	  AIEfieldf1 = 0.0;
-	  Efieldf0 = 0.0;
-	  Mf1.Update();
-      Bfieldf1.Update();
-	  Mscattf1.Update();
-      timer.sw_force.Start();
-      Mf1.Assemble(); 
-      Divf1.Assemble();
-      Divf0.Assemble();
-      AEfieldf1.Assemble(0);
-	  AIEfieldf1.Assemble(0);
-	  Efieldf0.Assemble(0);
-	  Bfieldf1.Assemble();
-	  Mscattf1.Assemble();
-      timer.sw_force.Stop();
+      explmi.AssembleElementMatrix(*L2FESpace.GetFE(i),
+                                   *L2FESpace.GetElementTransformation(i),
+                                   explMf0_);
+      inv.Factor();
+      inv.GetInverseMatrix(Mf0_inv(i));
+      mnui.AssembleElementMatrix(*L2FESpace.GetFE(i),
+                                 *L2FESpace.GetElementTransformation(i),
+                                 Mf0_);
+      MSf0(i) = Mf0_;
    }
+
+   Divf1 = 0.0;
+   Divf0 = 0.0;
+   AEfieldf1 = 0.0;
+   AIEfieldf1 = 0.0;
+   Efieldf0 = 0.0;
+   Mf1.Update();
+   Bfieldf1.Update();
+   Mscattf1.Update();
+   timer.sw_force.Start();
+   Mf1.Assemble(); 
+   Divf1.Assemble();
+   Divf0.Assemble();
+   AEfieldf1.Assemble(0); 
+   AIEfieldf1.Assemble(0);
+   Efieldf0.Assemble(0);
+   Bfieldf1.Assemble();
+   Mscattf1.Assemble();
+   timer.sw_force.Stop();
 
    // Solve for df0dv.
    Array<int> l2dofs;
    Vector I0_rhs(VsizeL2), loc_rhs(l2dofs_cnt), loc_I0source(l2dofs_cnt),
           loc_MSf0MultI0source(l2dofs_cnt), loc_dI0(l2dofs_cnt);
-   if (p_assembly)
-   {
-      timer.sw_force.Start();
-      ForcePA.MultTranspose(I1, I0_rhs);
-      timer.sw_force.Stop();
-      timer.dof_tstep += L2FESpace.GlobalTrueVSize();
 
-      for (int z = 0; z < nzones; z++)
-      {
-         L2FESpace.GetElementDofs(z, l2dofs);
-         I0_rhs.GetSubVector(l2dofs, loc_rhs);
-         locEMassPA.SetZoneId(z);
-         //
-         I0source.GetSubVector(l2dofs, loc_I0source);
-         locEMassPA.Mult(loc_I0source, loc_MSf0MultI0source);
-         loc_rhs += loc_MSf0MultI0source;
-         //
-         timer.sw_cgL2.Start();
-         locCG.Mult(loc_rhs, loc_dI0);
-         timer.sw_cgL2.Stop();
-         timer.L2dof_iter += locCG.GetNumIterations() * l2dofs_cnt;
-         dI0.SetSubVector(l2dofs, loc_dI0);
-      }
-   }
-   else
+   timer.sw_force.Start();
+   Divf0.MultTranspose(I1, I0_rhs);
+   //Efieldf0.AddMultTranspose(I1, I0_rhs, 
+   //                          2.0 / velocity_scaled / velocity_scaled);
+   timer.sw_force.Stop();
+   timer.dof_tstep += L2FESpace.GlobalTrueVSize();
+   for (int z = 0; z < nzones; z++)
    {
-      timer.sw_force.Start();
-      Divf0.MultTranspose(I1, I0_rhs);
-      //Efieldf0.AddMultTranspose(I1, I0_rhs, 
-      //                          2.0 / velocity_scaled / velocity_scaled);
-      timer.sw_force.Stop();
-      timer.dof_tstep += L2FESpace.GlobalTrueVSize();
-      for (int z = 0; z < nzones; z++)
-      {
-         L2FESpace.GetElementDofs(z, l2dofs);
-         I0_rhs.GetSubVector(l2dofs, loc_rhs);
-         //
-         I0source.GetSubVector(l2dofs, loc_I0source);
-         MSf0(z).Mult(loc_I0source, loc_MSf0MultI0source);
-         loc_rhs += loc_MSf0MultI0source;
-         //
-         timer.sw_cgL2.Start();
-         // Scale rhs because of the normalized velocity, i.e. 
-	     // Mf0*df0dv = 1/alphavT*Mf0*df0dvnorm = loc_rhs.
-	     loc_rhs *= alphavT;
-		 Mf0_inv(z).Mult(loc_rhs, loc_dI0);
-         timer.sw_cgL2.Stop();
-         timer.L2dof_iter += l2dofs_cnt;
-         dI0.SetSubVector(l2dofs, loc_dI0);
-		 //loc_dI0.Print();
-      }
+      L2FESpace.GetElementDofs(z, l2dofs);
+      I0_rhs.GetSubVector(l2dofs, loc_rhs);
+      //
+      I0source.GetSubVector(l2dofs, loc_I0source);
+      MSf0(z).Mult(loc_I0source, loc_MSf0MultI0source);
+      loc_rhs += loc_MSf0MultI0source;
+      //
+      timer.sw_cgL2.Start();
+      // Scale rhs because of the normalized velocity, i.e. 
+      // Mf0*df0dv = 1/alphavT*Mf0*df0dvnorm = loc_rhs.
+      loc_rhs *= alphavT;
+      Mf0_inv(z).Mult(loc_rhs, loc_dI0);
+      timer.sw_cgL2.Stop();
+      timer.L2dof_iter += l2dofs_cnt;
+      dI0.SetSubVector(l2dofs, loc_dI0);
+      //loc_dI0.Print();
    }
 
    // Solve for df1dv.
    Vector rhs(VsizeH1), B, X;
-   if (p_assembly)
-   {
-      timer.sw_force.Start();
-      ForcePA.Mult(I0, rhs);
-      timer.sw_force.Stop();
-      timer.dof_tstep += H1FESpace.GlobalTrueVSize();
-      rhs.Neg();
-
-      // Partial assembly solve for each velocity component.
-      const int size = H1compFESpace.GetVSize();
-      for (int c = 0; c < dim; c++)
-      {
-         Vector rhs_c(rhs.GetData() + c*size, size),
-                dI1_c(dI1.GetData() + c*size, size);
-
-         Array<int> c_tdofs;
-         Array<int> ess_bdr(H1FESpace.GetParMesh()->bdr_attributes.Max());
-         // Attributes 1/2/3 correspond to fixed-x/y/z boundaries, i.e.,
-         // we must enforce v_x/y/z = 0 for the velocity components.
-         ess_bdr = 0; ess_bdr[c] = 1;
-         // Essential true dofs as if there's only one component.
-         H1compFESpace.GetEssentialTrueDofs(ess_bdr, c_tdofs);
-
-         dI1_c = 0.0;
-         Vector B(H1compFESpace.TrueVSize()), X(H1compFESpace.TrueVSize());
-         H1compFESpace.Dof_TrueDof_Matrix()->MultTranspose(rhs_c, B);
-         H1compFESpace.GetRestrictionMatrix()->Mult(dI1_c, X);
-
-         VMassPA.EliminateRHS(c_tdofs, B);
-
-         CGSolver cg(H1FESpace.GetParMesh()->GetComm());
-         cg.SetOperator(VMassPA);
-         cg.SetRelTol(cg_rel_tol);
-         cg.SetAbsTol(0.0);
-         cg.SetMaxIter(cg_max_iter);
-         cg.SetPrintLevel(-1);
-         timer.sw_cgH1.Start();
-         cg.Mult(B, X);
-         timer.sw_cgH1.Stop();
-         timer.H1dof_iter += cg.GetNumIterations() *
-                             H1compFESpace.GlobalTrueVSize();
-         H1compFESpace.Dof_TrueDof_Matrix()->Mult(X, dI1_c);
-      }
-   }
-   else
-   {
-      timer.sw_force.Start();
-      Divf1.Mult(I0, rhs);
-	  rhs.Neg();
-      // dI0 negative (dfMdv) in diffusive regime. 
-	  //AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled);
-      // Watch out! dI0 has been multiplied by alphavT because of it is 
-	  // integrated along the normalized velocity dimension.
-	  AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled / alphavT);
-	  //AEfieldf1.AddMult(I0source, rhs, 1.0 / velocity_scaled);
-	  //AIEfieldf1.AddMult(I0, rhs, 1.0 / velocity_scaled / velocity_scaled);
-	  Bfieldf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
-	  Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
-	  timer.sw_force.Stop();
-      timer.dof_tstep += H1FESpace.GlobalTrueVSize();
-      // Scale rhs because of the normalized velocity, i.e. 
-	  // Mf1*df1dv = 1/alphavT*Mf1*df1dvnorm = rhs.
-	  rhs *= alphavT;
-      HypreParMatrix A;
-      dI1 = 0.0;
-      Mf1.FormLinearSystem(ess_tdofs, dI1, rhs, A, X, B);
-      CGSolver cg(H1FESpace.GetParMesh()->GetComm());
-      cg.SetOperator(A);
-      cg.SetRelTol(1e-8); cg.SetAbsTol(0.0);
-      cg.SetMaxIter(200);
-      cg.SetPrintLevel(0);
-      timer.sw_cgH1.Start();
-      cg.Mult(B, X);
-      timer.sw_cgH1.Stop();
-      timer.H1dof_iter += cg.GetNumIterations() *
-                          H1compFESpace.GlobalTrueVSize();
-      Mf1.RecoverFEMSolution(X, rhs, dI1);
-   }
+   timer.sw_force.Start();
+   Divf1.Mult(I0, rhs);
+   rhs.Neg();
+   // dI0 negative (dfMdv) in diffusive regime. 
+   // Watch out! dI0 has been multiplied by alphavT because of it is 
+   // integrated along the normalized velocity dimension.
+   AEfieldf1.AddMult(dI0, rhs, 1.0 / velocity_scaled / alphavT);
+   //AEfieldf1.AddMult(I0source, rhs, 1.0 / velocity_scaled);
+   //AIEfieldf1.AddMult(I0, rhs, 1.0 / velocity_scaled / velocity_scaled);
+   Bfieldf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
+   Mscattf1.AddMult(I1, rhs, 1.0 / velocity_scaled);
+   timer.sw_force.Stop();
+   timer.dof_tstep += H1FESpace.GlobalTrueVSize();
+   // Scale rhs because of the normalized velocity, i.e. 
+   // Mf1*df1dv = 1/alphavT*Mf1*df1dvnorm = rhs.
+   rhs *= alphavT;
+   HypreParMatrix A;
+   dI1 = 0.0;
+   Mf1.FormLinearSystem(ess_tdofs, dI1, rhs, A, X, B);
+   CGSolver cg(H1FESpace.GetParMesh()->GetComm());
+   cg.SetOperator(A);
+   cg.SetRelTol(1e-8); cg.SetAbsTol(0.0);
+   cg.SetMaxIter(200);
+   cg.SetPrintLevel(0);
+   timer.sw_cgH1.Start();
+   cg.Mult(B, X);
+   timer.sw_cgH1.Stop();
+   timer.H1dof_iter += cg.GetNumIterations() * H1compFESpace.GlobalTrueVSize();
+   Mf1.RecoverFEMSolution(X, rhs, dI1);
 
    quad_data_is_current = false;
 }
@@ -598,13 +509,6 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
 		 Jpr_b[z].SetSize(dim, dim, nqp);
          AM1_b[z].SetSize(dim, dim, nqp);
 
-         if (p_assembly)
-         {
-            // All reference->physical Jacobians at the quadrature points.
-            H1FESpace.GetElementVDofs(z_id, H1dofs);
-            x_gf.GetSubVector(H1dofs, vector_vals);
-            evaluator->GetVectorGrad(vecvalMat, Jpr_b[z]);
-         }
          for (int q = 0; q < nqp; q++)
          {
             const IntegrationPoint &ip = integ_rule.IntPoint(q);
@@ -614,8 +518,9 @@ void M1Operator::UpdateQuadratureData(double velocity, const Vector &S) const
             //Efield_b[z].SetCol(q, Efield); 
             //Vector Bfield;
             //Bfield_pcf->Eval(Bfield, *T, ip);
-            //Bfield_b[z].SetCol(q, Bfield);
-            if (!p_assembly) { Jpr_b[z](q) = T->Jacobian(); }
+            //Bfield_b[z].SetCol(q, Bfield);            
+            Jpr_b[z](q) = T->Jacobian(); 
+
             const double detJ = Jpr_b[z](q).Det();
 
             const int idx = z * nqp + q;

@@ -72,7 +72,6 @@ protected:
 
    const int dim, nzones, l2dofs_cnt, h1dofs_cnt;
    const double cfl;
-   const bool p_assembly;
    const double cg_rel_tol;
    const int cg_max_iter;
 
@@ -125,8 +124,8 @@ public:
               ParGridFunction &rho0, double cfl_, NTHvHydroCoefficient *mspei_,
               NTHvHydroCoefficient *mspee_, NTHvHydroCoefficient *sourceI0_, 
               VectorCoefficient *Efield_, VectorCoefficient *Bfield_, 
-              ParGridFunction &x_gf_, ParGridFunction &T_gf_, 
-              bool pa, double cgt, int cgiter);
+              ParGridFunction &x_gf_, ParGridFunction &T_gf_,  
+              double cgt, int cgiter);
 
    // Solve for df0_dv  and df1_dv.
    virtual void Mult(const Vector &S, Vector &dS_dt) const;
