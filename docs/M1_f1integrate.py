@@ -59,9 +59,9 @@ def solve_bweuler(v, f0, T, gradT, Z, E):
 #Zbar = 1000.0
 
 ml_max = 10.0
-ml_min = 0.0
+#ml_min = 0.0
 #ml_max = 6.5
-#ml_min = 0.5
+ml_min = 0.05
 Te = 10000.0
 gradTe = -1.0
 Zbar = 47.0
@@ -69,43 +69,6 @@ sigma = 1e15
 # The heat flux after integration takes the form
 # qH = me/Zbar/sigma*128/(2*pi)**0.5*(kB/me)**(7/2)*T**(5/2)*gradT,
 # where mfp_ei = v**4/sigma/Zbar, i.e. sigma corresponds to ee collisions.
-# Physical fix by a magic constant.
-# Z = 1
-#cmag = 1.882
-# Z = 5
-#cmag = 1.59575
-# Z = 10
-#cmag = 1.565
-# Z = 20
-#cmag = 1.56
-# Z = 50
-#cmag = 1.585
-# Z = 100
-#cmag = 1.65
-# Z = 200
-#cmag = 1.8
-#coeffs = np.array([0.5313496280552604, 0.6266645777847407, 0.6389776357827476, 0.641025641025641, 0.6309148264984227, 0.6060606060606061, 0.5555555555555556])
-#Zbars = [1.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0]
-#p1 = 688.9
-#p2 = 114.4
-#q1 = 1038
-#q2 = 474.1
-#icoeffs = np.array([(p1*Zbars[i] + p2)/(Zbars[i]**2.0 + q1*Zbars[i] + q2) for i in range(7)])
-#print icoeffs
-#Zbar = Zbars[0]
-#corr = coeffs[0]
-#Zbar = Zbars[1]
-#corr = coeffs[1]
-#Zbar = Zbars[2]
-#corr = coeffs[2]
-#Zbar = Zbars[3]
-#corr = coeffs[3]
-#Zbar = Zbars[4]
-#corr = coeffs[4]
-#Zbar = Zbars[5]
-#corr = coeffs[5]
-#Zbar = Zbars[6]
-#corr = coeffs[6]
 corr = (688.9*Zbar + 114.4)/(Zbar**2.0 + 1038*Zbar + 474.1)
 print("Zbar, corr:", Zbar, corr)
 cmag = 1./corr
@@ -159,7 +122,7 @@ M1J_expl = 0.0
 M1Q_expl = 0.0
 for i in range(Nexpl):
     vp = vexpl[i]
-    mfp = vp**4.0
+    mfp = vp**4.0/sigma/Zbar
     dv = dvexpl
     M1f1_expl[i] = sol_expl[i]*vp*vp
     M1j_expl[i] = mfp*vp*M1f1_expl[i]
@@ -180,17 +143,62 @@ print("M1Q_expl: ", M1Q_expl)
 #nM1j = M1j_impl/max(abs(M1j_impl))
 #nM1q = M1q_impl/max(abs(M1q_impl))
 
+# Physical fix by a magic constant.
+# Z = 1
+#cmag = 1.882
+# Z = 5
+#cmag = 1.59575
+# Z = 10
+#cmag = 1.565
+# Z = 20
+#cmag = 1.56
+# Z = 50
+#cmag = 1.585
+# Z = 100
+#cmag = 1.65
+# Z = 200
+#cmag = 1.8
+#coeffs = np.array([0.5313496280552604, 0.6266645777847407, 0.6389776357827476, 0.641025641025641, 0.6309148264984227, 0.6060606060606061, 0.5555555555555556])
+#Zbars = [1.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0]
+#p1 = 688.9
+#p2 = 114.4
+#q1 = 1038
+#q2 = 474.1
+#icoeffs = np.array([(p1*Zbars[i] + p2)/(Zbars[i]**2.0 + q1*Zbars[i] + q2) for i in range(7)])
+#print icoeffs
+#Zbar = Zbars[0]
+#corr = coeffs[0]
+#Zbar = Zbars[1]
+#corr = coeffs[1]
+#Zbar = Zbars[2]
+#corr = coeffs[2]
+#Zbar = Zbars[3]
+#corr = coeffs[3]
+#Zbar = Zbars[4]
+#corr = coeffs[4]
+#Zbar = Zbars[5]
+#corr = coeffs[5]
+#Zbar = Zbars[6]
+#corr = coeffs[6]
+
 import matplotlib.pyplot as plt
-#plt.plot(Zbars, coeffs)
-#plt.plot(Zbars, icoeffs)
-#plt.plot(vexpl, M1q_expl, 'g--', label='M1q_expl')
-plt.plot(vimpl/vTh(Te), M1q_impl, 'r--', label='M1q_impl')
-plt.plot(vimpl/vTh(Te), BGKq, 'b', label='SHq')
+#plt.plot(Zbars, coeffs, 'rx', label='pointwise corrections')
+#plt.plot(Zbars, icoeffs, 'b', label=str(p1)+'Z + '+str(p2)+'/Z^2 + '+str(q1)+' + Z + '+str(q2))
+#plt.legend(loc='best')
+#plt.xlabel('Z')
+#plt.title('Rational function fit')
+
+plt.plot(vimpl/vTh(Te), BGKq, 'b', label='f1_qSH')
+plt.plot(vexpl/vTh(Te), M1q_expl, 'g-.', label='f1_qAWBS')
+plt.plot(vimpl/vTh(Te), M1q_impl, 'r--', label='f1_qAWBS_corr')
+
 #plt.plot(v, nM1q, 'b', label='nM1q')
 #plt.plot(v, nBGKq, 'g', label='nBGKq')
 #plt.plot(v, nM1j, 'b--', label='nM1j')
 #plt.plot(v, nBGKj, 'g--', label='nBGKj')
+
 plt.legend(loc='best')
 plt.xlabel('v/vT')
+plt.title('Z = '+str(Zbar))
 plt.grid()
 plt.show()

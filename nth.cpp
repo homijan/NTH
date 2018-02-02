@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
    double vTmultiple = 7.0;
    // well, not really, since the lowest v = 0 is singular, so
    //double vmin = 0.01 * vmax;
-   double vmin = 0.02 * vmax;
+   double vmin = 0.05 * vmax;
    // and provide some maximum dv step.
    double dvmax = vmax*0.0005;
    bool nonlocal_test = false;
