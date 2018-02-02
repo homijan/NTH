@@ -158,13 +158,15 @@ print("M1Q_expl: ", M1Q_expl)
 #cmag = 1.65
 # Z = 200
 #cmag = 1.8
-#coeffs = np.array([0.5313496280552604, 0.6266645777847407, 0.6389776357827476, 0.641025641025641, 0.6309148264984227, 0.6060606060606061, 0.5555555555555556])
-#Zbars = [1.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0]
-#p1 = 688.9
-#p2 = 114.4
-#q1 = 1038
-#q2 = 474.1
-#icoeffs = np.array([(p1*Zbars[i] + p2)/(Zbars[i]**2.0 + q1*Zbars[i] + q2) for i in range(7)])
+coeffs = np.array([0.5313496280552604, 0.6266645777847407, 0.6389776357827476, 0.641025641025641, 0.6309148264984227, 0.6060606060606061, 0.5555555555555556])
+Zbars = [1.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0]
+p1 = 688.9
+p2 = 114.4
+q1 = 1038
+q2 = 474.1
+N = 1000
+ZZ = np.linspace(min(Zbars), max(Zbars), N)
+icoeffs = np.array([(p1*ZZ[i] + p2)/(ZZ[i]**2.0 + q1*ZZ[i] + q2) for i in range(N)])
 #print icoeffs
 #Zbar = Zbars[0]
 #corr = coeffs[0]
@@ -182,23 +184,23 @@ print("M1Q_expl: ", M1Q_expl)
 #corr = coeffs[6]
 
 import matplotlib.pyplot as plt
-#plt.plot(Zbars, coeffs, 'rx', label='pointwise corrections')
-#plt.plot(Zbars, icoeffs, 'b', label=str(p1)+'Z + '+str(p2)+'/Z^2 + '+str(q1)+' + Z + '+str(q2))
-#plt.legend(loc='best')
-#plt.xlabel('Z')
-#plt.title('Rational function fit')
+plt.plot(Zbars, coeffs, 'rx', label='pointwise corrections')
+plt.plot(ZZ, icoeffs, 'b', label=str(p1)+'Z + '+str(p2)+'/Z^2 + '+str(q1)+' + Z + '+str(q2))
+plt.legend(loc='best')
+plt.xlabel('Z')
+plt.title('Rational function fit')
 
-plt.plot(vimpl/vTh(Te), BGKq, 'b', label='f1_qSH')
-plt.plot(vexpl/vTh(Te), M1q_expl, 'g-.', label='f1_qAWBS')
-plt.plot(vimpl/vTh(Te), M1q_impl, 'r--', label='f1_qAWBS_corr')
+#plt.plot(vimpl/vTh(Te), BGKq, 'b', label='f1_qSH')
+#plt.plot(vexpl/vTh(Te), M1q_expl, 'g-.', label='f1_qAWBS')
+#plt.plot(vimpl/vTh(Te), M1q_impl, 'r--', label='f1_qAWBS_corr')
 
 #plt.plot(v, nM1q, 'b', label='nM1q')
 #plt.plot(v, nBGKq, 'g', label='nBGKq')
 #plt.plot(v, nM1j, 'b--', label='nM1j')
 #plt.plot(v, nBGKj, 'g--', label='nBGKj')
 
-plt.legend(loc='best')
-plt.xlabel('v/vT')
-plt.title('Z = '+str(Zbar))
+#plt.legend(loc='best')
+#plt.xlabel('v/vT')
+#plt.title('Z = '+str(Zbar))
 plt.grid()
 plt.show()
