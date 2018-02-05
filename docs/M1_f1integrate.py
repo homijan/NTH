@@ -64,7 +64,7 @@ ml_max = 10.0
 ml_min = 0.05
 Te = 10000.0
 gradTe = -1.0
-Zbar = 47.0
+Zbar = 4.0
 sigma = 1e15
 # The heat flux after integration takes the form
 # qH = me/Zbar/sigma*128/(2*pi)**0.5*(kB/me)**(7/2)*T**(5/2)*gradT,
@@ -183,24 +183,33 @@ icoeffs = np.array([(p1*ZZ[i] + p2)/(ZZ[i]**2.0 + q1*ZZ[i] + q2) for i in range(
 #Zbar = Zbars[6]
 #corr = coeffs[6]
 
-import matplotlib.pyplot as plt
-plt.plot(Zbars, coeffs, 'rx', label='pointwise corrections')
-plt.plot(ZZ, icoeffs, 'b', label=str(p1)+'Z + '+str(p2)+'/Z^2 + '+str(q1)+' + Z + '+str(q2))
-plt.legend(loc='best')
-plt.xlabel('Z')
-plt.title('Rational function fit')
+C7v, C7mehalff1v5 = np.loadtxt('../fe.txt',  usecols=(0, 4), unpack=True)
 
-#plt.plot(vimpl/vTh(Te), BGKq, 'b', label='f1_qSH')
-#plt.plot(vexpl/vTh(Te), M1q_expl, 'g-.', label='f1_qAWBS')
-#plt.plot(vimpl/vTh(Te), M1q_impl, 'r--', label='f1_qAWBS_corr')
+import matplotlib.pyplot as plt
+import matplotlib
+font = {'family' : 'Sans',
+        #'weight' : 'bold',
+        'size'   : 16}
+matplotlib.rc('font', **font)
+
+#plt.plot(Zbars, coeffs, 'rx', label='pointwise corrections')
+#plt.plot(ZZ, icoeffs, 'b', label=str(p1)+r'$Z + $'+str(p2)+r'$/Z^2 + $'+str(q1)+r'$Z + $'+str(q2))
+#plt.legend(loc='best')
+#plt.xlabel('Z')
+#plt.title('Rational function fit')
+
+plt.plot(vimpl/vTh(Te), BGKq, 'b', label='qSH')
+plt.plot(vexpl/vTh(Te), M1q_expl, 'g-.', label='qAWBS')
+plt.plot(vimpl/vTh(Te), M1q_impl, 'r--', label='qAWBS/corr')
+plt.plot(C7v/vTh(Te), C7mehalff1v5 / (4.0*pi/3.0), 'k', label='qC7')
 
 #plt.plot(v, nM1q, 'b', label='nM1q')
 #plt.plot(v, nBGKq, 'g', label='nBGKq')
 #plt.plot(v, nM1j, 'b--', label='nM1j')
 #plt.plot(v, nBGKj, 'g--', label='nBGKj')
 
-#plt.legend(loc='best')
-#plt.xlabel('v/vT')
-#plt.title('Z = '+str(Zbar))
-plt.grid()
+plt.legend(loc='best')
+plt.xlabel('v/vT')
+plt.title('Z = '+str(Zbar))
+#plt.grid()
 plt.show()

@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
    double T_max = 1000.0, T_min = 100.0, rho_max = 10.0, rho_min = 1.0;
    double T_gradscale = 50.0, rho_gradscale = 50.0;
    double a0 = 1e20;
-   double Zbar = 47.0;
+   double Zbar = 4.0;
 
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh",
@@ -421,7 +421,7 @@ int main(int argc, char *argv[])
    double vTmultiple = 7.0;
    // well, not really, since the lowest v = 0 is singular, so
    //double vmin = 0.01 * vmax;
-   double vmin = 0.05 * vmax;
+   double vmin = 0.07 * vmax;
    // and provide some maximum dv step.
    double dvmax = vmax*0.0005;
    bool nonlocal_test = false;
@@ -689,10 +689,57 @@ int main(int argc, char *argv[])
          j_gf = 0.0;
          hflux_gf = 0.0;
          Kn_gf.ProjectCoefficient(Kn_cf);
-         while (abs(dv) >= abs(dvmin))
+         // Point value structures for storing the distribution function.
+         // TODO this point wants to be loaded as an input argument. 
+		 double x_point = 0.5;
+         int cell_point = 0;
+         IntegrationPoint ip_point;
+         ip_point.Set3(0.5, 0.5, 0.5);
+         double f0_point;
+         Vector f1_point; 
+         vector<double> v_point, f0_v_point, f1x_v_point, f0v2_v_point,
+                        mehalff1xv5_v_point;
+         bool right_proc_point = false;
+         // Find an element where the x_point belongs and find its ip.
+         IntegrationPoint ip_min, ip_max;
+         ip_min.Set3(0.0, 0.0, 0.0);
+         ip_max.Set3(1.0, 1.0, 1.0); 
+         int elNo = 0;
+         while (!right_proc_point & elNo < x_gf.FESpace()->GetNE() - 1)
+         {
+            double x_min = x_gf.GetValue(elNo, ip_min);
+            double x_max = x_gf.GetValue(elNo, ip_max);
+            if (x_point >= x_min & x_point <= x_max) 
+            { 
+               right_proc_point = true;
+               cell_point = elNo;
+            }
+            //cout << "right_proc_point, elNo, x_min, x_max: " 
+            //     << right_proc_point << ", " << elNo << ", " << x_min << ", " 
+            //     << x_max << endl << flush;	
+			elNo++;
+         }
+		 // Actual integration of M1Operator.
+		 while (abs(dv) >= abs(dvmin))
          {
             m1ti++;
             m1ode_solver->Step(m1S, v, dv);
+            
+            // Store the distribution function at a given point.
+            if (right_proc_point)
+            {
+               cout << "cell_point: " << cell_point << endl << flush;
+			   f0_point = I0_gf.GetValue(cell_point, ip_point);
+               I1_gf.GetVectorValue(cell_point, ip_point, f1_point);
+               v_point.push_back(alphavT * v);
+			   f0_v_point.push_back(f0_point);
+			   // TODO extend to more dimensions.
+			   f1x_v_point.push_back(f1_point(0));
+			   f0v2_v_point.push_back(f0_point * pow(alphavT*v, 2.0));
+			   // TODO extend to more dimensions.
+			   mehalff1xv5_v_point.push_back(0.5 * me * f1_point(0) * 
+                                             pow(alphavT*v, 5.0));
+            }
 
             // Perform the integration over velocity space.
             intf0_gf.Add(pow(alphavT*v, 2.0) * alphavT*abs(dv), I0_gf);
@@ -732,6 +779,21 @@ int main(int argc, char *argv[])
                << endl;
             }
          }
+
+         // Save (fe.txt) the distribution function at a given point.
+         if (right_proc_point)
+         {
+            ofstream fe_file; 
+            fe_file.open ("fe.txt");
+            fe_file << "# v  f0  f1x  f0*v^2  0.5*me*f1x*v^5\n";
+	        for (int i = 0; i < v_point.size(); i++)
+            { 
+               fe_file << v_point[i] << " " << f0_v_point[i] << " " 
+                       << f1x_v_point[i] << " " << f0v2_v_point[i] << " " 
+                       << mehalff1xv5_v_point[i] << endl;
+            } 
+			fe_file.close();         
+		 }
 ///////////////////////////////////////////////////////////////
 ///// M1 nonlocal solver //////////////////////////////////////
 ///////////////////////////////////////////////////////////////
