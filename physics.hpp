@@ -223,27 +223,31 @@ public:
 class LorentzEfield : public HydroCoefficient, public VectorCoefficient
 {
 protected:
+   double S0; 
 public:
    LorentzEfield(int dim_, ParGridFunction &rho_, ParGridFunction &Te_,
                  ParGridFunction &v_, Coefficient *material_, EOS *eos_)
       : HydroCoefficient(rho_, Te_, v_, material_, eos_), 
-        VectorCoefficient(dim_) {}
+        VectorCoefficient(dim_) { S0 = 1.0; }
    virtual double Eval(ElementTransformation &T, const IntegrationPoint &ip);
    virtual void Eval(Vector &V, ElementTransformation &T,
                      const IntegrationPoint &ip);
+   void SetScale0(double S0_) { S0 = S0_; }
 };
 
 // AWBS source coefficient.
 class AWBSI0Source : public NTHvHydroCoefficient
 {
 protected:
+   double S0;
 public:
    AWBSI0Source(ParGridFunction &rho_, ParGridFunction &Te_,
                 ParGridFunction &v_, Coefficient *material_, EOS *eos_)
-      : NTHvHydroCoefficient(rho_, Te_, v_, material_, eos_) {}
+      : NTHvHydroCoefficient(rho_, Te_, v_, material_, eos_) { S0 = 1.0; }
    double Eval(ElementTransformation &T, const IntegrationPoint &ip);
    double Eval(ElementTransformation &T, const IntegrationPoint &ip,
                double rho);
+   void SetScale0(double S0_) { S0 = S0_; }
 };
 
 extern double a0;

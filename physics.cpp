@@ -110,21 +110,11 @@ void LorentzEfield::Eval(Vector &V, ElementTransformation &T,
    // Return the Lorentz quasi-neutral (zero current) Efield.
    V = grad_Te;
    V *= 2.5 / Te;
-   //V *= rho;
-   //V += grad_rho;
-   //V *= 1.0 / rho;
-   V *= pow(vTe, 2.0);
-   //V *= 1e-16 * pow(vTe, 2.0);
-   //V *= 4.55e-3 * v_th * v_th; // Reference -p 5 (T in (1000, 100))
-   //V *= 6.085e-3 * v_th * v_th; // Reference -p 8 (T=5e2)
-   //V *= 2.02e-3 * v_th * v_th; // Reference -p 8 (T=5e3)
-   //V *= 1.4284e-3 * v_th * v_th; // Reference -p 8 (T=1e4)
-   //V *= 1.01e-3 * v_th * v_th; // Reference -p 8 2xT (T=2e4)
-   //V *= 0.71425e-3 * v_th * v_th; // Reference -p 8 4xT (T=4e4)
-   //V *= 0.5051e-3 * v_th * v_th; // Reference -p 8 8xT (T=8e4)
-   //V *= 0.35715e-3 * v_th * v_th; // Reference -p 8 16xT (T=16e4)
-   //V *= 0.2525e-3 * v_th * v_th; // Reference -p 8 32xT (T=32e4)
-   //V *= 0.127e-3 * v_th * v_th; // Reference -p 8 128xT (T=128e4)
+   V *= rho;
+   V += grad_rho;
+   V *= 1.0 / rho;
+   // S0 acts as electric field scaling, if necessary.
+   V *= S0 * pow(vTe, 2.0);
 }
 
 double LorentzEfield::Eval(ElementTransformation &T,
@@ -133,6 +123,8 @@ double LorentzEfield::Eval(ElementTransformation &T,
    // Return the Lorentz quasi-neutral (zero current) Efield.
    Vector V;
    Eval(V, T, ip);
+
+   cout << "V.Norml2(): " << V.Norml2() << endl << flush;
 
    return V.Norml2();
 }
@@ -151,7 +143,9 @@ double AWBSI0Source::Eval(ElementTransformation &T,
                exp(- pow(velocity_real, 2.0) / 2.0 / pow(vTe, 2.0));
    double dfMdv = - velocity_real / pow(vTe, 2.0) * fM;
 
-   return dfMdv;
+   // S0 acts as electron source scaling (scaling electron density), 
+   // if necessary.
+   return S0 * dfMdv;
 }
 
 double AWBSI0Source::Eval(ElementTransformation &T, const IntegrationPoint &ip)

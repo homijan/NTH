@@ -130,9 +130,18 @@ for i in range(Nexpl):
     M1J_expl = M1J_expl + 4.0*pi/3.0*M1j_expl[i]*dv
     M1Q_expl = M1Q_expl + 4.0*pi/3.0*M1q_expl[i]*dv
 
+# Compare with C7 results stored in ../fe.txt
+C7v, C7mehalff1v5 = np.loadtxt('../fe.txt',  usecols=(0, 4), unpack=True)
+C7Q = 0.0
+NC7 = C7v.size - 1
+for i in range(NC7):
+    dC7v = C7v[i] - C7v[i+1]
+    C7Q = C7Q + C7mehalff1v5[i]*dC7v
+
 # Print integrated values
 print("SHJ: ", BGKJ)
 print("SHQ: ", BGKQ)
+print("C7Q: ", C7Q)
 print("M1J_impl: ", M1J_impl)
 print("M1Q_impl: ", M1Q_impl)
 print("M1J_expl: ", M1J_expl)
@@ -182,8 +191,6 @@ icoeffs = np.array([(p1*ZZ[i] + p2)/(ZZ[i]**2.0 + q1*ZZ[i] + q2) for i in range(
 #corr = coeffs[5]
 #Zbar = Zbars[6]
 #corr = coeffs[6]
-
-C7v, C7mehalff1v5 = np.loadtxt('../fe.txt',  usecols=(0, 4), unpack=True)
 
 import matplotlib.pyplot as plt
 import matplotlib

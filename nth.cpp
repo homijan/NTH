@@ -100,6 +100,10 @@ int main(int argc, char *argv[])
    double T_gradscale = 50.0, rho_gradscale = 50.0;
    double a0 = 1e20;
    double Zbar = 4.0;
+   double EfieldS0 = 1.0;
+   double I0SourceS0 = 1.0;
+   // Correct value to mimic exactly the Efield.
+   //double I0SourceS0 = 0.2857142857142857;
 
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh",
@@ -155,6 +159,10 @@ int main(int argc, char *argv[])
                   "Temperature gradient scale in the function tanh(a*x).");
    args.AddOption(&rho_gradscale, "-rgrad", "--rhograd",
                   "Density gradient scale in the function tanh(a*x).");
+   args.AddOption(&EfieldS0, "-E0", "--ES0",
+                  "Electric field scaling, i.e. E = S0*E.");
+   args.AddOption(&I0SourceS0, "-S0", "--S0",
+                  "Electron source scaling (via electron density), i.e. ne = S0*ne.");
    args.Parse();
    if (!args.Good())
    {
@@ -403,8 +411,10 @@ int main(int argc, char *argv[])
    nth::KnudsenNumber Kn_cf(rho_gf, e_gf, v_gf, material_pcf, &eos, mfp_pcf);
    Coefficient *Kn_pcf = &Kn_cf;
    nth::LorentzEfield LorentzEfield_cf(pmesh->Dimension(), rho_gf, e_gf, v_gf, 
-                                material_pcf, &eos);
+                                material_pcf, &eos); 
    VectorCoefficient *Efield_pcf = &LorentzEfield_cf;
+   Coefficient *LorentzEfield_pcf = &LorentzEfield_cf;
+   Coefficient &Efield_cf = *LorentzEfield_pcf;
    Vector vZero(pmesh->Dimension());
    vZero = 0.0;
    VectorConstantCoefficient ZeroBfield_cf(vZero);
@@ -413,6 +423,9 @@ int main(int argc, char *argv[])
    nth::AWBSMasterOfPhysics AWBSPhysics(mspei_pcf, mspee_pcf, sourceI0_pcf,
                                         Efield_pcf, Bfield_pcf);
 
+   // Set input scales of the electron source and the Efield.
+   sourceI0_cf.SetScale0(I0SourceS0);
+   LorentzEfield_cf.SetScale0(EfieldS0);
    // Static coefficient defined in m1_solver.hpp.
    double m1cfl = 0.25;
    vis_steps = 1000000000;
@@ -464,7 +477,8 @@ int main(int argc, char *argv[])
    nth::M1Operator m1oper(m1S.Size(), H1FESpace, L2FESpace, ess_tdofs, rho_gf, 
                           m1cfl, &AWBSPhysics, x_gf, e_gf, cg_tol, cg_max_iter);
    // Prepare grid functions integrating the moments of I0 and I1.
-   ParGridFunction intf0_gf(&L2FESpace), Kn_gf(&L2FESpace);
+   ParGridFunction intf0_gf(&L2FESpace), Kn_gf(&L2FESpace), 
+                   Efield_gf(&H1FESpace);
    ParGridFunction j_gf(&H1FESpace), hflux_gf(&H1FESpace);
 
    ODESolver *m1ode_solver = NULL;
@@ -488,6 +502,7 @@ int main(int argc, char *argv[])
    j_gf = 0.0;
    hflux_gf = 0.0;
    Kn_gf.ProjectCoefficient(Kn_cf);
+   Efield_gf.ProjectCoefficient(Efield_cf);
 /*
    while (abs(dv) >= abs(dvmin))
    {
@@ -536,7 +551,8 @@ int main(int argc, char *argv[])
 ///// M1 nonlocal solver //////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 
-   socketstream vis_rho, vis_v, vis_e, vis_f0, vis_j, vis_Kn, vis_hflux;
+   socketstream vis_rho, vis_v, vis_e, vis_f0, vis_j, vis_Efield, vis_Kn, 
+                vis_hflux;
    char vishost[] = "localhost";
    int  visport   = 19916;
 
@@ -554,7 +570,8 @@ int main(int argc, char *argv[])
 
       vis_f0.precision(8);
       vis_j.precision(8);
-      vis_Kn.precision(8);
+      vis_Efield.precision(8);
+	  vis_Kn.precision(8);
       vis_hflux.precision(8);
 
       int Wx = 0, Wy = 0; // window position
@@ -578,8 +595,10 @@ int main(int argc, char *argv[])
       VisualizeField(vis_f0, vishost, visport, intf0_gf,
                      "int(f0 4pi v^2)dv", Wx, Wy, Ww, Wh);
       Wx += offx;
-      VisualizeField(vis_Kn, vishost, visport, Kn_gf,
-                     "Kn", Wx, Wy, Ww, Wh);
+      VisualizeField(vis_Efield, vishost, visport, Efield_gf, "Efield", 
+                     Wx, Wy, Ww, Wh);
+	  //VisualizeField(vis_Kn, vishost, visport, Kn_gf, "Kn", 
+      //               Wx, Wy, Ww, Wh);
       Wx += offx;
       VisualizeField(vis_hflux, vishost, visport, hflux_gf,
                      "Heat flux", Wx, Wy, Ww, Wh);
@@ -689,7 +708,8 @@ int main(int argc, char *argv[])
          j_gf = 0.0;
          hflux_gf = 0.0;
          Kn_gf.ProjectCoefficient(Kn_cf);
-         // Point value structures for storing the distribution function.
+         Efield_gf.ProjectCoefficient(Efield_cf);
+		 // Point value structures for storing the distribution function.
          // TODO this point wants to be loaded as an input argument. 
 		 double x_point = 0.5;
          int cell_point = 0;
@@ -713,6 +733,21 @@ int main(int argc, char *argv[])
             { 
                right_proc_point = true;
                cell_point = elNo;
+			   // Find an ip corresponding to x_point.
+               double tol = 1e-3;
+               double L = x_max - x_min, dx, xc, sc, sL = 0.0, sR = 1.0;
+			   cout << "x_point: " << x_point << endl << flush;
+			   do
+               {
+                  sc = (sL + sR) / 2.0;
+				  ip_point.Set3(sc, sc, sc);
+				  xc = x_gf.GetValue(cell_point, ip_point);
+                  if (xc > x_point) { sR = sc; }
+                  else { sL = sc; }
+				  dx = abs(xc - x_point);
+				  //cout << "x_point, xc: " << x_point << ", " << xc << ", " 
+                  //     << sL << ", " << sR << endl << flush; 
+			   } while (dx/L > tol);
             }
             //cout << "right_proc_point, elNo, x_min, x_max: " 
             //     << right_proc_point << ", " << elNo << ", " << x_min << ", " 
@@ -822,8 +857,10 @@ int main(int argc, char *argv[])
             VisualizeField(vis_f0, vishost, visport, intf0_gf,
                            "int(f0 4pi v^2)dv", Wx, Wy, Ww, Wh);
             Wx += offx;
-            VisualizeField(vis_Kn, vishost, visport, Kn_gf,
-                           "Kn", Wx, Wy, Ww, Wh);
+            VisualizeField(vis_Efield, vishost, visport, Efield_gf, "Efield", 
+                           Wx, Wy, Ww, Wh);
+            //VisualizeField(vis_Kn, vishost, visport, Kn_gf, "Kn", 
+            //               Wx, Wy, Ww, Wh);
             Wx += offx;
             VisualizeField(vis_hflux, vishost, visport, hflux_gf,
                            "Heat flux", Wx, Wy, Ww, Wh);
