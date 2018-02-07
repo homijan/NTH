@@ -36,7 +36,7 @@ protected:
    // Mean ionization, even though a constant.
    double Zbar;
 public:
-   IGEOS(double kB_, double me_) : EOS(me_, kB_, 1.0, 1.0, 1.0) { Zbar = 1.0; }
+   IGEOS(double me_, double kB_) : EOS(me_, kB_, 1.0, 1.0, 1.0) { Zbar = 1.0; }
    // Get Thermodynamic values.
    virtual double GetZbar(double index, double rho, double Te) { return Zbar; }
    virtual double GetPe(double index, double rho, double Te) {}

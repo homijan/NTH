@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
 
    // Define hydrodynamics related coefficients as mean stopping power and
    // source function depending on plasma temperature and density. 
-   const double kB = 1.0, me = 1.0, pi = 3.14159265359;
+   const double kB = 1.3807e-16, me = 9.1094e-28, pi = 3.14159265359;
    nth::IGEOS eos(me, kB);
    // Use a constant ionization provided by IG eos. 
    eos.SetZbar(Zbar);
