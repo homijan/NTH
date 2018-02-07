@@ -104,8 +104,10 @@ M1Operator::M1Operator(int size,
      Divf0(&l2_fes, &h1_fes), Efieldf0(&l2_fes, &h1_fes),
      Divf1(&l2_fes, &h1_fes), AEfieldf1(&l2_fes, &h1_fes),
      AIEfieldf1(&l2_fes, &h1_fes),
+/* PAFUTURE
      ForcePA(&quad_data, h1_fes, l2_fes),
      VMassPA(&quad_data, H1compFESpace), locEMassPA(&quad_data, l2_fes),
+*/
      locCG(), timer(), AWBSPhysics(AWBSPhysics_), x_gf(x_gf_)
 {
    GridFunctionCoefficient rho_coeff(&rho0);
@@ -220,12 +222,14 @@ M1Operator::M1Operator(int size,
    AIEfieldf1.Assemble(0);
    AIEfieldf1.Finalize(0);
 
+/* PAFUTURE
    locCG.SetOperator(locEMassPA);
    locCG.iterative_mode = false;
    locCG.SetRelTol(1e-8);
    locCG.SetAbsTol(1e-8 * numeric_limits<double>::epsilon());
    locCG.SetMaxIter(200);
    locCG.SetPrintLevel(0);
+*/
 }
 
 void M1Operator::Mult(const Vector &S, Vector &dS_dt) const

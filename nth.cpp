@@ -100,10 +100,12 @@ int main(int argc, char *argv[])
    double T_gradscale = 50.0, rho_gradscale = 50.0;
    double a0 = 1e20;
    double Zbar = 4.0;
-   double EfieldS0 = 1.0;
-   double I0SourceS0 = 1.0;
-   // Correct value to mimic exactly the Efield.
-   //double I0SourceS0 = 0.2857142857142857;
+   // Correct input for a Lorentz force calculation with SH Efield.
+   //double EfieldS0 = 1.0;
+   //double I0SourceS0 = 1.0;
+   // Appropriate value to mimic exactly the SH Efield effect on qH.
+   double I0SourceS0 = 0.2857142857142857;
+   double EfieldS0 = 0.0;
 
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh",
@@ -961,7 +963,6 @@ int main(int argc, char *argv[])
    delete pmesh;
    delete tensors1D; 
    delete m1ode_solver;
-   delete nth::tensors1D;
 
    return 0;
 }

@@ -98,8 +98,8 @@ void LorentzEfield::Eval(Vector &V, ElementTransformation &T,
                            const IntegrationPoint &ip)
 {
    double rho = rho_gf.GetValue(T.ElementNo, ip);
-   //double Te = Te_gf.GetValue(T.ElementNo, ip);
-   double Te = max(1e-10, Te_gf.GetValue(T.ElementNo, ip));
+   double Te = Te_gf.GetValue(T.ElementNo, ip);
+   //double Te = max(1e-10, Te_gf.GetValue(T.ElementNo, ip));
    // Set the scaled velocity to correspond to the local thermal velocity.
    double vTe = eos->GetvTe(Te);
    // Compute the temperature and density length scales.
@@ -109,12 +109,17 @@ void LorentzEfield::Eval(Vector &V, ElementTransformation &T,
    rho_gf.GetGradient(T, grad_rho);
    // Return the Lorentz quasi-neutral (zero current) Efield.
    V = grad_Te;
+   // Efield is scaled as Escaled = q/me*E, which is also used in Lorentz force.
+   V *= S0 * pow(vTe, 2.0) * 2.5 / Te;
+/*
+   V = grad_Te;
    V *= 2.5 / Te;
    V *= rho;
    V += grad_rho;
    V *= 1.0 / rho;
    // S0 acts as electric field scaling, if necessary.
    V *= S0 * pow(vTe, 2.0);
+*/
 }
 
 double LorentzEfield::Eval(ElementTransformation &T,

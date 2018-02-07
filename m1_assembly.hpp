@@ -84,6 +84,7 @@ struct QuadratureData
         Ef1invvf0rho(nzones * quads_per_zone) { }
 };
 
+/* PAFUTURE
 // Stores values of the one-dimensional shape functions and gradients at all 1D
 // quadrature points. All sizes are (dofs1D_cnt x quads1D_cnt).
 struct Tensors1D
@@ -110,6 +111,7 @@ public:
    void GetVectorGrad(const DenseMatrix &vec, DenseTensor &J) const;
 };
 extern const FastEvaluator *evaluator;
+*/
 
 // This class is used only for visualization. It assembles (rho, phi) in each
 // zone, which is used by LagrangianHydroOperator::ComputeDensity to do an L2
@@ -387,6 +389,7 @@ public:
    double GetIntegrator(int q, int vd);
 };
 
+/* PAFUTURE
 // Performs partial assembly, which corresponds to (and replaces) the use of the
 // LagrangianHydroOperator::Force global matrix.
 class ForcePAOperator : public Operator
@@ -480,6 +483,7 @@ public:
 
    virtual void Mult(const Vector &x, Vector &y) const;
 };
+*/
 
 } // namespace nth
 

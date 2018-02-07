@@ -93,6 +93,7 @@ protected:
    // right-hand sides for momentum and specific internal energy.
    mutable MixedBilinearForm Divf0, Efieldf0, Divf1, AEfieldf1, AIEfieldf1;
 
+/* PAFUTURE
    // Same as above, but done through partial assembly.
    ForcePAOperator ForcePA;
 
@@ -100,6 +101,7 @@ protected:
    // velocity (coupled H1 assembly) and energy (local L2 assemblies).
    mutable MassPAOperator VMassPA;
    mutable LocalMassPAOperator locEMassPA;
+*/
 
    // Linear solver for energy.
    CGSolver locCG;

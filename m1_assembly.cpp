@@ -26,6 +26,7 @@ namespace mfem
 namespace nth
 {
 
+/* PAFUTURE
 const Tensors1D *tensors1D = NULL;
 const FastEvaluator *evaluator = NULL;
 
@@ -285,6 +286,7 @@ void FastEvaluator::GetVectorGrad(const DenseMatrix &vec, DenseTensor &J) const
       }
    }
 }
+*/
 
 void DensityIntegrator::AssembleRHSElementVect(const FiniteElement &fe,
                                                ElementTransformation &Tr,
@@ -536,6 +538,7 @@ double BfieldIntegrator::GetIntegrator(int i, int vd)
    return quad_data.Binvrho(i, vd) * quad_data.rho0DetJ0w(i);
 }
 
+/* PAFUTURE
 void ForcePAOperator::Mult(const Vector &vecL2, Vector &vecH1) const
 {
    if      (dim == 2) { MultQuad(vecL2, vecH1); }
@@ -1270,6 +1273,7 @@ void LocalMassPAOperator::MultHex(const Vector &x, Vector &y) const
    mfem::Mult(LQs, Q_LQ, L_LQ);
    MultABt(LL_Q, LQs, Y);
 }
+*/
 
 } // namespace nth
 
