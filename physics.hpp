@@ -53,6 +53,7 @@ public:
    // Thermal velocity.
    double GetvTe(double Te) { return sqrt(kB * Te / me); }
    // Get Thermodynamic values.
+   virtual double GetElectronDensity(double index, double rho, double Te) = 0;
    virtual double GetZbar(double index, double rho, double Te) = 0;
    virtual double GetPe(double index, double rho, double Te) = 0;
    virtual double GetPi(double index, double rho, double Te) = 0;

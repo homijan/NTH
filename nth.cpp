@@ -106,6 +106,8 @@ int main(int argc, char *argv[])
    // Appropriate value to mimic exactly the SH Efield effect on qH.
    double I0SourceS0 = 0.2857142857142857;
    double EfieldS0 = 0.0;
+   // We expect rho = 1, and so, the ion mass follows.
+   double ne = 5e19;
 
    OptionsParser args(argc, argv);
    args.AddOption(&mesh_file, "-m", "--mesh",
@@ -165,6 +167,9 @@ int main(int argc, char *argv[])
                   "Electric field scaling, i.e. E = S0*E.");
    args.AddOption(&I0SourceS0, "-S0", "--S0",
                   "Electron source scaling (via electron density), i.e. ne = S0*ne.");
+   args.AddOption(&ne, "-ne", "--ne",
+                  "Electron density (conversion as ne*rho).");
+
    args.Parse();
    if (!args.Good())
    {
@@ -395,10 +400,14 @@ int main(int argc, char *argv[])
 
    // Define hydrodynamics related coefficients as mean stopping power and
    // source function depending on plasma temperature and density. 
-   const double kB = 1.3807e-16, me = 9.1094e-28, pi = 3.14159265359;
+   const double kB = 1.3807e-16, me = 9.1094e-28, pi = 3.14159265359; 
+   const double mi = Zbar / ne;
+   // Define an equation of state.
    nth::IGEOS eos(me, kB);
-   // Use a constant ionization provided by IG eos. 
+   // Use a constant ionization provided by IG eos.
    eos.SetZbar(Zbar);
+   // Use a homogeneous ion mass used within IG eos.
+   eos.SetIonMass(mi);
    // Prepare C6 physics.
    nth::ClassicalMeanStoppingPower mspei_cf(rho_gf, e_gf, v_gf, material_pcf,
                                             &eos);
@@ -435,8 +444,8 @@ int main(int argc, char *argv[])
    double vmax = 1.0;
    double vTmultiple = 7.0;
    // well, not really, since the lowest v = 0 is singular, so
-   //double vmin = 0.01 * vmax;
-   double vmin = 0.07 * vmax;
+   double vmin = 0.001 * vmax;
+   //double vmin = 0.07 * vmax;
    // and provide some maximum dv step.
    double dvmax = vmax*0.0005;
    bool nonlocal_test = false;

@@ -55,8 +55,8 @@ double ClassicalAWBSMeanStoppingPower::Eval(ElementTransformation &T,
    double nu_ee = nu_ei / Zbar;
    // AWBS correction based on comparison of diffusive asymptotic of AWBS 
    // and SH, and a resulting dependence on Zbar.
-   const double corrAWBS = (688.9*Zbar + 114.4) /
-                           (Zbar*Zbar + 1038.0*Zbar + 474.1);
+   double corrAWBS = (688.9*Zbar + 114.4) / 
+                     (Zbar*Zbar + 1038.0*Zbar + 474.1);
    return corrAWBS * nu_ee;
 }
 
@@ -141,10 +141,12 @@ double AWBSI0Source::Eval(ElementTransformation &T,
    double Te = max(1e-10, Te_gf.GetValue(T.ElementNo, ip));
    double vTe = eos->GetvTe(Te);
    double velocity_real = alphavT * velocity;
+   double index = material_pcf->Eval(T, ip);
+   double ne = eos->GetElectronDensity(index, rho, Te);
 
    // Maxwell-Boltzmann distribution fM = ne*vT^3*(2/pi)^1.5*exp(-v^2/2/vT^2)
    double fM = 4.0 * pi *
-               rho / pow(vTe, 3.0) / pow(2.0 * pi, 1.5) *
+               ne / pow(vTe, 3.0) / pow(2.0 * pi, 1.5) *
                exp(- pow(velocity_real, 2.0) / 2.0 / pow(vTe, 2.0));
    double dfMdv = - velocity_real / pow(vTe, 2.0) * fM;
 

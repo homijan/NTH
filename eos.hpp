@@ -33,11 +33,16 @@ namespace nth
 class IGEOS : public EOS
 {
 protected:
-   // Mean ionization, even though a constant.
+   // Mean ionization, here defined as constant.
    double Zbar;
+   // Ion mass [g], here defined as constant.
+   double mi;
 public:
-   IGEOS(double me_, double kB_) : EOS(me_, kB_, 1.0, 1.0, 1.0) { Zbar = 1.0; }
+   IGEOS(double me_, double kB_) : EOS(me_, kB_, 1.0, 1.0, 1.0) 
+   { Zbar = 1.0; mi = 1.0; }
    // Get Thermodynamic values.
+   virtual double GetElectronDensity(double index, double rho, double Te) 
+   { return rho / mi * Zbar; }
    virtual double GetZbar(double index, double rho, double Te) { return Zbar; }
    virtual double GetPe(double index, double rho, double Te) {}
    virtual double GetPi(double index, double rho, double Te) {}
@@ -50,6 +55,7 @@ public:
    virtual double GetSoundSpeed(double index, double rho, double Te) {}
    // IG specific functions.
    void SetZbar(double Zbar_) { Zbar = Zbar_; }
+   void SetIonMass(double mi_) { mi = mi_; }
 };
 
 } // namespace nth

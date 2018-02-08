@@ -5,8 +5,8 @@ from math import exp
 
 kB = 1.3807e-16
 me = 9.1094e-28
-ne = 1.0
 
+ne = 5.0e19
 Te = 10000.0
 gradTe = -1.0
 Zbar = 4.0
@@ -16,6 +16,7 @@ import argparse
 # Create AWBSf1_parser object.
 AWBSf1_parser = argparse.ArgumentParser(description='Analyze diffusive asymptotic of AWBS + compare to C7.')
 # Define input arguments.
+AWBSf1_parser.add_argument("-n", "--ne", help="Electron density at the point.", type=float)
 AWBSf1_parser.add_argument("-T", "--Te", help="Temperature at the point.", type=float)
 AWBSf1_parser.add_argument("-g", "--gradTe", help="Temperature gradient at the point.", type=float)
 AWBSf1_parser.add_argument("-s", "--sigma", help="Electro-ion cross-section.", type=float)
@@ -23,6 +24,8 @@ AWBSf1_parser.add_argument("-Z", "--Zbar", help="Ionization at the point.", type
 
 # Parse arguments.
 args = AWBSf1_parser.parse_args()
+if args.ne:
+    ne = args.ne
 if args.Te:
     Te = args.Te
 if args.gradTe:
@@ -87,7 +90,7 @@ ml_min = 0.05
 # qH = me/Zbar/sigma*128/(2*pi)**0.5*(kB/me)**(7/2)*T**(5/2)*gradT,
 # where mfp_ei = v**4/sigma/Zbar, i.e. sigma corresponds to ee collisions.
 corr = (688.9*Zbar + 114.4)/(Zbar**2.0 + 1038*Zbar + 474.1)
-print("Zbar, corr:", Zbar, corr)
+print "Zbar, corr:", Zbar, corr
 cmag = 1./corr
 #Efield = 0.0
 Efield = vTh(Te)**2.0*2.5*gradTe/Te
@@ -164,24 +167,24 @@ for i in range(NC7E):
 
 # Analytical formula from M1hos.pdf, providing the Lorentz gas approximation
 # further multiplied by SH low Z factor.
-mfp_ei = (vTh(Te))**4.0/sigma/Zbar/ne
+mfp_ei = (vTh(Te))**4.0/sigma/Zbar
 L = Te / abs(gradTe)
 SHQ_analytic = - (Zbar + 0.24)/(Zbar + 4.2) * 128.0/(2.0*pi)**0.5*ne*vTh(Te)*kB*Te*mfp_ei*gradTe/Te
 Kn = mfp_ei/L
 Kn_flux = SHQ_analytic / ((Zbar + 0.24)/(Zbar + 4.2) * 128.0/(2.0*pi)**0.5 * ne * vTh(Te) * kB * Te)
 # Show the Knudsen number
-print('Kn: ', Kn, 'Kn from flux: ', Kn_flux)
+print 'Kn: ', Kn, 'Kn from flux: ', Kn_flux 
 
 # Print integrated values
-print("SHQ:          ", SHQ)
-print("SHQ_analytic: ", SHQ_analytic)
-print("C7EQ:          ", C7EQ)
-print("C7Q:          ", C7Q)
-print("M1Q_impl:     ", M1Q_impl)
-print("M1Q_expl:     ", M1Q_expl)
-print("SHJ:      ", SHJ)
-print("M1J_impl: ", M1J_impl)
-print("M1J_expl: ", M1J_expl)
+print "SHQ:          ", SHQ
+print "SHQ_analytic: ", SHQ_analytic
+print "C7EQ:         ", C7EQ
+print "C7Q:          ", C7Q
+print "M1Q_impl:     ", M1Q_impl
+print "M1Q_expl:     ", M1Q_expl
+print "SHJ:      ", SHJ
+print "M1J_impl: ", M1J_impl
+print "M1J_expl: ", M1J_expl
 
 
 # Physical fix by a magic constant.
